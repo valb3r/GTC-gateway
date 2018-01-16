@@ -1,0 +1,25 @@
+package com.gtc.tradinggateway.service.gdax.dto;
+
+import com.gtc.tradinggateway.service.dto.OrderDto;
+import lombok.Data;
+
+/**
+ * Created by Valentyn Berezin on 16.01.18.
+ */
+@Data
+public class GdaxGetOrderDto {
+
+    private String id;
+    private String size;
+    private String price;
+    private String status;
+
+    public OrderDto map() {
+        return OrderDto.builder()
+                .id(id)
+                .size(size)
+                .price(price)
+                .status(status)
+                .build();
+    }
+}

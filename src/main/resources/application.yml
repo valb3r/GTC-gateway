@@ -1,0 +1,18 @@
+spring:
+    application:
+        name: gtc-trading-gateway
+    jackson:
+        property-naming-strategy: SNAKE_CASE
+        locale: en_US
+        serialization:
+            fail-on-empty-beans: false
+            write_dates_as_timestamps: false
+server:
+    servlet-path: /api
+    port: 9999
+app:
+    gdax:
+        root:
+        passphrase: ${GDAX_PASSPHRASE}
+        publicKey: ${GDAX_PUBLIC}
+        secretKey: ${GDAX_SECRET}

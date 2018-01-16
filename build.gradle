@@ -1,0 +1,61 @@
+group 'com.gtc.gateway'
+version '1.0-SNAPSHOT'
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.0'
+    distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
+}
+
+buildscript {
+    ext {
+        versions = [
+                springBoot                : "1.5.9.RELEASE",
+                springDependencyManagement: "0.6.0.RELEASE",
+                guava                     : "21.0",
+                reactivex                 : "2.0.0",
+                wsClient                  : "master-SNAPSHOT",
+                newRelicAPI               : "3.4.1"
+        ]
+    }
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${versions.springBoot}"
+        classpath "io.spring.gradle:dependency-management-plugin:${versions.springDependencyManagement}"
+    }
+    repositories {
+        mavenCentral()
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    compile "org.projectlombok:lombok"
+    compile "org.springframework.boot:spring-boot-configuration-processor"
+    compile "org.springframework.boot:spring-boot-starter-web"
+    compile "com.google.guava:guava:${versions.guava}"
+    compile "io.reactivex.rxjava2:rxjava:${versions.reactivex}"
+    compile "com.github.jacek-marchwicki:JavaWebsocketClient:${versions.wsClient}"
+    compile "com.newrelic.agent.java:newrelic-api:${versions.newRelicAPI}"
+
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+
+jar {
+    baseName = "gateway"
+    version = project.version
+    archiveName = "gateway.jar"
+}
+
+bootRun {
+    systemProperties System.properties
+}
