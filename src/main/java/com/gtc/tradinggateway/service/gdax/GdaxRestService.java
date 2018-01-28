@@ -6,6 +6,7 @@ import com.gtc.tradinggateway.service.Account;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.dto.OrderDto;
+import com.gtc.tradinggateway.service.dto.OrderRequestDto;
 import com.gtc.tradinggateway.service.gdax.dto.GdaxGetOrderDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -30,7 +31,8 @@ public class GdaxRestService implements ManageOrders, Withdraw, Account {
     private final GdaxEncryptionService signer;
 
     @Override
-    public Optional<OrderDto> get(String id) {
+    public Optional<OrderDto> get(OrderRequestDto orderGet) {
+        String id = orderGet.getId();
         String relUrl = ORDERS + "/" + id;
         ResponseEntity<GdaxGetOrderDto> resp = cfg.getRestTemplate()
                 .exchange(
@@ -51,7 +53,7 @@ public class GdaxRestService implements ManageOrders, Withdraw, Account {
     }
 
     @Override
-    public void cancel(String id) {
+    public void cancel(OrderRequestDto orderGet) {
 
     }
 

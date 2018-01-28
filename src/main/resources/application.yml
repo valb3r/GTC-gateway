@@ -16,3 +16,9 @@ app:
         passphrase: ${GDAX_PASSPHRASE}
         publicKey: ${GDAX_PUBLIC}
         secretKey: ${GDAX_SECRET}
+    binance:
+        root:
+        passphrase: ${BINANCE_PASSPHRASE}
+        publicKey: ${BINANCE_PUBLIC}
+        secretKey: ${BINANCE_SECRET}
+
