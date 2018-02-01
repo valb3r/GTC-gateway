@@ -10,8 +10,8 @@ import lombok.Data;
 public class GdaxGetOrderDto {
 
     private String id;
-    private String size;
-    private String price;
+    private double size;
+    private double price;
     private String status;
 
     public OrderDto map() {

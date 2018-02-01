@@ -18,11 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.net.URLEncoder;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Created by mikro on 23.01.2018.
@@ -34,7 +33,8 @@ import java.util.Optional;
 public class BinanceRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
     private static final String ORDERS = "/api/v3/order";
-    private static final String ALL_ORDERS = "/api/v3/allOrders";
+    private static final String ALL_ORDERS = "/api/v3/openOrders";
+    private static final String BALANCES = "/api/v3/account";
     private static final String WITHDRAWAL = "/wapi/v3/withdraw.html";
 
     private final BinanceConfig cfg;
@@ -45,19 +45,15 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
         BinanceRequestOrderDto orderDto = new BinanceRequestOrderDto(orderRequestDto);
         String body = orderDto.toString();
         String signedBody = getSignedBody(body);
-        log.info(body);
-        log.info(signedBody);
-        log.info(signer.restHeaders().toString());
-        log.info(cfg.getRestBase() + ORDERS + "?" + signedBody);
         ResponseEntity<BinanceGetOrderDto> resp = cfg.getRestTemplate()
                 .exchange(
                         cfg.getRestBase() + ORDERS + "?" + signedBody,
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
                         BinanceGetOrderDto.class);
-//        if (resp.getStatusCode().is2xxSuccessful()) {
-//            return Optional.of(resp.getBody());
-//        }
+        if (resp.getStatusCode().is2xxSuccessful()) {
+            return Optional.of(resp.getBody().mapTo());
+        }
 
         return Optional.empty();
     }
@@ -67,12 +63,13 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
         return body + "&signature=" + URLEncoder.encode(signer.generate(body), "UTF-8");
     }
 
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 5000)
     public void ttt() {
-//        OrderRequestDto orderRequestDto = new OrderRequestDto();
-//        orderRequestDto.setId("1");
-//        orderRequestDto.setPair("BTCUSD");
-        getOpen();
+        OrderRequestDto orderRequestDto = new OrderRequestDto();
+        orderRequestDto.setId("1");
+        orderRequestDto.setPair("LTCBTC");
+        cancel(orderRequestDto);
+//        balances();
     }
 
     @Override
@@ -80,47 +77,61 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
         BinanceRequestDto dto = new BinanceRequestDto();
         String body = dto.toString();
         String signedBody = getSignedBody(body);
-        log.info(body);
-        log.info(signedBody);
-        log.info(signer.restHeaders().toString());
-        log.info(cfg.getRestBase() + ALL_ORDERS + "?" + signedBody);
-        ResponseEntity<BinanceGetAllOrdersDto> resp = cfg.getRestTemplate()
+        RestTemplate template = cfg.getRestTemplate();
+        ResponseEntity<BinanceGetOrderDto[]> resp = template
                 .exchange(
                         cfg.getRestBase() + ALL_ORDERS + "?" + signedBody,
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
-                        BinanceGetAllOrdersDto.class);
-        return null;
+                        BinanceGetOrderDto[].class);
+        BinanceGetOrderDto[] list = resp.getBody();
+        List<OrderDto> result = new ArrayList<OrderDto>();
+        for (BinanceGetOrderDto respDto : list) {
+            result.add(respDto.mapTo());
+        }
+        return result;
     }
 
     @Override
     public void cancel(OrderRequestDto orderRequestDto) {
-        BinanceCancelOrderRequestDto requestDto = new BinanceCancelOrderRequestDto(orderRequestDto);
-        String body = requestDto.toString();
+        BinanceRequestOrderDto orderDto = new BinanceRequestOrderDto(orderRequestDto);
+        String body = orderDto.toString();
         String signedBody = getSignedBody(body);
-        log.info(body);
-        log.info(signedBody);
-        log.info(signer.restHeaders().toString());
         cfg.getRestTemplate()
                 .exchange(
-                        cfg.getRestBase() + ORDERS,
+                        cfg.getRestBase() + ORDERS + "?" + signedBody,
                         HttpMethod.DELETE,
-                        new HttpEntity<>(signedBody, signer.restHeaders()), Object.class);
+                        new HttpEntity<>(signer.restHeaders()), Object.class);
     }
 
     @Override
     public Map<TradingCurrency, Double> balances() {
-        return null;
+        BinanceRequestDto requestDto = new BinanceRequestDto();
+        String body = requestDto.toString();
+        String signedBody = getSignedBody(body);
+        RestTemplate template = cfg.getRestTemplate();
+        ResponseEntity<BinanceBalanceDto> resp = template
+                .exchange(
+                        cfg.getRestBase() + BALANCES + "?" + signedBody,
+                        HttpMethod.GET,
+                        new HttpEntity<>(signer.restHeaders()),
+                        BinanceBalanceDto.class);
+        Map<TradingCurrency, Double> results = Collections.emptyMap();
+        BinanceBalanceDto response = resp.getBody();
+        BinanceBalanceDto.BinanceBalanceAsset[] assets = response.getBalances();
+        for (BinanceBalanceDto.BinanceBalanceAsset asset : assets) {
+            results.put(TradingCurrency.fromCode(asset.getCode()), asset.getAmount());
+        }
+        return results;
     }
 
     @Override
     public void withdraw(TradingCurrency currency, double amount, String destination) {
-//
-//        cfg.getRestTemplate()
-//                .exchange(
-//                        cfg.getRestBase() + WITHDRAWAL,
-//                        HttpMethod.POST,
-//                        new HttpEntity<>(signedBody, signer.restHeaders()), Object.class);
+        cfg.getRestTemplate()
+                .exchange(
+                        cfg.getRestBase() + WITHDRAWAL,
+                        HttpMethod.POST,
+                        new HttpEntity<>(signedBody, signer.restHeaders()), Object.class);
     }
 
     @Override

@@ -21,4 +21,7 @@ app:
         passphrase: ${BINANCE_PASSPHRASE}
         publicKey: ${BINANCE_PUBLIC}
         secretKey: ${BINANCE_SECRET}
+debug: true
+logging:
+    level: debug
 

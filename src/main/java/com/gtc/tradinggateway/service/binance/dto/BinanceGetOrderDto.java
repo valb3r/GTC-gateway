@@ -2,6 +2,7 @@ package com.gtc.tradinggateway.service.binance.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import com.gtc.tradinggateway.service.dto.OrderDto;
 import lombok.Data;
 
 
@@ -25,5 +26,15 @@ public class BinanceGetOrderDto {
     private double price;
 
     private String status;
+
+    public OrderDto mapTo() {
+        return OrderDto.builder()
+                .id(id)
+                .size(currentAmount)
+                .price(price)
+                .status(status)
+                .build();
+
+    }
 
 }

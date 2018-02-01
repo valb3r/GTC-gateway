@@ -10,10 +10,12 @@ import lombok.Data;
 public class BinanceRequestDto {
 
     protected long timestamp = System.currentTimeMillis();
+    protected int recvWindow = 5000;
 
     public String toString() {
         UriFormatter uri = new UriFormatter();
         uri.addToUri("timestamp", String.valueOf(getTimestamp()));
+        uri.addToUri("recvWindow", String.valueOf(getRecvWindow()));
         return uri.toString();
     }
 

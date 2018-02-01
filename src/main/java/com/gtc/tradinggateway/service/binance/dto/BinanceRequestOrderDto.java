@@ -12,6 +12,7 @@ public class BinanceRequestOrderDto extends BinanceRequestDto {
 
     private String symbol;
     private String orderId;
+    private String origClientOrderId = "1";
 
     @Override
     public String toString() {
