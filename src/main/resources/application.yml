@@ -12,16 +12,16 @@ server:
     port: 9999
 app:
     gdax:
-        root:
+        restBase:
         passphrase: ${GDAX_PASSPHRASE}
         publicKey: ${GDAX_PUBLIC}
         secretKey: ${GDAX_SECRET}
     binance:
-        root:
+        restBase: "https://api.binance.com"
         passphrase: ${BINANCE_PASSPHRASE}
         publicKey: ${BINANCE_PUBLIC}
         secretKey: ${BINANCE_SECRET}
 debug: true
 logging:
-    level: debug
+    level: DEBUG
 

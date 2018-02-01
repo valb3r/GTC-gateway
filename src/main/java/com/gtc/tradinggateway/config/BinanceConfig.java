@@ -5,16 +5,12 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.common.collect.ImmutableList;
-import com.gtc.tradinggateway.service.binance.BinanceRestInterceptor;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.Arrays;
-import java.util.Collections;
 
 import static com.gtc.tradinggateway.config.Const.CONF_ROOT_CHILD;
 import static com.gtc.tradinggateway.config.Const.Clients.BINANCE;
@@ -39,10 +35,5 @@ public class BinanceConfig extends BaseConfig {
         restTemplate = new RestTemplate(ImmutableList.of(
                 new MappingJackson2HttpMessageConverter(mapper)
         ));
-        restTemplate.setInterceptors(Collections.singletonList(new BinanceRestInterceptor()));
     }
-
-//    private String restBase = "https://api.binance.com";
-    private String restBase = "http://localhost:8081";
-
 }

@@ -68,8 +68,8 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
         OrderRequestDto orderRequestDto = new OrderRequestDto();
         orderRequestDto.setId("1");
         orderRequestDto.setPair("LTCBTC");
-        cancel(orderRequestDto);
-//        balances();
+        //cancel(orderRequestDto);
+        getOpen();
     }
 
     @Override
@@ -127,11 +127,11 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
 
     @Override
     public void withdraw(TradingCurrency currency, double amount, String destination) {
-        cfg.getRestTemplate()
+        /*cfg.getRestTemplate()
                 .exchange(
                         cfg.getRestBase() + WITHDRAWAL,
                         HttpMethod.POST,
-                        new HttpEntity<>(signedBody, signer.restHeaders()), Object.class);
+                        new HttpEntity<>(signedBody, signer.restHeaders()), Object.class);*/
     }
 
     @Override
