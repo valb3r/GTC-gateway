@@ -111,7 +111,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
         for (BinanceBalanceDto.BinanceBalanceAsset asset : assets) {
             try {
                 results.put(TradingCurrency.fromCode(asset.getCode()), asset.getAmount());
-            } catch (Exception e) {
+            } finally {
                 continue;
             }
         }
