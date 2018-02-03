@@ -14,7 +14,8 @@ buildscript {
                 guava                     : "21.0",
                 reactivex                 : "2.0.0",
                 wsClient                  : "master-SNAPSHOT",
-                newRelicAPI               : "3.4.1"
+                newRelicAPI               : "3.4.1",
+                commonsCodec               : "1.9",
         ]
     }
     dependencies {
@@ -46,7 +47,7 @@ dependencies {
     compile "io.reactivex.rxjava2:rxjava:${versions.reactivex}"
     compile "com.github.jacek-marchwicki:JavaWebsocketClient:${versions.wsClient}"
     compile "com.newrelic.agent.java:newrelic-api:${versions.newRelicAPI}"
-    compile group: 'commons-codec', name: 'commons-codec', version: '1.9'
+    compile group: 'commons-codec', name: 'commons-codec', version: "${versions.commonsCodec}"
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }

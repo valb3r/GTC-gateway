@@ -14,7 +14,7 @@ public class PairSymbol {
 
     private String symbol;
 
-    private boolean isInverted = false;
+    private Boolean isInverted = false;
 
     public PairSymbol invert() {
         return new PairSymbol(to, from, symbol, !isInverted);
@@ -26,7 +26,7 @@ public class PairSymbol {
         this.symbol = symbol;
     }
 
-    public PairSymbol(TradingCurrency from, TradingCurrency to, String symbol, boolean isInverted) {
+    public PairSymbol(TradingCurrency from, TradingCurrency to, String symbol, Boolean isInverted) {
         this(from, to, symbol);
         this.isInverted = isInverted;
     }

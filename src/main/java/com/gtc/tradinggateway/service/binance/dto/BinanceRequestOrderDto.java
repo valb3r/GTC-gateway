@@ -23,9 +23,10 @@ public class BinanceRequestOrderDto extends BinanceRequestDto {
         return uri.toString();
     }
 
-    public BinanceRequestOrderDto(OrderRequestDto orderRequestDto) {
-        symbol = orderRequestDto.getPair();
-        orderId = orderRequestDto.getId();
+    public BinanceRequestOrderDto(String id) {
+        String[] parsedId = id.split("\\.");
+        symbol = parsedId[0];
+        orderId = parsedId[1];
     }
 
 }

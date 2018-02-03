@@ -11,9 +11,9 @@ import java.util.Optional;
  */
 public interface ManageOrders {
 
-    Optional<OrderDto> get(OrderRequestDto orderGet);
+    Optional<OrderDto> get(String id);
 
     List<OrderDto> getOpen();
 
-    void cancel(OrderRequestDto orderGet);
+    void cancel(String id);
 }

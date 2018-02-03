@@ -9,13 +9,13 @@ import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.binance.dto.*;
 import com.gtc.tradinggateway.service.dto.OrderDto;
-import com.gtc.tradinggateway.service.dto.OrderRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -37,11 +37,10 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
 
     private final BinanceConfig cfg;
     private final BinanceEncryptionService signer;
-    private final BinancePairService pairService;
 
     @Override
-    public Optional<OrderDto> get(OrderRequestDto orderRequestDto) {
-        BinanceRequestOrderDto orderDto = new BinanceRequestOrderDto(orderRequestDto);
+    public Optional<OrderDto> get(String id) {
+        BinanceRequestOrderDto orderDto = new BinanceRequestOrderDto(id);
         String body = orderDto.toString();
         String signedBody = getSignedBody(body);
         ResponseEntity<BinanceGetOrderDto> resp = cfg.getRestTemplate()
@@ -83,8 +82,8 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
     }
 
     @Override
-    public void cancel(OrderRequestDto orderRequestDto) {
-        BinanceRequestOrderDto orderDto = new BinanceRequestOrderDto(orderRequestDto);
+    public void cancel(String id) {
+        BinanceRequestOrderDto orderDto = new BinanceRequestOrderDto(id);
         String body = orderDto.toString();
         String signedBody = getSignedBody(body);
         cfg.getRestTemplate()
@@ -133,9 +132,12 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
 
     @Override
     public String create(TradingCurrency from, TradingCurrency to, double amount, double price) {
-        PairSymbol pair = pairService.fromCurrency(from, to);
+        PairSymbol pair = cfg.fromCurrency(from, to);
         if (pair == null) {
             return null;
+        }
+        if (pair.getIsInverted()) {
+            amount *= -1;
         }
         BinancePlaceOrderRequestDto requestDto = new BinancePlaceOrderRequestDto(pair, amount, price);
         String body = requestDto.toString();
@@ -148,7 +150,15 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
                         new HttpEntity<>(signer.restHeaders()),
                         BinanceGetOrderDto.class);
         BinanceGetOrderDto result = resp.getBody();
-        return result.getId();
+        return pair.toString() + "." + result.getId();
     }
+
+    @Scheduled(fixedDelay = 5000)
+    public void ttt() {
+        get("BTCUSD.1");
+//        balances();
+//        withdraw(TradingCurrency.fromCode("BTC"), 1.0, "0x123");
+    }
+
 
 }

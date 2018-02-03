@@ -31,8 +31,7 @@ public class GdaxRestService implements ManageOrders, Withdraw, Account {
     private final GdaxEncryptionService signer;
 
     @Override
-    public Optional<OrderDto> get(OrderRequestDto orderGet) {
-        String id = orderGet.getId();
+    public Optional<OrderDto> get(String id) {
         String relUrl = ORDERS + "/" + id;
         ResponseEntity<GdaxGetOrderDto> resp = cfg.getRestTemplate()
                 .exchange(
@@ -53,7 +52,7 @@ public class GdaxRestService implements ManageOrders, Withdraw, Account {
     }
 
     @Override
-    public void cancel(OrderRequestDto orderGet) {
+    public void cancel(String id) {
 
     }
 
