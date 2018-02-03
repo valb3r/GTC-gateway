@@ -117,7 +117,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
                         BinanceBalanceDto.class);
-        Map<TradingCurrency, Double> results = Collections.emptyMap();
+        Map<TradingCurrency, Double> results = new EnumMap<>(TradingCurrency.class);
         BinanceBalanceDto response = resp.getBody();
         BinanceBalanceDto.BinanceBalanceAsset[] assets = response.getBalances();
         for (BinanceBalanceDto.BinanceBalanceAsset asset : assets) {
