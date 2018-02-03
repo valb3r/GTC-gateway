@@ -12,6 +12,7 @@ import lombok.Data;
 @Data
 public class BinanceGetOrderDto {
 
+    @JsonProperty("orderId")
     private String id;
 
     @JsonProperty("symbol")

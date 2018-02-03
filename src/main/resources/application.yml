@@ -21,6 +21,10 @@ app:
         passphrase: ${BINANCE_PASSPHRASE}
         publicKey: ${BINANCE_PUBLIC}
         secretKey: ${BINANCE_SECRET}
+        pairs:
+            BTCUSD=BTC-USD,
+            LTCBTC=LTC-BTC,
+            sXMRBTC=XMR-BTC
 debug: true
 logging:
     level: DEBUG

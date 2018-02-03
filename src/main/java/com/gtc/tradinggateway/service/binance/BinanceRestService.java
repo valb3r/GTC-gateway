@@ -32,7 +32,7 @@ import java.util.*;
 @Slf4j
 public class BinanceRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
-    private static final String ORDERS = "/api/v3/order";
+    private static final String ORDERS = "/api/v3/order/test";
     private static final String ALL_ORDERS = "/api/v3/openOrders";
     private static final String BALANCES = "/api/v3/account";
     private static final String WITHDRAWAL = "/wapi/v3/withdraw.html";
@@ -65,11 +65,12 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
 
     @Scheduled(fixedDelay = 5000)
     public void ttt() {
-        OrderRequestDto orderRequestDto = new OrderRequestDto();
-        orderRequestDto.setId("1");
-        orderRequestDto.setPair("LTCBTC");
+//        OrderRequestDto orderRequestDto = new OrderRequestDto();
+//        orderRequestDto.setId("1");
+//        orderRequestDto.setPair("LTCBTC");
         //cancel(orderRequestDto);
-        getOpen();
+//        getOpen();
+        create(TradingCurrency.fromCode("BTC"), TradingCurrency.fromCode("USD"), -10, 100);
     }
 
     @Override
@@ -127,16 +128,36 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
 
     @Override
     public void withdraw(TradingCurrency currency, double amount, String destination) {
-        /*cfg.getRestTemplate()
+        BinanceRequestDto requestDto = new BinanceWithdrawalRequestDto();
+        String body = requestDto.toString();
+        String signedBody = getSignedBody(body);
+        cfg.getRestTemplate()
                 .exchange(
-                        cfg.getRestBase() + WITHDRAWAL,
+                        cfg.getRestBase() + WITHDRAWAL + "?" + signedBody,
                         HttpMethod.POST,
-                        new HttpEntity<>(signedBody, signer.restHeaders()), Object.class);*/
+                        new HttpEntity<>(signer.restHeaders()), Object.class);
     }
 
     @Override
-    public String create(TradingCurrency currency, double amount, double price) {
+    public String create(TradingCurrency from, TradingCurrency to, double amount, double price) {
+        BinancePlaceOrderRequestDto requestDto = new BinancePlaceOrderRequestDto(from, to, amount, price);
+        String body = requestDto.toString();
+        String signedBody = getSignedBody(body);
+        RestTemplate template = cfg.getRestTemplate();
+        ResponseEntity<BinanceGetOrderDto[]> resp = template
+                .exchange(
+                        cfg.getRestBase() + ORDERS + "?" + signedBody,
+                        HttpMethod.POST,
+                        new HttpEntity<>(signer.restHeaders()),
+                        BinanceGetOrderDto[].class);
+        BinanceGetOrderDto[] result = resp.getBody();
+        if (result.length != 0) {
+            BinanceGetOrderDto order = result[0];
+            return String.valueOf(order.getId());
+        }
         return null;
     }
+
+    private
 
 }

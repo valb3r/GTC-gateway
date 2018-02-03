@@ -28,7 +28,7 @@ public class GdaxWsService extends BaseWsClient implements CreateOrder {
     }
 
     @Override
-    public String create(TradingCurrency currency, double amount, double price) {
+    public String create(TradingCurrency from, TradingCurrency to, double amount, double price) {
         return null;
     }
 
