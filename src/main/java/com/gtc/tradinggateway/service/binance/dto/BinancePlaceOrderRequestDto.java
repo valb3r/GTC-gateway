@@ -8,17 +8,6 @@ import lombok.Data;
 /**
  * Created by mikro on 01.02.2018.
  */
-
-
-//symbol	LTCBTC
-//        side	BUY
-//        type	LIMIT
-//        timeInForce	GTC
-//        quantity	1
-//        price	0.1
-//        recvWindow	5000
-//        timestamp	1499827319559
-
 @Data
 public class BinancePlaceOrderRequestDto extends BinanceRequestDto {
 
