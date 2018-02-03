@@ -15,7 +15,10 @@ buildscript {
                 reactivex                 : "2.0.0",
                 wsClient                  : "master-SNAPSHOT",
                 newRelicAPI               : "3.4.1",
-                commonsCodec               : "1.9",
+                commonsCodec              : "1.9",
+                junit                     : "4.12",
+                mockito                   : "1.10.19",
+                assertJ                   : "3.9.0"
         ]
     }
     dependencies {
@@ -47,9 +50,12 @@ dependencies {
     compile "io.reactivex.rxjava2:rxjava:${versions.reactivex}"
     compile "com.github.jacek-marchwicki:JavaWebsocketClient:${versions.wsClient}"
     compile "com.newrelic.agent.java:newrelic-api:${versions.newRelicAPI}"
-    compile group: 'commons-codec', name: 'commons-codec', version: "${versions.commonsCodec}"
+    compile "commons-codec:commons-codec:${versions.commonsCodec}"
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile "junit:junit:${versions.junit}"
+    testCompile "org.mockito:mockito-all:${versions.mockito}"
+    testCompile "org.assertj:assertj-core:${versions.assertJ}"
+    testCompileOnly "org.projectlombok:lombok:"
 }
 
 jar {

@@ -30,7 +30,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class BinanceRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
-    private static final String ORDERS = "/api/v3/order";
+    static final String ORDERS = "/api/v3/order";
     private static final String ALL_ORDERS = "/api/v3/openOrders";
     private static final String BALANCES = "/api/v3/account";
     private static final String WITHDRAWAL = "/wapi/v3/withdraw.html";
