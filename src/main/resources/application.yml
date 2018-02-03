@@ -24,7 +24,7 @@ app:
         pairs:
             BTCUSD=BTC-USD,
             LTCBTC=LTC-BTC,
-            sXMRBTC=XMR-BTC
+            XMRBTC=XMR-BTC
 debug: true
 logging:
     level: DEBUG

@@ -12,13 +12,27 @@ public class PairSymbol {
 
     private TradingCurrency to;
 
+    private String symbol;
+
+    private boolean isInverted = false;
+
     public PairSymbol invert() {
-        return new PairSymbol(to, from);
+        return new PairSymbol(to, from, symbol, !isInverted);
     }
 
-    public PairSymbol(TradingCurrency from, TradingCurrency to) {
+    public PairSymbol(TradingCurrency from, TradingCurrency to, String symbol) {
         this.from = from;
         this.to = to;
+        this.symbol = symbol;
+    }
+
+    public PairSymbol(TradingCurrency from, TradingCurrency to, String symbol, boolean isInverted) {
+        this(from, to, symbol);
+        this.isInverted = isInverted;
+    }
+
+    public String toString() {
+        return symbol;
     }
 
 }

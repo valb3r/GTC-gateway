@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+
 /**
  * Created by Valentyn Berezin on 16.01.18.
  */
@@ -15,6 +17,7 @@ public class BaseConfig {
     protected String passphrase;
     protected String publicKey;
     protected String secretKey;
+    protected List<String> pairs;
 
     protected ObjectMapper mapper = new ObjectMapper();
 

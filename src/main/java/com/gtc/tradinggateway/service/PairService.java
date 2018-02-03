@@ -1,6 +1,5 @@
 package com.gtc.tradinggateway.service;
 
-import com.gtc.tradinggateway.config.BaseConfig;
 import com.gtc.tradinggateway.meta.PairSymbol;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 
@@ -23,10 +22,21 @@ public class PairService {
                             String[] pair = val.split("=");
                             String[] symbol = pair[1].split("-");
                             map.computeIfAbsent(pair[0], (String mKey) -> {
-                                return new PairSymbol(TradingCurrency.fromCode(symbol[0]), TradingCurrency.fromCode(symbol[1]));
+                                return new PairSymbol(TradingCurrency.fromCode(symbol[0]), TradingCurrency.fromCode(symbol[1]), pair[0]);
                             });
                         },
                         HashMap::putAll);
+    }
+
+    public PairSymbol fromCurrency(TradingCurrency from, TradingCurrency to) {
+        String symbol = from.toString() + to.toString();
+        PairSymbol pair = pairsMap.get(symbol);
+        if (pair != null) {
+            return pair;
+        }
+        String invertedSymbol = to.toString() + from.toString();
+        PairSymbol invertedPair = pairsMap.get(invertedSymbol);
+        return invertedPair != null ? invertedPair.invert() : null;
     }
 
 }
