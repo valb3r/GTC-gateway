@@ -158,6 +158,4 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
         return null;
     }
 
-    private
-
 }
