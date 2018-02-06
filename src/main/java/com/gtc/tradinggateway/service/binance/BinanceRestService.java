@@ -14,8 +14,6 @@ import lombok.SneakyThrows;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,7 +23,6 @@ import java.util.*;
 /**
  * Created by mikro on 23.01.2018.
  */
-@EnableScheduling
 @Service
 @RequiredArgsConstructor
 public class BinanceRestService implements ManageOrders, Withdraw, Account, CreateOrder {
@@ -152,13 +149,5 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
         BinanceGetOrderDto result = resp.getBody();
         return pair.toString() + "." + result.getId();
     }
-
-    @Scheduled(fixedDelay = 5000)
-    public void ttt() {
-        get("BTCUSD.1");
-//        balances();
-//        withdraw(TradingCurrency.fromCode("BTC"), 1.0, "0x123");
-    }
-
 
 }
