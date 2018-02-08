@@ -11,6 +11,8 @@ import com.gtc.tradinggateway.service.binance.dto.*;
 import com.gtc.tradinggateway.service.dto.OrderDto;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.log4j.Log4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +25,7 @@ import java.util.*;
 /**
  * Created by mikro on 23.01.2018.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BinanceRestService implements ManageOrders, Withdraw, Account, CreateOrder {
@@ -108,8 +111,10 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
         for (BinanceBalanceDto.BinanceBalanceAsset asset : assets) {
             try {
                 results.put(TradingCurrency.fromCode(asset.getCode()), asset.getAmount());
-            } finally {
-                continue;
+            } catch (RuntimeException ex) {
+                log.error(
+                        "Failed mapping currency-code {} having amount {}",
+                        asset.getCode().toString(), String.valueOf(asset.getAmount()));
             }
         }
         return results;
