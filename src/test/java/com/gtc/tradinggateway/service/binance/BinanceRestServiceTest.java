@@ -9,10 +9,7 @@ import com.gtc.tradinggateway.service.binance.dto.BinanceGetOrderDto;
 import com.gtc.tradinggateway.service.dto.OrderDto;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -47,6 +44,9 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
 
     @Mock
     private BinanceGetOrderDto getOrderDto;
+
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    private BinanceBalanceDto balanceDto;
 
     @Captor
     private ArgumentCaptor<HttpEntity> entity;
@@ -140,25 +140,21 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
 
     @Test
     public void testGetBalances() {
-        BinanceBalanceDto orderGet = mock(BinanceBalanceDto.class);
         BinanceBalanceDto.BinanceBalanceAsset balanceItem = mock(BinanceBalanceDto.BinanceBalanceAsset.class);
         BinanceBalanceDto.BinanceBalanceAsset invalidBalanceItem = mock(BinanceBalanceDto.BinanceBalanceAsset.class);
-        BinanceBalanceDto.BinanceBalanceAsset[] balances = new BinanceBalanceDto.BinanceBalanceAsset[2];
         double amount = 0.1;
-        when(orderGet.getBalances()).thenReturn(balances);
+        when(balanceDto.getBalances()).thenReturn(new BinanceBalanceDto.BinanceBalanceAsset[]{balanceItem, invalidBalanceItem});
         when(balanceItem.getCode()).thenReturn(TradingCurrency.Bitcoin.toString());
         when(balanceItem.getAmount()).thenReturn(amount);
         when(invalidBalanceItem.getCode()).thenReturn("XXX");
         when(invalidBalanceItem.getAmount()).thenReturn(0.2);
-        balances[0] = balanceItem;
-        balances[1] = invalidBalanceItem;
 
         when(restTemplate.exchange(
                 requestCaptor.capture(),
                 eq(HttpMethod.GET),
                 entity.capture(),
                 eq(BinanceBalanceDto.class)
-        )).thenReturn(new ResponseEntity<>(orderGet, HttpStatus.OK));
+        )).thenReturn(new ResponseEntity<>(balanceDto, HttpStatus.OK));
 
         Map<TradingCurrency, Double> results = binanceRestService.balances();
 
@@ -244,6 +240,6 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
         binanceRestService.create(from, to, amount, price);
         assertThat(requestCaptor.getValue()).startsWith(BASE + "/api/v3/order?symbol=" + pair +
                 "&side=SELL&type=LIMIT&timeInForce=GTC&quantity=" + amount + "&price=" +
-                price + "&recvWindow=5000");
+                (1 / price) + "&recvWindow=5000");
     }
 }
