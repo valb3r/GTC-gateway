@@ -234,12 +234,12 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
                 eq(HttpMethod.POST),
                 entity.capture(),
                 eq(BinanceGetOrderDto.class)
-
         )).thenReturn(new ResponseEntity<>(getOrderDto, HttpStatus.OK));
 
         binanceRestService.create(from, to, amount, price);
+
         assertThat(requestCaptor.getValue()).startsWith(BASE + "/api/v3/order?symbol=" + pair +
-                "&side=SELL&type=LIMIT&timeInForce=GTC&quantity=" + amount + "&price=" +
+                "&side=SELL&type=LIMIT&timeInForce=GTC&quantity=" + (1 / amount) + "&price=" +
                 (1 / price) + "&recvWindow=5000");
     }
 }

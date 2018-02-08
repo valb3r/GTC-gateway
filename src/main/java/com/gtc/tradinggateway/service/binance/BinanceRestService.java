@@ -139,7 +139,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
             return null;
         }
         if (pair.getIsInverted()) {
-            amount = -amount;
+            amount = -1 / amount;
             price = 1 / price;
         }
         BinancePlaceOrderRequestDto requestDto = new BinancePlaceOrderRequestDto(pair, amount, price);
