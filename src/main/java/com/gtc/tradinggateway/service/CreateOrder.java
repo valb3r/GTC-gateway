@@ -10,5 +10,5 @@ public interface CreateOrder {
     /**
      * @return created order id.
      */
-    String create(TradingCurrency currency, double amount, double price);
+    String create(TradingCurrency from, TradingCurrency to, double amount, double price);
 }

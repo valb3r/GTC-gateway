@@ -11,7 +11,7 @@ import lombok.Data;
 public class OrderDto {
 
     private String id;
-    private String size;
-    private String price;
+    private double size;
+    private double price;
     private String status;
 }

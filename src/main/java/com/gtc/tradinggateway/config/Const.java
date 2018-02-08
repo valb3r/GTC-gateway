@@ -15,5 +15,6 @@ public class Const {
     public class Clients {
 
         public static final String GDAX = "gdax";
+        public static final String BINANCE = "binance";
     }
 }

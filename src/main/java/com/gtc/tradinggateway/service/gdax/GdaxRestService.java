@@ -6,6 +6,7 @@ import com.gtc.tradinggateway.service.Account;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.dto.OrderDto;
+import com.gtc.tradinggateway.service.dto.OrderRequestDto;
 import com.gtc.tradinggateway.service.gdax.dto.GdaxGetOrderDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;

@@ -6,18 +6,18 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
 import static com.gtc.tradinggateway.config.Const.CONF_ROOT_CHILD;
-import static com.gtc.tradinggateway.config.Const.Clients.GDAX;
+import static com.gtc.tradinggateway.config.Const.Clients.BINANCE;
 
 /**
- * Created by Valentyn Berezin on 16.01.18.
+ * Created by mikro on 23.01.2018.
  */
 @Getter
 @Setter
 @Configuration
-@ConfigurationProperties(CONF_ROOT_CHILD + GDAX)
-public class GdaxConfig extends BaseConfig {
+@ConfigurationProperties(CONF_ROOT_CHILD + BINANCE)
+public class BinanceConfig extends BaseConfig {
 
-    public GdaxConfig() {
+    public BinanceConfig() {
         mapper = ConfigFactory.defaultMapper();
         restTemplate = ConfigFactory.defaultRestTemplate(mapper);
     }

@@ -12,7 +12,20 @@ server:
     port: 9999
 app:
     gdax:
-        root:
+        restBase:
         passphrase: ${GDAX_PASSPHRASE}
         publicKey: ${GDAX_PUBLIC}
         secretKey: ${GDAX_SECRET}
+    binance:
+        restBase: "https://api.binance.com"
+        passphrase: ${BINANCE_PASSPHRASE}
+        publicKey: ${BINANCE_PUBLIC}
+        secretKey: ${BINANCE_SECRET}
+        pairs:
+            BTCUSD=BTC-USD,
+            LTCBTC=LTC-BTC,
+            XMRBTC=XMR-BTC
+debug: true
+logging:
+    level: DEBUG
+
