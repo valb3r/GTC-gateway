@@ -21,5 +21,4 @@ public class BinanceBalanceDto {
         private Double amount;
 
     }
-
 }

@@ -18,6 +18,4 @@ public class BinanceRequestDto {
         uri.addToUri("recvWindow", String.valueOf(getRecvWindow()));
         return uri.toString();
     }
-
-
 }

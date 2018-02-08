@@ -45,6 +45,9 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
     @Mock
     private RestTemplate restTemplate;
 
+    @Mock
+    private BinanceGetOrderDto getOrderDto;
+
     @Captor
     private ArgumentCaptor<HttpEntity> entity;
 
@@ -68,19 +71,17 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
 
     @Test
     public void testGetReturnOrder() {
-        BinanceGetOrderDto orderGet = mock(BinanceGetOrderDto.class);
         OrderDto expectedOrder = mock(OrderDto.class);
-        when(orderGet.mapTo()).thenReturn(expectedOrder);
+        when(getOrderDto.mapTo()).thenReturn(expectedOrder);
         when(restTemplate.exchange(
                 requestCaptor.capture(),
                 eq(HttpMethod.GET),
                 entity.capture(),
                 eq(BinanceGetOrderDto.class)
 
-        )).thenReturn(new ResponseEntity<>(orderGet, HttpStatus.OK));
+        )).thenReturn(new ResponseEntity<>(getOrderDto, HttpStatus.OK));
 
         Optional<OrderDto> result = binanceRestService.get(ID);
-
 
         assertThat(result.isPresent()).isTrue();
         assertThat(result.get()).isEqualTo(expectedOrder);
@@ -94,11 +95,10 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
 
     @Test
     public void testGetAllOpenOrders() {
-        BinanceGetOrderDto orderGet = mock(BinanceGetOrderDto.class);
         OrderDto expectedOrder = mock(OrderDto.class);
-        when(orderGet.mapTo()).thenReturn(expectedOrder);
+        when(getOrderDto.mapTo()).thenReturn(expectedOrder);
         BinanceGetOrderDto[] response = new BinanceGetOrderDto[1];
-        response[0] = orderGet;
+        response[0] = getOrderDto;
         when(restTemplate.exchange(
                 requestCaptor.capture(),
                 eq(HttpMethod.GET),
@@ -108,6 +108,7 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
         )).thenReturn(new ResponseEntity<>(response, HttpStatus.OK));
 
         List<OrderDto> result = binanceRestService.getOpen();
+
         assertThat(result.size()).isEqualTo(1);
         assertThat(result.get(0)).isEqualTo(expectedOrder);
         assertThat(requestCaptor.getValue()).startsWith(BASE + "/api/v3/openOrders?");
@@ -118,14 +119,13 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
 
     @Test
     public void testCancelOrder() {
-        Object orderGet = mock(Object.class);
         when(restTemplate.exchange(
                 requestCaptor.capture(),
                 eq(HttpMethod.DELETE),
                 entity.capture(),
                 eq(Object.class)
 
-        )).thenReturn(new ResponseEntity<>(orderGet, HttpStatus.OK));
+        )).thenReturn(new ResponseEntity<>(new Object(), HttpStatus.OK));
 
         binanceRestService.cancel(ID);
 
@@ -158,7 +158,6 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
                 eq(HttpMethod.GET),
                 entity.capture(),
                 eq(BinanceBalanceDto.class)
-
         )).thenReturn(new ResponseEntity<>(orderGet, HttpStatus.OK));
 
         Map<TradingCurrency, Double> results = binanceRestService.balances();
@@ -176,7 +175,6 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
         String destination = "0x0001";
         double amount = 0.1;
         TradingCurrency currency = TradingCurrency.Bitcoin;
-
         when(restTemplate.exchange(
                 requestCaptor.capture(),
                 eq(HttpMethod.POST),
@@ -188,7 +186,7 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
         binanceRestService.withdraw(currency, amount, destination);
 
         assertThat(requestCaptor.getValue()).startsWith(BASE + "/wapi/v3/withdraw.html?asset=" +
-                currency.toString() + "&address=" + destination + "&amount=" + String.valueOf(amount));
+                currency + "&address=" + destination + "&amount=" + amount);
         assertThat(requestCaptor.getValue()).endsWith("signature=" + SIGNED);
         assertThat(requestCaptor.getValue()).contains("timestamp=");
         assertThat(signedCaptor.getValue()).contains("timestamp=");
@@ -197,15 +195,13 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
 
     @Test
     public void testCreateOrder() {
-        BinanceGetOrderDto orderDto = mock(BinanceGetOrderDto.class);
         PairSymbol pair = mock(PairSymbol.class);
         TradingCurrency from = TradingCurrency.Bitcoin;
         TradingCurrency to = TradingCurrency.Usd;
         double amount = 0.1;
         double price = 0.1;
         String id = "testid";
-
-        when(orderDto.getId()).thenReturn(id);
+        when(getOrderDto.getId()).thenReturn(id);
         when(cfg.fromCurrency(from, to)).thenReturn(pair);
         when(restTemplate.exchange(
                 requestCaptor.capture(),
@@ -213,32 +209,28 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
                 entity.capture(),
                 eq(BinanceGetOrderDto.class)
 
-        )).thenReturn(new ResponseEntity<>(orderDto, HttpStatus.OK));
-
+        )).thenReturn(new ResponseEntity<>(getOrderDto, HttpStatus.OK));
 
         String result = binanceRestService.create(from, to, amount, price);
 
         assertThat(result).isEqualTo(pair.toString() + "." + id);
-        assertThat(requestCaptor.getValue()).startsWith(BASE + "/api/v3/order?symbol=" + pair.toString() +
-            "&side=BUY&type=LIMIT&timeInForce=GTC&quantity=" + String.valueOf(amount) + "&price=" +
-                String.valueOf(price) + "&recvWindow=5000");
+        assertThat(requestCaptor.getValue()).startsWith(BASE + "/api/v3/order?symbol=" + pair +
+            "&side=BUY&type=LIMIT&timeInForce=GTC&quantity=" + amount + "&price=" +
+                price + "&recvWindow=5000");
         assertThat(requestCaptor.getValue()).endsWith("signature=" + SIGNED);
         assertThat(requestCaptor.getValue()).contains("timestamp=");
         assertThat(signedCaptor.getValue()).contains("timestamp=");
-
     }
 
     @Test
     public void testCreateInvertedOrder() {
-        BinanceGetOrderDto orderDto = mock(BinanceGetOrderDto.class);
         PairSymbol pair = mock(PairSymbol.class);
         TradingCurrency from = TradingCurrency.Bitcoin;
         TradingCurrency to = TradingCurrency.Usd;
         double amount = 0.1;
         double price = 0.1;
         String id = "testid";
-
-        when(orderDto.getId()).thenReturn(id);
+        when(getOrderDto.getId()).thenReturn(id);
         when(cfg.fromCurrency(from, to)).thenReturn(pair);
         when(pair.getIsInverted()).thenReturn(true);
         when(restTemplate.exchange(
@@ -247,13 +239,11 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
                 entity.capture(),
                 eq(BinanceGetOrderDto.class)
 
-        )).thenReturn(new ResponseEntity<>(orderDto, HttpStatus.OK));
-
+        )).thenReturn(new ResponseEntity<>(getOrderDto, HttpStatus.OK));
 
         binanceRestService.create(from, to, amount, price);
-        assertThat(requestCaptor.getValue()).startsWith(BASE + "/api/v3/order?symbol=" + pair.toString() +
-                "&side=SELL&type=LIMIT&timeInForce=GTC&quantity=" + String.valueOf(amount) + "&price=" +
-                String.valueOf(price) + "&recvWindow=5000");
-
+        assertThat(requestCaptor.getValue()).startsWith(BASE + "/api/v3/order?symbol=" + pair +
+                "&side=SELL&type=LIMIT&timeInForce=GTC&quantity=" + amount + "&price=" +
+                price + "&recvWindow=5000");
     }
 }

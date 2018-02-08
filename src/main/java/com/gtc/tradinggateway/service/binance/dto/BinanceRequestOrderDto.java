@@ -28,5 +28,4 @@ public class BinanceRequestOrderDto extends BinanceRequestDto {
         symbol = parsedId[0];
         orderId = parsedId[1];
     }
-
 }

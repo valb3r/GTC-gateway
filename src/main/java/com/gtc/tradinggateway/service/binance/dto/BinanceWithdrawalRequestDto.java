@@ -25,5 +25,4 @@ public class BinanceWithdrawalRequestDto extends BinanceRequestDto {
         uri.addToUri("recvWindow", String.valueOf(getRecvWindow()));
         return uri.toString();
     }
-
 }

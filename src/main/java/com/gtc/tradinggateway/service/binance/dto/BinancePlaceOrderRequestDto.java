@@ -4,6 +4,7 @@ import com.gtc.tradinggateway.meta.PairSymbol;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.util.UriFormatter;
 import lombok.Data;
+import lombok.Getter;
 
 /**
  * Created by mikro on 01.02.2018.
@@ -13,7 +14,7 @@ public class BinancePlaceOrderRequestDto extends BinanceRequestDto {
 
     private PairSymbol symbol;
 
-    private String side;
+    private OrderSide side;
 
     private String type = "LIMIT";
 
@@ -23,11 +24,28 @@ public class BinancePlaceOrderRequestDto extends BinanceRequestDto {
 
     private String timeInForce = "GTC";
 
+    public static enum OrderSide {
+        Buy("BUY"),
+        Sell("SELL");
+
+        @Getter
+        private final String side;
+
+        OrderSide(String side) {
+            this.side = side;
+        }
+
+        @Override
+        public String toString() {
+            return side;
+        }
+    }
+
     @Override
     public String toString() {
         UriFormatter uri = new UriFormatter();
         uri.addToUri("symbol", getSymbol());
-        uri.addToUri("side", getSide());
+        uri.addToUri("side", getSide().toString());
         uri.addToUri("type", getType());
         uri.addToUri("timeInForce", getTimeInForce());
         uri.addToUri("quantity", String.valueOf(getQuantity()));
@@ -39,9 +57,8 @@ public class BinancePlaceOrderRequestDto extends BinanceRequestDto {
 
     public BinancePlaceOrderRequestDto (PairSymbol symbol, double amount, double price) {
         this.symbol = symbol;
-        this.side = amount < 0 ? "SELL" : "BUY";
+        this.side = amount < 0 ? OrderSide.Sell : OrderSide.Buy;
         this.price = price;
         this.quantity = Math.abs(amount);
     }
-
 }

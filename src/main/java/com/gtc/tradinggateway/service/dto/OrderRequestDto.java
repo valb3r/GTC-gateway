@@ -10,5 +10,4 @@ public class OrderRequestDto {
 
     private String id;
     private String pair;
-
 }
