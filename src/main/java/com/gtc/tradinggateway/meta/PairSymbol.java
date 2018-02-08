@@ -34,5 +34,4 @@ public class PairSymbol {
     public String toString() {
         return symbol;
     }
-
 }

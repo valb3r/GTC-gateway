@@ -58,5 +58,4 @@ public class BaseConfig {
         PairSymbol invertedPair = pairs.get(invertedSymbol);
         return invertedPair != null ? invertedPair.invert() : null;
     }
-
 }
