@@ -18,7 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
 
@@ -107,12 +107,13 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
     @Override
     public void withdraw(TradingCurrency currency, double amount, String destination) {
         HitbtcWithdrawRequestDto requestDto = new HitbtcWithdrawRequestDto(destination, amount, currency.toString());
-        Map<String, String> map = cfg.getMapper().convertValue(requestDto, Map.class);
+        LinkedMultiValueMap mapMv = new LinkedMultiValueMap();
+        cfg.getMapper().convertValue(requestDto, Map.class).forEach((key, value) -> mapMv.add(key, String.valueOf(value)));
         cfg.getRestTemplate()
                 .exchange(
                         cfg.getRestBase() + WITHDRAWAL,
                         HttpMethod.POST,
-                        new HttpEntity<Map<String, String>>(map, signer.restHeaders()), Object.class);
+                        new HttpEntity<>(mapMv, signer.restHeaders()), Object.class);
     }
 
     @Scheduled(fixedRate=5000)
