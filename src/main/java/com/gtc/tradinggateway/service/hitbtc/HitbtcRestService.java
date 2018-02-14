@@ -15,8 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 
@@ -25,10 +23,9 @@ import java.util.*;
 /**
  * Created by mikro on 12.02.2018.
  */
-@EnableScheduling
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class HitbtcRestService implements ManageOrders, Withdraw, Account {
 
     private String ORDERS = "/order/";
@@ -40,8 +37,6 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
 
     @Override
     public Optional<OrderDto> get(String id) {
-        log.info(cfg.getRestBase() + ORDERS + id);
-        log.info(signer.restHeaders().toString());
         ResponseEntity<HitbtcOrderGetDto> resp = cfg.getRestTemplate()
                 .exchange(
                         cfg.getRestBase() + ORDERS + id,
@@ -108,18 +103,14 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
     public void withdraw(TradingCurrency currency, double amount, String destination) {
         HitbtcWithdrawRequestDto requestDto = new HitbtcWithdrawRequestDto(destination, amount, currency.toString());
         LinkedMultiValueMap mapMv = new LinkedMultiValueMap();
-        cfg.getMapper().convertValue(requestDto, Map.class).forEach((key, value) -> mapMv.add(key, String.valueOf(value)));
+        cfg.getMapper()
+                .convertValue(requestDto, Map.class)
+                .forEach((key, value) -> mapMv.add(key, String.valueOf(value)));
         cfg.getRestTemplate()
                 .exchange(
                         cfg.getRestBase() + WITHDRAWAL,
                         HttpMethod.POST,
                         new HttpEntity<>(mapMv, signer.restHeaders()), Object.class);
     }
-
-    @Scheduled(fixedRate=5000)
-    public void ttt() {
-        withdraw(TradingCurrency.Bitcoin, 0.2, "0x000");
-    }
-
 
 }

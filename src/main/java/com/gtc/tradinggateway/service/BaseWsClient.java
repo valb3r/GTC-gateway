@@ -43,7 +43,7 @@ public abstract class BaseWsClient {
 
     @SneakyThrows
     public void connect() {
-        if (null == rxConnected.get()) {
+        if (null != rxConnected.get()) {
             return;
         }
 
@@ -82,7 +82,7 @@ public abstract class BaseWsClient {
     }
 
     public boolean isDisconnected() {
-        return null != rxConnected.get();
+        return null == rxConnected.get();
     }
 
     protected void handleInboundMessage(JsonNode node) {

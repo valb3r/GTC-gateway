@@ -26,7 +26,8 @@ app:
             LTCBTC=LTC-BTC,
             XMRBTC=XMR-BTC
     hitbtc:
-        restBase: "http://localhost:8081/api/2"
+        restBase: "https://api.hitbtc.com/api/2"
+        wsBase: "wss://api.hitbtc.com/api/2/ws"
         passphrase: ${HITBTC_PASSPHRASE}
         publicKey: ${HITBTC_PUBLIC}
         secretKey: ${HITBTC_SECRET}
