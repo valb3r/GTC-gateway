@@ -20,6 +20,13 @@ public class HitbtcAuthRequestDto {
         private final String pKey;
         private final String sKey;
 
+        public String getpKey() {
+            return pKey;
+        }
+
+        public String getsKey() {
+            return sKey;
+        }
     }
 
     public HitbtcAuthRequestDto(String pKey, String sKey) {
