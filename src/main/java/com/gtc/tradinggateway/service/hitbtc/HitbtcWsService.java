@@ -81,7 +81,8 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
         return cfg.getDisconnectIfInactiveS();
     }
 
-    private void login() {
+    @Override
+    protected void login() {
         ObjectWebSocketSender sender = rxConnected.get().sender();
         HitbtcAuthRequestDto requestDto = new HitbtcAuthRequestDto(cfg.getPublicKey(), cfg.getSecretKey());
         RxMoreObservables
@@ -92,7 +93,7 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
     @SneakyThrows
     public String create(TradingCurrency from, TradingCurrency to, double amount, double price) {
         PairSymbol pair = cfg.fromCurrency(from, to);
-        if (isDisconnected() || true != isLoggedIn.get() || pair == null) {
+        if (isDisconnected() || !isLoggedIn.get() || pair == null) {
             return null;
         }
 

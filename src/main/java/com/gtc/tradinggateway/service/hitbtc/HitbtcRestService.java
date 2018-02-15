@@ -11,6 +11,7 @@ import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcOrderGetDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcWithdrawRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -18,17 +19,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by mikro on 12.02.2018.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HitbtcRestService implements ManageOrders, Withdraw, Account {
 
-    private String ORDERS = "/order/";
-    private String BALANCES = "/trading/balance";
-    private String WITHDRAWAL = "/account/crypto/withdraw";
+    private static final String ORDERS = "/order/";
+    private static final String BALANCES = "/trading/balance";
+    private static final String WITHDRAWAL = "/account/crypto/withdraw";
 
     private final HitbtcConfig cfg;
     private final HitbtcEncryptionService signer;
@@ -56,12 +59,7 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
                         HitbtcOrderGetDto[].class);
-        HitbtcOrderGetDto[] list = resp.getBody();
-        List<OrderDto> result = new ArrayList<>();
-        for (HitbtcOrderGetDto respDto : list) {
-            result.add(respDto.mapTo());
-        }
-        return result;
+        return Arrays.stream(resp.getBody()).map(HitbtcOrderGetDto::mapTo).collect(Collectors.toList());
 
     }
 

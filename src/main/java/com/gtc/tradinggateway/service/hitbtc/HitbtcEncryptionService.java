@@ -2,6 +2,7 @@ package com.gtc.tradinggateway.service.hitbtc;
 
 import com.google.common.collect.ImmutableMap;
 import com.gtc.tradinggateway.config.HitbtcConfig;
+import com.gtc.tradinggateway.util.BasicHttpAuthHelper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.http.HttpHeaders;
@@ -20,11 +21,10 @@ public class HitbtcEncryptionService {
     private final HitbtcConfig cfg;
 
     public Map<String, String> signingHeaders() {
-        String key = cfg.getPublicKey() + ":" + cfg.getSecretKey();
-        String converted = Base64.encodeBase64String(key.toString().getBytes());
+        String converted = BasicHttpAuthHelper.generateToken(cfg.getPublicKey(), cfg.getSecretKey());
 
         return ImmutableMap.<String, String>builder()
-                .put("Authorization", "Basic " + converted.toString())
+                .put(HttpHeaders.AUTHORIZATION, "Basic " + converted)
                 .build();
     }
 

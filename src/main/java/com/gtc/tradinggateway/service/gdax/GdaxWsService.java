@@ -58,6 +58,9 @@ public class GdaxWsService extends BaseWsClient implements CreateOrder {
     }
 
     @Override
+    protected void login() {}
+
+    @Override
     protected Map<String, String> headers() {
         return signer.signingHeaders("", "", "");
     }
