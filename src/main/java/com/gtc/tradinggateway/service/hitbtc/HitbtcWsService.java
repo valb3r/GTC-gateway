@@ -9,6 +9,7 @@ import com.gtc.tradinggateway.meta.PairSymbol;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.BaseWsClient;
 import com.gtc.tradinggateway.service.CreateOrder;
+import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcAuthRequestDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcCreateRequestDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -53,7 +54,8 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
     @Override
     protected void onConnected(RxObjectEventConnected conn) {
         log.info("Connected");
-        create(TradingCurrency.Bitcoin, TradingCurrency.Usd, 0.2, 0.2);
+        login();
+//        create(TradingCurrency.Bitcoin, TradingCurrency.Usd, 0.2, 0.2);
     }
 
     @Override
@@ -69,6 +71,14 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
     @Override
     protected int getDisconnectIfInactiveS() {
         return 1;
+    }
+
+    private void login() {
+        ObjectWebSocketSender sender = rxConnected.get().sender();
+        HitbtcAuthRequestDto requestDto = new HitbtcAuthRequestDto(cfg.getPublicKey(), cfg.getSecretKey());
+        RxMoreObservables
+                .sendObjectMessage(sender, requestDto)
+                .subscribe();
     }
 
     public String create(TradingCurrency from, TradingCurrency to, double amount, double price) {
@@ -96,7 +106,7 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
         return requestDto.getParams().getClientOrderId();
     }
 
-    @Scheduled(initialDelay = 0, fixedDelay = 1000000)
+    @Scheduled(initialDelay = 1000, fixedDelay = 1000000)
     public void ttt() {
         connect();
     }

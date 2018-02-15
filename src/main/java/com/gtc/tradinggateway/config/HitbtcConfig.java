@@ -17,7 +17,6 @@ import static com.gtc.tradinggateway.config.Const.Clients.HITBTC;
 @Setter
 @Configuration
 @ConfigurationProperties(CONF_ROOT_CHILD + HITBTC)
-
 public class HitbtcConfig extends BaseConfig {
 
     public HitbtcConfig() {
