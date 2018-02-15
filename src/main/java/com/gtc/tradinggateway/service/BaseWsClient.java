@@ -19,7 +19,6 @@ import okhttp3.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
-import rx.subjects.BehaviorSubject;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
