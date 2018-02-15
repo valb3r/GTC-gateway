@@ -25,6 +25,16 @@ app:
             BTCUSD=BTC-USD,
             LTCBTC=LTC-BTC,
             XMRBTC=XMR-BTC
+    bitfinex:
+        restBase: "https://api.bitfinex.com/v2"
+        wsBase: ""
+        passphrase: ${BITFINEX_PASSPHRASE}
+        publicKey: ${BITFINEX_PUBLIC}
+        secretKey: ${BITFINEX_SECRET}
+        pairs:
+            BTCUSD=BTC-USD,
+            LTCBTC=LTC-BTC,
+            XMRBTC=XMR-BTC
 debug: true
 logging:
     level: DEBUG
