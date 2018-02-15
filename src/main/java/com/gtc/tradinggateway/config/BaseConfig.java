@@ -30,7 +30,7 @@ public class BaseConfig {
 
     protected Map<String, PairSymbol> pairs;
 
-    protected void setPairs(List<String> list) {
+    public void setPairs(List<String> list) {
         pairs = parse(list);
     }
 
