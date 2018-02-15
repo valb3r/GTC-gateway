@@ -18,7 +18,7 @@ public class HitbtcOrderGetDto {
     private double price;
     private String side;
 
-    public static String SELL = "SELL";
+    public static String SELL = "sell";
 
     public OrderDto mapTo () {
         return OrderDto.builder()
@@ -28,5 +28,4 @@ public class HitbtcOrderGetDto {
                 .status(status)
                 .build();
     }
-
 }

@@ -10,10 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
-
 /**
  * Created by mikro on 12.02.2018.
  */
@@ -38,5 +34,4 @@ public class HitbtcEncryptionService {
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         return headers;
     }
-
 }

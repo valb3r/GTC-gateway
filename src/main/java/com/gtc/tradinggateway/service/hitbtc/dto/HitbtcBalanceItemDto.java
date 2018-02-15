@@ -10,5 +10,4 @@ public class HitbtcBalanceItemDto {
 
     private String currency;
     private double available;
-
 }

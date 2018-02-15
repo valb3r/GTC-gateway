@@ -24,6 +24,4 @@ public class HitbtcWithdrawRequestDto {
         uri.addToUri("autoCommit", "true");
         return uri.toString();
     }
-
-
 }

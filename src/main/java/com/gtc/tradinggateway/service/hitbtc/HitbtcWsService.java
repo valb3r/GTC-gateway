@@ -11,9 +11,8 @@ import com.gtc.tradinggateway.service.BaseWsClient;
 import com.gtc.tradinggateway.service.CreateOrder;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcAuthRequestDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcCreateRequestDto;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
+import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcErrorDto;
+import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -24,10 +23,14 @@ import static com.gtc.tradinggateway.config.Const.Clients.HITBTC;
 /**
  * Created by mikro on 14.02.2018.
  */
-@Slf4j
 @Service
-@EnableScheduling
 public class HitbtcWsService extends BaseWsClient implements CreateOrder {
+
+    private static String SELL = "sell";
+    private static String BUY = "buy";
+    private static String ERROR_ALIAS = "error";
+    private static String AUTH_ALIAS = "auth";
+    private static String ID_ALIAS = "id";
 
     private final HitbtcConfig cfg;
 
@@ -53,24 +56,29 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
 
     @Override
     protected void onConnected(RxObjectEventConnected conn) {
-        log.info("Connected");
         login();
-//        create(TradingCurrency.Bitcoin, TradingCurrency.Usd, 0.2, 0.2);
     }
 
     @Override
+    @SneakyThrows
     protected void parseEventDto(JsonNode node) {
-        log.info(node.toString());
+        if (null != node.get(ERROR_ALIAS)) {
+            HitbtcErrorDto error = cfg.getMapper().reader().readValue(node.traverse(), HitbtcErrorDto.class);
+            isLoggedIn.set(false);
+            throw new Exception(error.getError().getMessage());
+        } else if (AUTH_ALIAS.equals(node.get(ID_ALIAS).asText())) {
+            isLoggedIn.set(true);
+        }
     }
 
     @Override
     protected void parseArray(JsonNode node) {
-        log.info(node.toString());
+        // NOP
     }
 
     @Override
     protected int getDisconnectIfInactiveS() {
-        return 1;
+        return cfg.getDisconnectIfInactiveS();
     }
 
     private void login() {
@@ -81,21 +89,19 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
                 .subscribe();
     }
 
+    @SneakyThrows
     public String create(TradingCurrency from, TradingCurrency to, double amount, double price) {
-        if (isDisconnected()) {
+        PairSymbol pair = cfg.fromCurrency(from, to);
+        if (isDisconnected() || true != isLoggedIn.get() || pair == null) {
             return null;
         }
 
-        PairSymbol pair = cfg.fromCurrency(from, to);
-        if (pair == null) {
-            return null;
-        }
         if (pair.getIsInverted()) {
             amount = -1 / amount;
             price = 1 / price;
         }
 
-        String side = amount < 0 ? "SELL" : "BUY";
+        String side = amount < 0 ? SELL : BUY;
 
         ObjectWebSocketSender sender = rxConnected.get().sender();
         HitbtcCreateRequestDto requestDto = new HitbtcCreateRequestDto(pair.toString(), side, price, Math.abs(amount));
@@ -105,10 +111,4 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
                 .subscribe();
         return requestDto.getParams().getClientOrderId();
     }
-
-    @Scheduled(initialDelay = 1000, fixedDelay = 1000000)
-    public void ttt() {
-        connect();
-    }
-
 }

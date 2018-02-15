@@ -28,7 +28,7 @@ public class HitbtcCreateRequestDto {
     }
 
     public HitbtcCreateRequestDto(String symbol, String side, double price, double quantity) {
-        params = new OrderBody(UUID.randomUUID().toString(), symbol, side, price, quantity);
+        String id = UUID.randomUUID().toString().replace("-", "");
+        params = new OrderBody(id, symbol, side, price, quantity);
     }
-
 }

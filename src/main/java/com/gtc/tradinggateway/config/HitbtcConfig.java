@@ -24,5 +24,4 @@ public class HitbtcConfig extends BaseConfig {
         restTemplate = ConfigFactory.defaultRestTemplate(mapper);
         restTemplate.setMessageConverters(ImmutableList.of(new FormHttpMessageConverter()));
     }
-
 }

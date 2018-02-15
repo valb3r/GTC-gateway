@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 public class HitbtcAuthRequestDto {
 
     private String method = "login";
+    private String id = "auth";
     private AuthBody params;
 
     @Data
@@ -32,5 +33,4 @@ public class HitbtcAuthRequestDto {
     public HitbtcAuthRequestDto(String pKey, String sKey) {
         params = new AuthBody(pKey, sKey);
     }
-
 }

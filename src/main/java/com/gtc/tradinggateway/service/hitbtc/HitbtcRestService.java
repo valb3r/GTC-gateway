@@ -11,7 +11,6 @@ import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcOrderGetDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcWithdrawRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,6 @@ import java.util.*;
 /**
  * Created by mikro on 12.02.2018.
  */
-@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HitbtcRestService implements ManageOrders, Withdraw, Account {
@@ -112,5 +110,4 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
                         HttpMethod.POST,
                         new HttpEntity<>(mapMv, signer.restHeaders()), Object.class);
     }
-
 }

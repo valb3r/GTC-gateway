@@ -19,6 +19,7 @@ import okhttp3.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import rx.Observable;
+import rx.subjects.BehaviorSubject;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -36,6 +37,7 @@ public abstract class BaseWsClient {
 
     protected final ObjectMapper objectMapper;
     protected final AtomicReference<RxObjectEventConnected> rxConnected = new AtomicReference<>();
+    protected final AtomicReference<Boolean> isLoggedIn = new AtomicReference<>();
 
     public BaseWsClient(ObjectMapper mapper) {
         this.objectMapper = mapper;
