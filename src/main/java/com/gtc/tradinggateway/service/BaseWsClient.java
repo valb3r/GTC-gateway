@@ -74,7 +74,7 @@ public abstract class BaseWsClient {
                 .subscribe(this::handleInboundMessage);
     }
 
-    private Observable<RxObjectEvent> getConnection(Request request) {
+    public Observable<RxObjectEvent> getConnection(Request request) {
         ObjectSerializer serializer = new JacksonSerializer(objectMapper);
         return new RxObjectWebSockets(new RxWebSockets(new OkHttpClient(), request), serializer)
                 .webSocketObservable()
