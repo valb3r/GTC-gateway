@@ -7,9 +7,12 @@ import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.dto.OrderDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,11 +23,13 @@ import java.util.Optional;
 /**
  * Created by mikro on 15.02.2018.
  */
+@EnableScheduling
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class BitfinexRestClient implements Account, ManageOrders, Withdraw {
 
-    private static String ORDERS = "/orders";
+    private static String ORDERS = "/auth/r/orders";
 
     private final BitfinexConfig cfg;
     private final BitfinexEncryptionService signer;
@@ -38,11 +43,12 @@ public class BitfinexRestClient implements Account, ManageOrders, Withdraw {
     }
 
     public List<OrderDto> getOpen() {
+        log.info(cfg.getRestBase() + ORDERS);
         ResponseEntity<String[][]> resp = cfg.getRestTemplate()
                 .exchange(
                         cfg.getRestBase() + ORDERS,
                         HttpMethod.POST,
-                        new HttpEntity<>(signer.restHeaders(new Object())),
+                        new HttpEntity<>(new Object(), signer.restHeaders(null)),
                         String[][].class);
         String[][] orders = resp.getBody();
         List<OrderDto> result = new ArrayList<>();
@@ -61,11 +67,16 @@ public class BitfinexRestClient implements Account, ManageOrders, Withdraw {
     }
 
     private OrderDto parseOrderDto(String[] response) {
-        OrderDto dto = new OrderDto();
-        dto.setId(response[2]);
-        dto.setSize(Double.valueOf(response[6]));
-        dto.setPrice(Double.valueOf(response[16]));
-        dto.setStatus(response[13]);
-        return dto;
+        return OrderDto.builder()
+                .id(response[2])
+                .size(Double.valueOf(response[6]))
+                .price(Double.valueOf(response[16]))
+                .status(response[13])
+                .build();
+    }
+
+    @Scheduled(initialDelay = 1000, fixedDelay = 100000)
+    public void ttt() {
+        getOpen();
     }
 }

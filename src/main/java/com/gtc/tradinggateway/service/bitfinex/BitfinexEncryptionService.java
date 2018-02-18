@@ -37,6 +37,7 @@ public class BitfinexEncryptionService {
                 .build();
     }
 
+    @SneakyThrows
     private String generatePayload(Object request) {
         String payload = cfg.getMapper().writeValueAsString(request);
         return Base64.getEncoder().encodeToString(payload.getBytes());
