@@ -15,6 +15,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.stereotype.Service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -92,4 +93,22 @@ public class HitbtcWsServiceTest extends BaseMockitoTest {
         assertThat(params.getPrice()).isEqualTo(1 / price);
         assertThat(params.getQuantity()).isEqualTo(1 / amount);
     }
+
+    @Service
+    public static class HitbtcWsServiceTestable extends HitbtcWsService {
+
+        public HitbtcWsServiceTestable(HitbtcConfig cfg) {
+            super(cfg);
+        }
+
+        public void setRxConnected(RxObjectEventConnected value) {
+            rxConnected.set(value);
+        }
+
+        public void setIsLoggedIn(Boolean value) {
+            isLoggedIn.set(value);
+        }
+
+    }
+
 }
