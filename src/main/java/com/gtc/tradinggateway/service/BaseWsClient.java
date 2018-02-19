@@ -44,7 +44,7 @@ public abstract class BaseWsClient {
     }
 
     @SneakyThrows
-    public void connect() {
+    protected void connect() {
         if (null != rxConnected.get()) {
             return;
         }
