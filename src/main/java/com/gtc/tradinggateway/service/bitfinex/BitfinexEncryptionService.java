@@ -22,7 +22,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 @RequiredArgsConstructor
 public class BitfinexEncryptionService {
 
-    private static final String METHOD = "HmacSHA256";
+    private static final String METHOD = "HmacSHA384";
 
     private final BitfinexConfig cfg;
 

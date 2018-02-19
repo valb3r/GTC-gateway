@@ -5,6 +5,7 @@ import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.Account;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
+import com.gtc.tradinggateway.service.bitfinex.dto.BitfinexRequestDto;
 import com.gtc.tradinggateway.service.dto.OrderDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +30,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BitfinexRestClient implements Account, ManageOrders, Withdraw {
 
-    private static String ORDERS = "/auth/r/orders";
+    private static String ORDERS = "/v2/auth/r/orders";
 
     private final BitfinexConfig cfg;
     private final BitfinexEncryptionService signer;
@@ -44,11 +45,12 @@ public class BitfinexRestClient implements Account, ManageOrders, Withdraw {
 
     public List<OrderDto> getOpen() {
         log.info(cfg.getRestBase() + ORDERS);
+        BitfinexRequestDto requestDto = new BitfinexRequestDto(ORDERS);
         ResponseEntity<String[][]> resp = cfg.getRestTemplate()
                 .exchange(
                         cfg.getRestBase() + ORDERS,
                         HttpMethod.POST,
-                        new HttpEntity<>(new Object(), signer.restHeaders(null)),
+                        new HttpEntity<>(requestDto, signer.restHeaders(requestDto)),
                         String[][].class);
         String[][] orders = resp.getBody();
         List<OrderDto> result = new ArrayList<>();

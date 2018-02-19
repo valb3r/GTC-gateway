@@ -26,7 +26,8 @@ app:
             LTCBTC=LTC-BTC,
             XMRBTC=XMR-BTC
     bitfinex:
-        restBase: "https://api.bitfinex.com/v2"
+#        restBase: "https://api.bitfinex.com"
+        restBase: "http://localhost:8081"
         wsBase: ""
         passphrase: ${BITFINEX_PASSPHRASE}
         publicKey: ${BITFINEX_PUBLIC}
