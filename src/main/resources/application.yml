@@ -13,11 +13,17 @@ server:
 app:
     gdax:
         restBase:
+        wsBase:
         passphrase: ${GDAX_PASSPHRASE}
         publicKey: ${GDAX_PUBLIC}
         secretKey: ${GDAX_SECRET}
+        pairs:
+            BTCUSD=BTC-USD,
+            LTCBTC=LTC-BTC,
+            XMRBTC=XMR-BTC
     binance:
         restBase: "https://api.binance.com"
+        wsBase:
         passphrase: ${BINANCE_PASSPHRASE}
         publicKey: ${BINANCE_PUBLIC}
         secretKey: ${BINANCE_SECRET}
@@ -25,6 +31,17 @@ app:
             BTCUSD=BTC-USD,
             LTCBTC=LTC-BTC,
             XMRBTC=XMR-BTC
+    hitbtc:
+        restBase: "https://api.hitbtc.com/api/2"
+        wsBase: "wss://api.hitbtc.com/api/2/ws"
+        passphrase: ${HITBTC_PASSPHRASE}
+        publicKey: ${HITBTC_PUBLIC}
+        secretKey: ${HITBTC_SECRET}
+        pairs:
+            BTCUSD=BTC-USD,
+            LTCBTC=LTC-BTC,
+            XMRBTC=XMR-BTC
+        disconnectIfInactiveS: 20
 debug: true
 logging:
     level: DEBUG

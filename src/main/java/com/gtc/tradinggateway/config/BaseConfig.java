@@ -9,6 +9,7 @@ import org.springframework.web.client.RestTemplate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by Valentyn Berezin on 16.01.18.
@@ -30,7 +31,7 @@ public class BaseConfig {
 
     protected Map<String, PairSymbol> pairs;
 
-    protected void setPairs(List<String> list) {
+    public void setPairs(List<String> list) {
         pairs = parse(list);
     }
 
@@ -48,14 +49,14 @@ public class BaseConfig {
                         HashMap::putAll);
     }
 
-    public PairSymbol fromCurrency(TradingCurrency from, TradingCurrency to) {
+    public Optional<PairSymbol> fromCurrency(TradingCurrency from, TradingCurrency to) {
         String symbol = from.toString() + to.toString();
         PairSymbol pair = pairs.get(symbol);
         if (pair != null) {
-            return pair;
+            return Optional.of(pair);
         }
         String invertedSymbol = to.toString() + from.toString();
         PairSymbol invertedPair = pairs.get(invertedSymbol);
-        return invertedPair != null ? invertedPair.invert() : null;
+        return invertedPair != null ? Optional.of(invertedPair.invert()) : Optional.empty();
     }
 }

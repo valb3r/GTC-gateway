@@ -5,7 +5,7 @@ import com.gtc.tradinggateway.meta.TradingCurrency;
 /**
  * Typically WSS based.
  */
-public interface CreateOrder {
+public interface CreateOrder extends ClientNamed {
 
     /**
      * @return created order id.
