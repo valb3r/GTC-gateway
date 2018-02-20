@@ -3,10 +3,7 @@ package com.gtc.tradinggateway.service.binance;
 import com.gtc.tradinggateway.config.BinanceConfig;
 import com.gtc.tradinggateway.meta.PairSymbol;
 import com.gtc.tradinggateway.meta.TradingCurrency;
-import com.gtc.tradinggateway.service.Account;
-import com.gtc.tradinggateway.service.CreateOrder;
-import com.gtc.tradinggateway.service.ManageOrders;
-import com.gtc.tradinggateway.service.Withdraw;
+import com.gtc.tradinggateway.service.*;
 import com.gtc.tradinggateway.service.binance.dto.*;
 import com.gtc.tradinggateway.service.dto.OrderDto;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +26,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.BINANCE;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class BinanceRestService implements ManageOrders, Withdraw, Account, CreateOrder {
+public class BinanceRestService implements GetOrders, Withdraw, Account, CreateOrder, CancelOrder {
 
     static final String ORDERS = "/api/v3/order";
     private static final String ALL_ORDERS = "/api/v3/openOrders";

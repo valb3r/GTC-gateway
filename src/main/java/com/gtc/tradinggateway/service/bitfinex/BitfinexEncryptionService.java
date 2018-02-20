@@ -26,14 +26,14 @@ public class BitfinexEncryptionService {
 
     private final BitfinexConfig cfg;
 
-    public Map<String, String> signingHeaders(String url, Object request) {
-        String nonce = generatePayload(request);
+    public Map<String, String> signingHeaders(Object request) {
+        String payload = generatePayload(request);
         return ImmutableMap.<String, String>builder()
                 .put("accept", APPLICATION_JSON.toString())
                 .put("content-type", APPLICATION_JSON.toString())
-                .put("bfx-apikey", cfg.getPublicKey())
-                .put("bfx-nonce", nonce)
-                .put("bfx-signature", generateSignature(nonce, cfg.getSecretKey(), METHOD))
+                .put("X-BFX-APIKEY", cfg.getPublicKey())
+                .put("X-BFX-PAYLOAD", payload)
+                .put("X-BFX-SIGNATURE", generateSignature(payload, cfg.getSecretKey(), METHOD).replace("-", "").toLowerCase())
                 .build();
     }
 
@@ -44,9 +44,24 @@ public class BitfinexEncryptionService {
     }
 
     @SneakyThrows
-    private String generateSignature(String url, String msg, String nonce) {
-        String signature = url+ "/api/${msg}${nonce}${rawBody}" + url + nonce + msg;
-        return null;
+    private String generateSignature(String msg, String keyString, String algo) {
+        String digest = null;
+        SecretKeySpec key = new SecretKeySpec((keyString).getBytes("UTF-8"), algo);
+        Mac mac = Mac.getInstance(algo);
+        mac.init(key);
+
+        byte[] bytes = mac.doFinal(msg.getBytes("ASCII"));
+
+        StringBuffer hash = new StringBuffer();
+        for (int i = 0; i < bytes.length; i++) {
+            String hex = Integer.toHexString(0xFF & bytes[i]);
+            if (hex.length() == 1) {
+                hash.append('0');
+            }
+            hash.append(hex);
+        }
+        digest = hash.toString();
+        return digest;
     }
 
     public HttpHeaders restHeaders(Object request) {

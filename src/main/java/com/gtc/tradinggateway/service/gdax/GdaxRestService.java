@@ -3,7 +3,8 @@ package com.gtc.tradinggateway.service.gdax;
 import com.gtc.tradinggateway.config.GdaxConfig;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.Account;
-import com.gtc.tradinggateway.service.ManageOrders;
+import com.gtc.tradinggateway.service.CancelOrder;
+import com.gtc.tradinggateway.service.GetOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.dto.OrderDto;
 import com.gtc.tradinggateway.service.gdax.dto.GdaxGetOrderDto;
@@ -24,7 +25,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.GDAX;
  */
 @Service
 @RequiredArgsConstructor
-public class GdaxRestService implements ManageOrders, Withdraw, Account {
+public class GdaxRestService implements GetOrders, Withdraw, Account, CancelOrder {
 
     private static final String ORDERS = "/orders";
 

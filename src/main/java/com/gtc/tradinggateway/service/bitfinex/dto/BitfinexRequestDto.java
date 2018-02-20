@@ -12,7 +12,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BitfinexRequestDto {
 
-    protected String nonce = UUID.randomUUID().toString();
-    protected final String url;
-
+    protected final String request;
+    protected String nonce = String.valueOf(System.currentTimeMillis());
 }

@@ -3,7 +3,8 @@ package com.gtc.tradinggateway.service.hitbtc;
 import com.gtc.tradinggateway.config.HitbtcConfig;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.Account;
-import com.gtc.tradinggateway.service.ManageOrders;
+import com.gtc.tradinggateway.service.CancelOrder;
+import com.gtc.tradinggateway.service.GetOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.dto.OrderDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcBalanceItemDto;
@@ -28,7 +29,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.HITBTC;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class HitbtcRestService implements ManageOrders, Withdraw, Account {
+public class HitbtcRestService implements GetOrders, Withdraw, Account, CancelOrder {
 
     private static final String ORDERS = "/order/";
     private static final String BALANCES = "/trading/balance";
