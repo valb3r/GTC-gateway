@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * Smart converter to convert {@link MediaType#APPLICATION_FORM_URLENCODED} to POJO.
+ * Smart converter to convert {@link MediaType#APPLICATION_FORM_URLENCODED} to POJO. Adds necessary header.
  */
 public class FormHttpMessageToPojoConverter extends AbstractHttpMessageConverter<Object> {
 
@@ -44,6 +44,6 @@ public class FormHttpMessageToPojoConverter extends AbstractHttpMessageConverter
         Map<String, String> asMap = mapper.convertValue(value, new TypeReference<Map<String, String>>() {});
         MultiValueMap<String, String> mvMap = new LinkedMultiValueMap<>();
         asMap.forEach(mvMap::add);
-        formHttpMessageConverter.write(mvMap, null, outputMessage);
+        formHttpMessageConverter.write(mvMap, MediaType.APPLICATION_FORM_URLENCODED, outputMessage);
     }
 }

@@ -15,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -106,11 +105,6 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
                         cfg.getRestBase() + WITHDRAWAL,
                         HttpMethod.POST,
                         new HttpEntity<>(requestDto, signer.restHeaders()), Object.class);
-    }
-
-    @Scheduled(fixedRate=5000)
-    public void ttt() {
-        withdraw(TradingCurrency.Bitcoin, 0.2, "0x000");
     }
 
     @Override
