@@ -16,10 +16,11 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.gtc.tradinggateway.config.Const.Clients.HITBTC;
 
 /**
  * Created by mikro on 12.02.2018.
@@ -88,7 +89,7 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
             } catch (RuntimeException ex) {
                 log.error(
                         "Failed mapping currency-code {} having amount {}",
-                        asset.getCurrency().toString(), String.valueOf(asset.getAvailable()));
+                        asset.toString(), String.valueOf(asset.getAvailable()));
             }
         }
         return results;
@@ -98,14 +99,16 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
     @Override
     public void withdraw(TradingCurrency currency, double amount, String destination) {
         HitbtcWithdrawRequestDto requestDto = new HitbtcWithdrawRequestDto(destination, amount, currency.toString());
-        LinkedMultiValueMap mapMv = new LinkedMultiValueMap();
-        cfg.getMapper()
-                .convertValue(requestDto, Map.class)
-                .forEach((key, value) -> mapMv.add(key, String.valueOf(value)));
+
         cfg.getRestTemplate()
                 .exchange(
                         cfg.getRestBase() + WITHDRAWAL,
                         HttpMethod.POST,
-                        new HttpEntity<>(mapMv, signer.restHeaders()), Object.class);
+                        new HttpEntity<>(requestDto, signer.restHeaders()), Object.class);
+    }
+
+    @Override
+    public String name() {
+        return HITBTC;
     }
 }

@@ -4,7 +4,6 @@ import com.gtc.tradinggateway.config.HitbtcConfig;
 import com.gtc.tradinggateway.util.BasicHttpAuthHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,7 +18,6 @@ public class HitbtcEncryptionService {
     public HttpHeaders restHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.setAll(BasicHttpAuthHelper.generateToken(cfg.getPublicKey(), cfg.getSecretKey()));
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         return headers;
     }
 }

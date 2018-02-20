@@ -21,6 +21,8 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URLEncoder;
 import java.util.*;
 
+import static com.gtc.tradinggateway.config.Const.Clients.BINANCE;
+
 /**
  * Created by mikro on 23.01.2018.
  */
@@ -155,5 +157,10 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
                         BinanceGetOrderDto.class);
         BinanceGetOrderDto result = resp.getBody();
         return pairSym.toString() + "." + result.getId();
+    }
+
+    @Override
+    public String name() {
+        return BINANCE;
     }
 }

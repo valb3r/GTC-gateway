@@ -27,11 +27,11 @@ import static com.gtc.tradinggateway.config.Const.Clients.HITBTC;
 @Service
 public class HitbtcWsService extends BaseWsClient implements CreateOrder {
 
-    private static String SELL = "sell";
-    private static String BUY = "buy";
-    private static String ERROR_ALIAS = "error";
-    private static String AUTH_ALIAS = "auth";
-    private static String ID_ALIAS = "id";
+    private static final String SELL = "sell";
+    private static final String BUY = "buy";
+    private static final String ERROR_ALIAS = "error";
+    private static final String AUTH_ALIAS = "auth";
+    private static final String ID_ALIAS = "id";
 
     private final HitbtcConfig cfg;
 
@@ -43,11 +43,6 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
     @Override
     protected String getWs() {
         return cfg.getWsBase();
-    }
-
-    @Override
-    protected String name() {
-        return HITBTC;
     }
 
     @Override
@@ -66,7 +61,7 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
         if (null != node.get(ERROR_ALIAS)) {
             HitbtcErrorDto error = cfg.getMapper().reader().readValue(node.traverse(), HitbtcErrorDto.class);
             isLoggedIn.set(false);
-            throw new Exception(error.getError().getMessage());
+            throw new IllegalStateException(error.getError().getMessage());
         } else if (AUTH_ALIAS.equals(node.get(ID_ALIAS).asText())) {
             isLoggedIn.set(true);
         }
@@ -119,5 +114,10 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
                 .sendObjectMessage(sender, requestDto)
                 .subscribe();
         return requestDto.getParams().getClientOrderId();
+    }
+
+    @Override
+    public String name() {
+        return HITBTC;
     }
 }

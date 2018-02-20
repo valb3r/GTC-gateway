@@ -10,13 +10,13 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+import static com.gtc.tradinggateway.config.Const.Clients.GDAX;
+
 /**
  * Created by Valentyn Berezin on 16.01.18.
  */
 @Service
 public class GdaxWsService extends BaseWsClient implements CreateOrder {
-
-    private static final String CHANNEL = "user";
 
     private final GdaxConfig cfg;
     private final GdaxEncryptionService signer;
@@ -35,11 +35,6 @@ public class GdaxWsService extends BaseWsClient implements CreateOrder {
     @Override
     protected String getWs() {
         return cfg.getWsBase();
-    }
-
-    @Override
-    protected String name() {
-        return null;
     }
 
     @Override
@@ -68,5 +63,10 @@ public class GdaxWsService extends BaseWsClient implements CreateOrder {
     @Override
     protected int getDisconnectIfInactiveS() {
         return cfg.getDisconnectIfInactiveS();
+    }
+
+    @Override
+    public String name() {
+        return GDAX;
     }
 }

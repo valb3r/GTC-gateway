@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Created by Valentyn Berezin on 16.01.18.
  */
-public interface Account {
+public interface Account extends ClientNamed {
 
     Map<TradingCurrency, Double> balances();
 }
