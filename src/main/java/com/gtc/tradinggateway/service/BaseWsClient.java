@@ -22,6 +22,7 @@ import rx.Observable;
 
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -36,14 +37,15 @@ public abstract class BaseWsClient {
 
     protected final ObjectMapper objectMapper;
     protected final AtomicReference<RxObjectEventConnected> rxConnected = new AtomicReference<>();
+    protected final AtomicBoolean isLoggedIn = new AtomicBoolean();
 
     public BaseWsClient(ObjectMapper mapper) {
         this.objectMapper = mapper;
     }
 
     @SneakyThrows
-    public void connect() {
-        if (null == rxConnected.get()) {
+    protected void connect() {
+        if (null != rxConnected.get()) {
             return;
         }
 
@@ -62,6 +64,7 @@ public abstract class BaseWsClient {
                     NewRelic.incrementCounter(CONNECTS + name());
                     rxConnected.set(onConn);
                     log.info("Connected");
+                    login();
                     onConnected(onConn);
                 });
 
@@ -82,7 +85,7 @@ public abstract class BaseWsClient {
     }
 
     public boolean isDisconnected() {
-        return null != rxConnected.get();
+        return null == rxConnected.get();
     }
 
     protected void handleInboundMessage(JsonNode node) {
@@ -106,6 +109,7 @@ public abstract class BaseWsClient {
     protected abstract void parseEventDto(JsonNode node);
     protected abstract void parseArray(JsonNode node);
     protected abstract int getDisconnectIfInactiveS();
+    protected abstract void login();
 
     private void handleDisconnectEvt(String reason, Throwable err) {
         rxConnected.set(null);

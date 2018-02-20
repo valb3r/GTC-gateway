@@ -2,6 +2,8 @@ package com.gtc.tradinggateway.meta;
 
 import lombok.Data;
 
+import java.util.Optional;
+
 /**
  * Created by mikro on 02.02.2018.
  */

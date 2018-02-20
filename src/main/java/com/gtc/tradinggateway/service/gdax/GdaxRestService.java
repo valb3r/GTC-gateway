@@ -6,7 +6,6 @@ import com.gtc.tradinggateway.service.Account;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.dto.OrderDto;
-import com.gtc.tradinggateway.service.dto.OrderRequestDto;
 import com.gtc.tradinggateway.service.gdax.dto.GdaxGetOrderDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -17,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import static com.gtc.tradinggateway.config.Const.Clients.GDAX;
 
 /**
  * Created by Valentyn Berezin on 16.01.18.
@@ -64,5 +65,10 @@ public class GdaxRestService implements ManageOrders, Withdraw, Account {
     @Override
     public void withdraw(TradingCurrency currency, double amount, String destination) {
 
+    }
+
+    @Override
+    public String name() {
+        return GDAX;
     }
 }
