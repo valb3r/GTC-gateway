@@ -191,7 +191,8 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
 
     @Test
     public void testCreateOrder() {
-        PairSymbol pair = mock(PairSymbol.class);
+        PairSymbol pairSym = mock(PairSymbol.class);
+        Optional<PairSymbol> pair = Optional.of(pairSym);
         TradingCurrency from = TradingCurrency.Bitcoin;
         TradingCurrency to = TradingCurrency.Usd;
         double amount = 0.1;
@@ -209,8 +210,8 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
 
         String result = binanceRestService.create(from, to, amount, price);
 
-        assertThat(result).isEqualTo(pair.toString() + "." + id);
-        assertThat(requestCaptor.getValue()).startsWith(BASE + "/api/v3/order?symbol=" + pair +
+        assertThat(result).isEqualTo(pairSym.toString() + "." + id);
+        assertThat(requestCaptor.getValue()).startsWith(BASE + "/api/v3/order?symbol=" + pairSym +
             "&side=BUY&type=LIMIT&timeInForce=GTC&quantity=" + amount + "&price=" +
                 price + "&recvWindow=5000");
         assertThat(requestCaptor.getValue()).endsWith("signature=" + SIGNED);
@@ -220,7 +221,8 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
 
     @Test
     public void testCreateInvertedOrder() {
-        PairSymbol pair = mock(PairSymbol.class);
+        PairSymbol pairSym = mock(PairSymbol.class);
+        Optional<PairSymbol> pair = Optional.of(pairSym);
         TradingCurrency from = TradingCurrency.Bitcoin;
         TradingCurrency to = TradingCurrency.Usd;
         double amount = 0.1;
@@ -228,7 +230,7 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
         String id = "testid";
         when(getOrderDto.getId()).thenReturn(id);
         when(cfg.fromCurrency(from, to)).thenReturn(pair);
-        when(pair.getIsInverted()).thenReturn(true);
+        when(pairSym.getIsInverted()).thenReturn(true);
         when(restTemplate.exchange(
                 requestCaptor.capture(),
                 eq(HttpMethod.POST),
@@ -238,7 +240,7 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
 
         binanceRestService.create(from, to, amount, price);
 
-        assertThat(requestCaptor.getValue()).startsWith(BASE + "/api/v3/order?symbol=" + pair +
+        assertThat(requestCaptor.getValue()).startsWith(BASE + "/api/v3/order?symbol=" + pairSym +
                 "&side=SELL&type=LIMIT&timeInForce=GTC&quantity=" + (1 / amount) + "&price=" +
                 (1 / price) + "&recvWindow=5000");
     }

@@ -24,7 +24,6 @@ public class HitbtcCreateRequestDto {
         private final String side;
         private final double price;
         private final double quantity;
-
     }
 
     public HitbtcCreateRequestDto(String symbol, String side, double price, double quantity) {

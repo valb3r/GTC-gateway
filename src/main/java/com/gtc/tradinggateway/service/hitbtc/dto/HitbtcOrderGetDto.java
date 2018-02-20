@@ -10,15 +10,16 @@ import lombok.Data;
 @Data
 public class HitbtcOrderGetDto {
 
+    public static String SELL = "sell";
+
     @JsonProperty("clientOrderId")
     private String id;
     private String symbol;
     private double quantity;
     private String status;
     private double price;
-    private String side;
 
-    public static String SELL = "sell";
+    private String side;
 
     public OrderDto mapTo () {
         return OrderDto.builder()
