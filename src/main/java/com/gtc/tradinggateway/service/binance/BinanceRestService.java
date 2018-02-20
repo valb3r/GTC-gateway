@@ -31,7 +31,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.BINANCE;
 @RequiredArgsConstructor
 public class BinanceRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
-    static final String ORDERS = "/api/v3/order";
+    private static final String ORDERS = "/api/v3/order";
     private static final String ALL_ORDERS = "/api/v3/openOrders";
     private static final String BALANCES = "/api/v3/account";
     private static final String WITHDRAWAL = "/wapi/v3/withdraw.html";
@@ -75,7 +75,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
                         new HttpEntity<>(signer.restHeaders()),
                         BinanceGetOrderDto[].class);
         BinanceGetOrderDto[] list = resp.getBody();
-        List<OrderDto> result = new ArrayList<OrderDto>();
+        List<OrderDto> result = new ArrayList<>();
         for (BinanceGetOrderDto respDto : list) {
             result.add(respDto.mapTo());
         }
@@ -115,7 +115,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
             } catch (RuntimeException ex) {
                 log.error(
                         "Failed mapping currency-code {} having amount {}",
-                        asset.getCode().toString(), String.valueOf(asset.getAmount()));
+                        asset.getCode(), String.valueOf(asset.getAmount()));
             }
         }
         return results;
