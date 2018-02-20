@@ -108,6 +108,5 @@ public class HitbtcWsServiceTest extends BaseMockitoTest {
         public void setIsLoggedIn(Boolean value) {
             isLoggedIn.set(value);
         }
-
     }
 }
