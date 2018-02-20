@@ -57,6 +57,7 @@ app:
             LTCBTC=LTC-BTC,
             XMRBTC=XMR-BTC
         disconnectIfInactiveS: 20
+        ratePerS: 1
     jms:
         queue:
             create: create
