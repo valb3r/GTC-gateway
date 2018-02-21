@@ -7,12 +7,10 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.EmbeddedValueResolver;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.gtc.tradinggateway.aspect.RateLimited.Mode.CLASS;
@@ -32,11 +30,9 @@ public class RateLimitingAspect {
         this.resolver = new EmbeddedValueResolver(beanFactory);
     }
 
-    @Around("@within(com.gtc.tradinggateway.aspect.RateLimited) "
-            + "|| @annotation(com.gtc.tradinggateway.aspect.RateLimited)")
-    public Object rateLimit(ProceedingJoinPoint joinPoint) throws Throwable {
+    @Around("@within(ann)")
+    public Object rateLimit(ProceedingJoinPoint joinPoint, RateLimited ann) throws Throwable {
         Method method = getMethod(joinPoint);
-        RateLimited ann = getAnnotation(method);
         String key = getKey(method, ann);
 
         boolean acquired = limiters.computeIfAbsent(key, id -> RateLimiter.create(
@@ -53,11 +49,6 @@ public class RateLimitingAspect {
     private Method getMethod(ProceedingJoinPoint joinPoint) {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         return signature.getMethod();
-    }
-
-    private RateLimited getAnnotation(Method method) {
-        return Optional.ofNullable(AnnotationUtils.getAnnotation(method, RateLimited.class))
-                .orElse(AnnotationUtils.getAnnotation(method.getDeclaringClass(), RateLimited.class));
     }
 
     private String getKey(Method method, RateLimited ann) {
