@@ -5,7 +5,8 @@ description = 'gtc-tradinggateway-model'
 buildscript {
     ext {
         versions = [
-                lombok: "1.16.16"
+                lombok: "1.16.16",
+                geronimoJMS: "1.1.1"
         ]
     }
     dependencies {
@@ -27,6 +28,8 @@ repositories {
 
 dependencies {
     compileOnly "org.projectlombok:lombok:${versions.lombok}"
+
+    compile "org.apache.geronimo.specs:geronimo-jms_1.1_spec:${versions.geronimoJMS}"
 
     testCompile group: 'junit', name: 'junit', version: '4.11'
 }
