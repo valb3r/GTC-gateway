@@ -46,7 +46,8 @@ repositories {
 dependencies {
     compile project(":model")
 
-    compile "org.projectlombok:lombok"
+    compileOnly "org.projectlombok:lombok"
+
     compile "org.springframework.boot:spring-boot-configuration-processor"
     compile "org.springframework.boot:spring-boot-starter-web"
     compile "org.springframework.boot:spring-boot-starter-activemq"

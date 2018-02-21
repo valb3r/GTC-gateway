@@ -24,7 +24,7 @@ spring:
             use-anonymous-producers: true
 server:
     servlet-path: /api
-    port: 9999
+    port: 8084
 app:
     gdax:
         restBase:
