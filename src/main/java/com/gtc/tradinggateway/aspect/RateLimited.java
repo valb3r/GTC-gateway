@@ -11,4 +11,11 @@ import java.lang.annotation.*;
 public @interface RateLimited {
 
     String ratePerSecond() default "";
+
+    Mode mode() default Mode.METHOD;
+
+    enum Mode {
+        CLASS,
+        METHOD
+    }
 }

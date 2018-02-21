@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -30,7 +29,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.HITBTC;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@RateLimited(ratePerSecond = "${app.hitbtc.ratePerS}")
+@RateLimited(ratePerSecond = "${app.hitbtc.ratePerS}", mode = RateLimited.Mode.CLASS)
 public class HitbtcRestService implements ManageOrders, Withdraw, Account {
 
     private static final String ORDERS = "/order/";
@@ -108,12 +107,6 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
                         cfg.getRestBase() + WITHDRAWAL,
                         HttpMethod.POST,
                         new HttpEntity<>(requestDto, signer.restHeaders()), Object.class);
-    }
-
-    @Scheduled(fixedRate = 100)
-    public void ttt() {
-        log.info("ZZZZZ");
-        //withdraw(TradingCurrency.Bitcoin, 0.2, "0x000");
     }
 
     @Override

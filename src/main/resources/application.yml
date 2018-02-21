@@ -36,6 +36,7 @@ app:
             BTCUSD=BTC-USD,
             LTCBTC=LTC-BTC,
             XMRBTC=XMR-BTC
+        ratePerS: 0.17
     binance:
         restBase: "https://api.binance.com"
         wsBase:
@@ -46,6 +47,7 @@ app:
             BTCUSD=BTC-USD,
             LTCBTC=LTC-BTC,
             XMRBTC=XMR-BTC
+        ratePerS: 0.17
     hitbtc:
         restBase: "https://api.hitbtc.com/api/2"
         wsBase: "wss://api.hitbtc.com/api/2/ws"
@@ -57,7 +59,7 @@ app:
             LTCBTC=LTC-BTC,
             XMRBTC=XMR-BTC
         disconnectIfInactiveS: 20
-        ratePerS: 1
+        ratePerS: 0.17
     jms:
         queue:
             create: create

@@ -1,5 +1,6 @@
 package com.gtc.tradinggateway.service.binance;
 
+import com.gtc.tradinggateway.aspect.RateLimited;
 import com.gtc.tradinggateway.config.BinanceConfig;
 import com.gtc.tradinggateway.meta.PairSymbol;
 import com.gtc.tradinggateway.meta.TradingCurrency;
@@ -29,6 +30,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.BINANCE;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@RateLimited(ratePerSecond = "${app.binance.ratePerS}", mode = RateLimited.Mode.CLASS)
 public class BinanceRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
     private static final String ORDERS = "/api/v3/order";

@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.gtc.tradinggateway.aspect.RateLimited.Mode.CLASS;
+
 /**
  * Created by Valentyn Berezin on 20.02.18.
  */
@@ -30,11 +32,21 @@ public class RateLimitingAspect {
         this.resolver = new EmbeddedValueResolver(beanFactory);
     }
 
-    @Around("@annotation(com.gtc.tradinggateway.aspect.RateLimited) || @within(com.gtc.tradinggateway.aspect.RateLimited)")
+    @Around("@within(com.gtc.tradinggateway.aspect.RateLimited) "
+            + "|| @annotation(com.gtc.tradinggateway.aspect.RateLimited)")
     public Object rateLimit(ProceedingJoinPoint joinPoint) throws Throwable {
         Method method = getMethod(joinPoint);
-        String key = method.toGenericString();
-        limiters.computeIfAbsent(key, id -> RateLimiter.create(getRate(method))).acquire();
+        RateLimited ann = getAnnotation(method);
+        String key = getKey(method, ann);
+
+        boolean acquired = limiters.computeIfAbsent(key, id -> RateLimiter.create(
+                Double.valueOf(resolver.resolveStringValue(ann.ratePerSecond()))
+        )).tryAcquire();
+
+        if (!acquired) {
+            throw new IllegalStateException("Rate limiting");
+        }
+
         return joinPoint.proceed();
     }
 
@@ -43,9 +55,16 @@ public class RateLimitingAspect {
         return signature.getMethod();
     }
 
-    private double getRate(Method method) {
-        RateLimited rateSpel = Optional.ofNullable(AnnotationUtils.getAnnotation(method, RateLimited.class))
+    private RateLimited getAnnotation(Method method) {
+        return Optional.ofNullable(AnnotationUtils.getAnnotation(method, RateLimited.class))
                 .orElse(AnnotationUtils.getAnnotation(method.getDeclaringClass(), RateLimited.class));
-        return Double.valueOf(resolver.resolveStringValue(rateSpel.ratePerSecond()));
+    }
+
+    private String getKey(Method method, RateLimited ann) {
+        if (CLASS.equals(ann.mode())) {
+            return method.getDeclaringClass().getCanonicalName();
+        }
+
+        return method.getName();
     }
 }

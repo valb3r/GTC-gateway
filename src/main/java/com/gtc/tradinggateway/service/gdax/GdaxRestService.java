@@ -1,5 +1,6 @@
 package com.gtc.tradinggateway.service.gdax;
 
+import com.gtc.tradinggateway.aspect.RateLimited;
 import com.gtc.tradinggateway.config.GdaxConfig;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.Account;
@@ -24,6 +25,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.GDAX;
  */
 @Service
 @RequiredArgsConstructor
+@RateLimited(ratePerSecond = "${app.gdax.ratePerS}", mode = RateLimited.Mode.CLASS)
 public class GdaxRestService implements ManageOrders, Withdraw, Account {
 
     private static final String ORDERS = "/orders";
