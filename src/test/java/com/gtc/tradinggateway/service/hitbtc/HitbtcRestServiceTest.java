@@ -4,7 +4,7 @@ import com.gtc.tradinggateway.BaseMockitoTest;
 import com.gtc.tradinggateway.config.ConfigFactory;
 import com.gtc.tradinggateway.config.HitbtcConfig;
 import com.gtc.tradinggateway.meta.TradingCurrency;
-import com.gtc.tradinggateway.service.dto.OrderDto;
+import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcBalanceItemDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcOrderGetDto;
 import org.junit.Before;

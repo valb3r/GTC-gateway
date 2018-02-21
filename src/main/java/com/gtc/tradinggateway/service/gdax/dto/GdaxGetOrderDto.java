@@ -1,6 +1,6 @@
 package com.gtc.tradinggateway.service.gdax.dto;
 
-import com.gtc.tradinggateway.service.dto.OrderDto;
+import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import lombok.Data;
 
 /**

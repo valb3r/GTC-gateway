@@ -2,7 +2,7 @@ package com.gtc.tradinggateway.service.binance.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.gtc.tradinggateway.service.dto.OrderDto;
+import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import lombok.Data;
 
 

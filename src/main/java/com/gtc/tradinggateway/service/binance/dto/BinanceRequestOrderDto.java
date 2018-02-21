@@ -1,6 +1,5 @@
 package com.gtc.tradinggateway.service.binance.dto;
 
-import com.gtc.tradinggateway.service.dto.OrderRequestDto;
 import com.gtc.tradinggateway.util.UriFormatter;
 import lombok.Data;
 

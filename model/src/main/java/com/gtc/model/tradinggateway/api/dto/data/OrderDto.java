@@ -1,4 +1,4 @@
-package com.gtc.tradinggateway.service.dto;
+package com.gtc.model.tradinggateway.api.dto.data;
 
 import lombok.Builder;
 import lombok.Data;

@@ -9,7 +9,7 @@ import com.gtc.tradinggateway.service.CreateOrder;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.binance.dto.*;
-import com.gtc.tradinggateway.service.dto.OrderDto;
+import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
