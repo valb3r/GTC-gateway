@@ -4,6 +4,7 @@ import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * Created by Valentyn Berezin on 21.02.18.
@@ -16,6 +17,7 @@ public class CancelOrderCommand extends AbstractMessage {
 
     public static final String SELECTOR = HEADER_NAME + "='" + HEADER + "'";
 
+    @NotBlank
     private final String orderId;
 
     @Builder

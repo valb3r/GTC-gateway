@@ -23,6 +23,7 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -36,9 +37,9 @@ import java.util.stream.Collectors;
 @ConditionalOnBean(JmsTemplate.class)
 public class EsbCommandHandler {
 
-    private static final String CREATE_QUEUE = "${app.jms.queue.create}";
-    private static final String MANAGE_QUEUE = "${app.jms.queue.manage}";
-    private static final String WITHDRAW_QUEUE = "${app.jms.queue.withdraw}";
+    private static final String CREATE_QUEUE = "${app.jms.queue.inOut.create}";
+    private static final String MANAGE_QUEUE = "${app.jms.queue.inOut.manage}";
+    private static final String WITHDRAW_QUEUE = "${app.jms.queue.inOut.withdraw}";
 
     private final JmsTemplate jmsTemplate;
     private final Map<String, CreateOrder> createOps;
@@ -54,14 +55,14 @@ public class EsbCommandHandler {
     }
 
     @JmsListener(destination = CREATE_QUEUE, selector = CreateOrderCommand.SELECTOR)
-    public void create(CreateOrderCommand command) {
+    public void create(@Valid CreateOrderCommand command) {
         log.info("Request to create order {}", command);
         doExecute(CREATE_QUEUE, command, createOps, (handler, cmd) -> {
             String id = handler.create(
                     TradingCurrency.fromCode(cmd.getCurrencyFrom()),
                     TradingCurrency.fromCode(cmd.getCurrencyTo()),
-                    cmd.getAmount(),
-                    cmd.getPrice()
+                    cmd.getAmount().doubleValue(),
+                    cmd.getPrice().doubleValue()
             );
 
             log.info("Created {} for {} of {}", id, cmd.getId(), cmd.getClientName());
@@ -74,7 +75,7 @@ public class EsbCommandHandler {
     }
 
     @JmsListener(destination = MANAGE_QUEUE, selector = GetOrderCommand.SELECTOR)
-    public void get(GetOrderCommand command) {
+    public void get(@Valid GetOrderCommand command) {
         log.info("Request to get order {}", command);
         doExecute(MANAGE_QUEUE, command, manageOps, (handler, cmd) -> {
             OrderDto res = handler.get(
@@ -91,7 +92,7 @@ public class EsbCommandHandler {
     }
 
     @JmsListener(destination = MANAGE_QUEUE, selector = ListOpenCommand.SELECTOR)
-    public void listOpen(ListOpenCommand command) {
+    public void listOpen(@Valid ListOpenCommand command) {
         log.info("Request to list orders {}", command);
         doExecute(MANAGE_QUEUE, command, manageOps, (handler, cmd) -> {
             List<OrderDto> res = handler.getOpen();
@@ -106,7 +107,7 @@ public class EsbCommandHandler {
     }
 
     @JmsListener(destination = MANAGE_QUEUE, selector = CancelOrderCommand.SELECTOR)
-    public void cancel(CancelOrderCommand command) {
+    public void cancel(@Valid CancelOrderCommand command) {
         log.info("Request to cancel order {}", command);
         doExecute(MANAGE_QUEUE, command, manageOps, (handler, cmd) -> {
             handler.cancel(cmd.getOrderId());
@@ -120,17 +121,21 @@ public class EsbCommandHandler {
     }
 
     @JmsListener(destination = WITHDRAW_QUEUE, selector = WithdrawCommand.SELECTOR)
-    public void withdraw(WithdrawCommand command) {
+    public void withdraw(@Valid WithdrawCommand command) {
         log.info("Request to withdraw {}", command);
         doExecute(WITHDRAW_QUEUE, command, withdrawOps, (handler, cmd) -> {
-            handler.withdraw(TradingCurrency.fromCode(cmd.getCurrency()), cmd.getAmount(), cmd.getToDestination());
+            handler.withdraw(
+                    TradingCurrency.fromCode(cmd.getCurrency()),
+                    cmd.getAmount().doubleValue(),
+                    cmd.getToDestination()
+            );
 
             log.info("Withdraw {} by {} to {}", cmd.getCurrency(), cmd.getAmount(), cmd.getToDestination());
             return WithdrawOrderResponse.builder()
                     .clientName(cmd.getClientName())
                     .id(cmd.getId())
                     .currency(cmd.getCurrency())
-                    .amount(cmd.getAmount())
+                    .amount(cmd.getAmount().doubleValue())
                     .toDestination(cmd.getToDestination())
                     .build();
         });

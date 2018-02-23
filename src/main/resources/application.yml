@@ -62,9 +62,10 @@ app:
         ratePerS: 0.17
     jms:
         queue:
-            create: create
-            manage: manage
-            withdraw: withdraw
+            inOut:
+                create: create
+                manage: manage
+                withdraw: withdraw
 debug: true
 logging:
     level: DEBUG

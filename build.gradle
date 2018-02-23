@@ -19,7 +19,8 @@ buildscript {
                 junit                     : "4.12",
                 mockito                   : "1.10.19",
                 assertJ                   : "3.9.0",
-                aspectjOAP                : "1.8.12"
+                aspectjOAP                : "1.8.12",
+                validator                 : "5.4.1.Final"
         ]
     }
     dependencies {
@@ -57,6 +58,7 @@ dependencies {
     compile "com.github.jacek-marchwicki:JavaWebsocketClient:${versions.wsClient}"
     compile "com.newrelic.agent.java:newrelic-api:${versions.newRelicAPI}"
     compile "commons-codec:commons-codec:${versions.commonsCodec}"
+    compile "org.hibernate:hibernate-validator:${versions.validator}"
 
     testCompile "junit:junit:${versions.junit}"
     testCompile "org.mockito:mockito-all:${versions.mockito}"

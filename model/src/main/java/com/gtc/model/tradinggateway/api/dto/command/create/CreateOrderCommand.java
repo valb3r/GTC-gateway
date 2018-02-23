@@ -4,6 +4,10 @@ import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
+import org.hibernate.validator.constraints.NotBlank;
+
+import javax.validation.constraints.DecimalMin;
+import java.math.BigDecimal;
 
 /**
  * Created by Valentyn Berezin on 21.02.18.
@@ -16,10 +20,17 @@ public class CreateOrderCommand extends AbstractMessage {
 
     public static final String SELECTOR = HEADER_NAME + "='" + HEADER + "'";
 
+    @NotBlank
     private final String currencyFrom;
+
+    @NotBlank
     private final String currencyTo;
-    private final double price;
-    private final double amount;
+
+    @DecimalMin(MIN_DECIMAL)
+    private final BigDecimal price;
+
+    @DecimalMin(MIN_DECIMAL)
+    private final BigDecimal amount;
 
     @Builder
     public CreateOrderCommand(String clientName, String id, String currencyFrom, String currencyTo, double price,
@@ -27,8 +38,8 @@ public class CreateOrderCommand extends AbstractMessage {
         super(clientName, id);
         this.currencyFrom = currencyFrom;
         this.currencyTo = currencyTo;
-        this.price = price;
-        this.amount = amount;
+        this.price = BigDecimal.valueOf(price);
+        this.amount = BigDecimal.valueOf(amount);
     }
 
     @Override
