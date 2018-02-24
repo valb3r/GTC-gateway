@@ -122,4 +122,6 @@ public abstract class BaseWsClient {
             log.error(reason);
         }
     }
+
+    public static class AuthException extends Exception {}
 }

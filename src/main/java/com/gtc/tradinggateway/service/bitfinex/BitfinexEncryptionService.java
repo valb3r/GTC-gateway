@@ -33,7 +33,8 @@ public class BitfinexEncryptionService {
                 .put("content-type", APPLICATION_JSON.toString())
                 .put("X-BFX-APIKEY", cfg.getPublicKey())
                 .put("X-BFX-PAYLOAD", payload)
-                .put("X-BFX-SIGNATURE", generateSignature(payload, cfg.getSecretKey(), METHOD).replace("-", "").toLowerCase())
+                .put("X-BFX-SIGNATURE",
+                        generateSignature(payload, cfg.getSecretKey()).replace("-", "").toLowerCase())
                 .build();
     }
 
@@ -44,10 +45,10 @@ public class BitfinexEncryptionService {
     }
 
     @SneakyThrows
-    private String generateSignature(String msg, String keyString, String algo) {
-        String digest = null;
-        SecretKeySpec key = new SecretKeySpec((keyString).getBytes("UTF-8"), algo);
-        Mac mac = Mac.getInstance(algo);
+    public String generateSignature(String msg, String keyString) {
+        String digest;
+        SecretKeySpec key = new SecretKeySpec((keyString).getBytes("UTF-8"), METHOD);
+        Mac mac = Mac.getInstance(METHOD);
         mac.init(key);
 
         byte[] bytes = mac.doFinal(msg.getBytes("ASCII"));
@@ -69,5 +70,4 @@ public class BitfinexEncryptionService {
         headers.setAll(signingHeaders(request));
         return headers;
     }
-
 }

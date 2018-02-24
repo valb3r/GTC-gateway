@@ -32,9 +32,8 @@ app:
             LTCBTC=LTC-BTC,
             XMRBTC=XMR-BTC
     bitfinex:
-#        restBase: "https://api.bitfinex.com"
-        restBase: "http://localhost:8081"
-        wsBase: ""
+        restBase: "https://api.bitfinex.com"
+        wsBase: "wss://api.bitfinex.com/ws/2"
         passphrase: ${BITFINEX_PASSPHRASE}
         publicKey: ${BITFINEX_PUBLIC}
         secretKey: ${BITFINEX_SECRET}
@@ -42,6 +41,10 @@ app:
             BTCUSD=BTC-USD,
             LTCBTC=LTC-BTC,
             XMRBTC=XMR-BTC
+        symbols:
+            BTC=bitcoin,
+            LTC=litecoin,
+            XMR=monero
         disconnectIfInactiveS: 20
     hitbtc:
         restBase: "https://api.hitbtc.com/api/2"
