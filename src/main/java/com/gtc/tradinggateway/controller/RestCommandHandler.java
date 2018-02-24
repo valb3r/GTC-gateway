@@ -20,6 +20,7 @@ import com.gtc.tradinggateway.service.Withdraw;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
@@ -48,7 +49,7 @@ public class RestCommandHandler {
     }
 
     @PostMapping("create")
-    public AbstractMessage create(@Valid CreateOrderCommand command) {
+    public AbstractMessage create(@RequestBody @Valid CreateOrderCommand command) {
         log.info("Request to create order {}", command);
         return doExecute(command, createOps, (handler, cmd) -> {
             String id = handler.create(
@@ -68,7 +69,7 @@ public class RestCommandHandler {
     }
 
     @PostMapping("get")
-    public AbstractMessage get(@Valid GetOrderCommand command) {
+    public AbstractMessage get(@RequestBody @Valid GetOrderCommand command) {
         log.info("Request to get order {}", command);
         return doExecute(command, manageOps, (handler, cmd) -> {
             OrderDto res = handler.get(
@@ -85,7 +86,7 @@ public class RestCommandHandler {
     }
 
     @PostMapping("list")
-    public AbstractMessage listOpen(@Valid ListOpenCommand command) {
+    public AbstractMessage listOpen(@RequestBody @Valid ListOpenCommand command) {
         log.info("Request to list orders {}", command);
         return doExecute(command, manageOps, (handler, cmd) -> {
             List<OrderDto> res = handler.getOpen();
@@ -100,7 +101,7 @@ public class RestCommandHandler {
     }
 
     @PostMapping("cancel")
-    public AbstractMessage cancel(@Valid CancelOrderCommand command) {
+    public AbstractMessage cancel(@RequestBody @Valid CancelOrderCommand command) {
         log.info("Request to cancel order {}", command);
         return doExecute(command, manageOps, (handler, cmd) -> {
             handler.cancel(cmd.getOrderId());
@@ -114,7 +115,7 @@ public class RestCommandHandler {
     }
 
     @PostMapping("withdraw")
-    public AbstractMessage withdraw(@Valid WithdrawCommand command) {
+    public AbstractMessage withdraw(@RequestBody @Valid WithdrawCommand command) {
         log.info("Request to withdraw {}", command);
         return doExecute(command, withdrawOps, (handler, cmd) -> {
             handler.withdraw(
