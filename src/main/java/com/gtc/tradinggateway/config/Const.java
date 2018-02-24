@@ -16,6 +16,7 @@ public class Const {
 
         public static final String GDAX = "gdax";
         public static final String BINANCE = "binance";
+        public static final String BITFINEX = "bitfinex";
         public static final String HITBTC = "hitbtc";
     }
 }
