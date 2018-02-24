@@ -13,11 +13,10 @@ public class HitbtcAuthRequestDto {
     private String id = "auth";
     private AuthBody params;
 
-    @Data
     @RequiredArgsConstructor
     public static class AuthBody {
 
-        private String algo = "BASIC";
+        private final String algo = "BASIC";
         private final String pKey;
         private final String sKey;
 

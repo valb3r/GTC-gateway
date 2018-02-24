@@ -15,7 +15,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -32,9 +33,6 @@ public class HitbtcWsServiceTest extends BaseMockitoTest {
     private static final double price = 0.2;
     private static final double amount = 0.3;
 
-    @InjectMocks
-    private HitbtcWsServiceTestable hitbtcWsService;
-
     @Mock
     private HitbtcConfig cfg;
 
@@ -50,6 +48,9 @@ public class HitbtcWsServiceTest extends BaseMockitoTest {
     @Mock
     private ObjectWebSocketSender sender;
 
+    @InjectMocks
+    private HitbtcWsServiceTestable hitbtcWsService;
+
     @Captor
     private ArgumentCaptor<HitbtcCreateRequestDto> messageCaptor;
 
@@ -62,8 +63,8 @@ public class HitbtcWsServiceTest extends BaseMockitoTest {
         when(sender.sendObjectMessage(messageCaptor.capture())).thenReturn(true);
         when(pair.getIsInverted()).thenReturn(false);
         when(invertedPair.getIsInverted()).thenReturn(true);
-        when(cfg.fromCurrency(from, to)).thenReturn(pair);
-        when(cfg.fromCurrency(to, from)).thenReturn(invertedPair);
+        when(cfg.fromCurrency(from, to)).thenReturn(Optional.of(pair));
+        when(cfg.fromCurrency(to, from)).thenReturn(Optional.of(invertedPair));
     }
 
     @Test
@@ -94,7 +95,6 @@ public class HitbtcWsServiceTest extends BaseMockitoTest {
         assertThat(params.getQuantity()).isEqualTo(1 / amount);
     }
 
-    @Service
     public static class HitbtcWsServiceTestable extends HitbtcWsService {
 
         public HitbtcWsServiceTestable(HitbtcConfig cfg) {
@@ -108,7 +108,5 @@ public class HitbtcWsServiceTest extends BaseMockitoTest {
         public void setIsLoggedIn(Boolean value) {
             isLoggedIn.set(value);
         }
-
     }
-
 }

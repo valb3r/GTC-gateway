@@ -41,9 +41,6 @@ public class HitbtcRestServiceTest extends BaseMockitoTest {
     @Captor
     private ArgumentCaptor<String> requestCaptor;
 
-    @InjectMocks
-    private HitbtcRestService hitbtcRestService;
-
     @Mock
     private HitbtcConfig cfg;
 
@@ -58,6 +55,9 @@ public class HitbtcRestServiceTest extends BaseMockitoTest {
 
     @Mock
     private HitbtcOrderGetDto getOrderDto;
+
+    @InjectMocks
+    private HitbtcRestService hitbtcRestService;
 
     @Before
     public void init() {

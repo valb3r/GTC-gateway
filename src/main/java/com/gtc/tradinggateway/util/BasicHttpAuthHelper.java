@@ -18,5 +18,4 @@ public class BasicHttpAuthHelper {
                 .put(HttpHeaders.AUTHORIZATION, "Basic " + encoded)
                 .build();
     }
-
 }

@@ -137,15 +137,17 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
 
     @Override
     public String create(TradingCurrency from, TradingCurrency to, double amount, double price) {
-        PairSymbol pair = cfg.fromCurrency(from, to);
-        if (pair == null) {
-            return null;
+        Optional<PairSymbol> pair = cfg.fromCurrency(from, to);
+        if (!pair.isPresent()) {
+            throw new IllegalArgumentException(
+                    "Pair from " + from.toString() + " to " + to.toString() + " is not supported");
         }
-        if (pair.getIsInverted()) {
+        PairSymbol pairSym = pair.get();
+        if (pairSym.getIsInverted()) {
             amount = -1 / amount;
             price = 1 / price;
         }
-        BinancePlaceOrderRequestDto requestDto = new BinancePlaceOrderRequestDto(pair, amount, price);
+        BinancePlaceOrderRequestDto requestDto = new BinancePlaceOrderRequestDto(pairSym, amount, price);
         String body = requestDto.toString();
         String signedBody = getSignedBody(body);
         RestTemplate template = cfg.getRestTemplate();
@@ -156,7 +158,12 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
                         new HttpEntity<>(signer.restHeaders()),
                         BinanceGetOrderDto.class);
         BinanceGetOrderDto result = resp.getBody();
-        return pair.toString() + "." + result.getId();
+        return pairSym.toString() + "." + result.getId();
+    }
+
+    @Override
+    public String name() {
+        return BINANCE;
     }
 
     @Override

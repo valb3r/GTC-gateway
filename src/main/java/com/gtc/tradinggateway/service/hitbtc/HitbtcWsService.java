@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.gtc.tradinggateway.config.Const.Clients.HITBTC;
 
@@ -87,12 +88,18 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
 
     @SneakyThrows
     public String create(TradingCurrency from, TradingCurrency to, double amount, double price) {
-        PairSymbol pair = cfg.fromCurrency(from, to);
-        if (isDisconnected() || !isLoggedIn.get() || pair == null) {
-            return null;
+        Optional<PairSymbol> pair = cfg.fromCurrency(from, to);
+        if (isDisconnected() || !isLoggedIn.get()) {
+            throw new IllegalStateException(
+                    "Failed request. Connect status: " + isDisconnected() + ", Login status: " + !isLoggedIn.get());
         }
 
-        if (pair.getIsInverted()) {
+        if (!pair.isPresent()) {
+            throw new IllegalArgumentException(
+                    "Pair from " + from.toString() + " to " + to.toString() + " is not supported");
+        }
+        PairSymbol pairSym = pair.get();
+        if (pairSym.getIsInverted()) {
             amount = -1 / amount;
             price = 1 / price;
         }
@@ -100,7 +107,8 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
         String side = amount < 0 ? SELL : BUY;
 
         ObjectWebSocketSender sender = rxConnected.get().sender();
-        HitbtcCreateRequestDto requestDto = new HitbtcCreateRequestDto(pair.toString(), side, price, Math.abs(amount));
+        HitbtcCreateRequestDto requestDto =
+                new HitbtcCreateRequestDto(pairSym.toString(), side, price, Math.abs(amount));
 
         RxMoreObservables
                 .sendObjectMessage(sender, requestDto)
