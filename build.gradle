@@ -20,7 +20,8 @@ buildscript {
                 mockito                   : "1.10.19",
                 assertJ                   : "3.9.0",
                 aspectjOAP                : "1.8.12",
-                validator                 : "5.4.1.Final"
+                validator                 : "5.4.1.Final",
+                swagger                   : "2.7.0"
         ]
     }
     dependencies {
@@ -59,6 +60,9 @@ dependencies {
     compile "com.newrelic.agent.java:newrelic-api:${versions.newRelicAPI}"
     compile "commons-codec:commons-codec:${versions.commonsCodec}"
     compile "org.hibernate:hibernate-validator:${versions.validator}"
+
+    compile "io.springfox:springfox-swagger2:${versions.swagger}"
+    compile "io.springfox:springfox-swagger-ui:${versions.swagger}"
 
     testCompile "junit:junit:${versions.junit}"
     testCompile "org.mockito:mockito-all:${versions.mockito}"

@@ -32,7 +32,7 @@ import java.util.function.BiFunction;
  * Created by Valentyn Berezin on 24.02.18.
  */
 @Slf4j
-@RestController("api")
+@RestController
 @ConditionalOnProperty(name = "REST_ENABLED", havingValue = "true")
 @RequiredArgsConstructor
 public class RestCommandHandler {
