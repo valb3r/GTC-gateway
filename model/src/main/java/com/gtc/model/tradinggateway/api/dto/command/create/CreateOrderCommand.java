@@ -3,7 +3,8 @@ package com.gtc.model.tradinggateway.api.dto.command.create;
 import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.DecimalMin;
@@ -13,7 +14,8 @@ import java.math.BigDecimal;
  * Created by Valentyn Berezin on 21.02.18.
  */
 @Getter
-@ToString
+@Setter
+@NoArgsConstructor
 public class CreateOrderCommand extends AbstractMessage {
 
     private static final String HEADER = "create";
@@ -21,16 +23,16 @@ public class CreateOrderCommand extends AbstractMessage {
     public static final String SELECTOR = HEADER_NAME + "='" + HEADER + "'";
 
     @NotBlank
-    private final String currencyFrom;
+    private String currencyFrom;
 
     @NotBlank
-    private final String currencyTo;
+    private String currencyTo;
 
     @DecimalMin(MIN_DECIMAL)
-    private final BigDecimal price;
+    private BigDecimal price;
 
     @DecimalMin(MIN_DECIMAL)
-    private final BigDecimal amount;
+    private BigDecimal amount;
 
     @Builder
     public CreateOrderCommand(String clientName, String id, String currencyFrom, String currencyTo, double price,

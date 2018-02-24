@@ -1,9 +1,7 @@
 package com.gtc.model.tradinggateway.api.dto.command.withdraw;
 
 import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.DecimalMin;
@@ -13,7 +11,8 @@ import java.math.BigDecimal;
  * Created by Valentyn Berezin on 21.02.18.
  */
 @Getter
-@ToString
+@Setter
+@NoArgsConstructor
 public class WithdrawCommand extends AbstractMessage {
 
     private static final String HEADER = "withdraw";
@@ -21,13 +20,13 @@ public class WithdrawCommand extends AbstractMessage {
     public static final String SELECTOR = HEADER_NAME + "='" + HEADER + "'";
 
     @NotBlank
-    private final String currency;
+    private String currency;
 
     @DecimalMin(MIN_DECIMAL)
-    private final BigDecimal amount;
+    private BigDecimal amount;
 
     @NotBlank
-    private final String toDestination;
+    private String toDestination;
 
     @Builder
     public WithdrawCommand(String clientName, String id, String currency, double amount, String toDestination) {

@@ -1,13 +1,14 @@
 package com.gtc.model.tradinggateway.api.dto.command.manage;
 
 import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
-import lombok.Builder;
-import lombok.ToString;
+import lombok.*;
 
 /**
  * Created by Valentyn Berezin on 21.02.18.
  */
-@ToString
+@Getter
+@Setter
+@NoArgsConstructor
 public class ListOpenCommand extends AbstractMessage {
 
     private static final String HEADER = "list";
