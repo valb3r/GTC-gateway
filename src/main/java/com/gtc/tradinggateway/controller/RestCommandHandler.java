@@ -17,7 +17,6 @@ import com.gtc.tradinggateway.service.ClientNamed;
 import com.gtc.tradinggateway.service.CreateOrder;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +26,7 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 /**
  * Created by Valentyn Berezin on 24.02.18.
@@ -34,12 +34,18 @@ import java.util.function.BiFunction;
 @Slf4j
 @RestController
 @ConditionalOnProperty(name = "REST_ENABLED", havingValue = "true")
-@RequiredArgsConstructor
 public class RestCommandHandler {
 
     private final Map<String, CreateOrder> createOps;
     private final Map<String, ManageOrders> manageOps;
     private final Map<String, Withdraw> withdrawOps;
+
+    public RestCommandHandler(List<CreateOrder> createCmds, List<ManageOrders> manageCmds,
+                             List<Withdraw> withdrawCmds) {
+        createOps = createCmds.stream().collect(Collectors.toMap(ClientNamed::name, it -> it));
+        manageOps = manageCmds.stream().collect(Collectors.toMap(ClientNamed::name, it -> it));
+        withdrawOps = withdrawCmds.stream().collect(Collectors.toMap(ClientNamed::name, it -> it));
+    }
 
     @PostMapping("create")
     public AbstractMessage create(@Valid CreateOrderCommand command) {
@@ -133,6 +139,11 @@ public class RestCommandHandler {
             Map<String, T> handlers,
             BiFunction<T, U, ? extends AbstractMessage> executor) {
         T handler = handlers.get(message.getClientName());
+
+        if (null == handler) {
+            throw new IllegalStateException("No handler");
+        }
+
         return executor.apply(handler, message);
     }
 }

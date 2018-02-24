@@ -147,6 +147,12 @@ public class EsbCommandHandler {
             Map<String, T> handlers,
             BiFunction<T, U, ? extends AbstractMessage> executor) {
         T handler = handlers.get(message.getClientName());
+
+        if (null == handler) {
+            log.warn("Missing handler for {}", message);
+            return;
+        }
+
         AbstractMessage result = executor.apply(handler, message);
         jmsTemplate.convertAndSend(dest, result, result::enhance);
     }

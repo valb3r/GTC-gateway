@@ -1,5 +1,6 @@
 package com.gtc.tradinggateway.service.hitbtc;
 
+import com.gtc.tradinggateway.aspect.IgnoreRateLimited;
 import com.gtc.tradinggateway.aspect.RateLimited;
 import com.gtc.tradinggateway.config.HitbtcConfig;
 import com.gtc.tradinggateway.meta.TradingCurrency;
@@ -110,6 +111,7 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
     }
 
     @Override
+    @IgnoreRateLimited
     public String name() {
         return HITBTC;
     }

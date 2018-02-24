@@ -30,7 +30,8 @@ public class RateLimitingAspect {
         this.resolver = new EmbeddedValueResolver(beanFactory);
     }
 
-    @Around("@within(ann)")
+    @Around("execution(public * *(..)) && @within(ann) " +
+            "&& !@annotation(com.gtc.tradinggateway.aspect.IgnoreRateLimited)")
     public Object rateLimit(ProceedingJoinPoint joinPoint, RateLimited ann) throws Throwable {
         Method method = getMethod(joinPoint);
         String key = getKey(method, ann);

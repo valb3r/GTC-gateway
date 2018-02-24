@@ -1,5 +1,7 @@
 package com.gtc.tradinggateway.service.binance;
 
+import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
+import com.gtc.tradinggateway.aspect.IgnoreRateLimited;
 import com.gtc.tradinggateway.aspect.RateLimited;
 import com.gtc.tradinggateway.config.BinanceConfig;
 import com.gtc.tradinggateway.meta.PairSymbol;
@@ -9,7 +11,6 @@ import com.gtc.tradinggateway.service.CreateOrder;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.binance.dto.*;
-import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -162,11 +163,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
     }
 
     @Override
-    public String name() {
-        return BINANCE;
-    }
-
-    @Override
+    @IgnoreRateLimited
     public String name() {
         return BINANCE;
     }

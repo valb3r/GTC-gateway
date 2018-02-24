@@ -1,5 +1,6 @@
 package com.gtc.tradinggateway.service.gdax;
 
+import com.gtc.tradinggateway.aspect.IgnoreRateLimited;
 import com.gtc.tradinggateway.aspect.RateLimited;
 import com.gtc.tradinggateway.config.GdaxConfig;
 import com.gtc.tradinggateway.meta.TradingCurrency;
@@ -70,6 +71,7 @@ public class GdaxRestService implements ManageOrders, Withdraw, Account {
     }
 
     @Override
+    @IgnoreRateLimited
     public String name() {
         return GDAX;
     }
