@@ -1,7 +1,6 @@
 package com.gtc.model.tradinggateway.api.dto;
 
-import lombok.Getter;
-import lombok.SneakyThrows;
+import lombok.*;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.jms.Message;
@@ -12,6 +11,8 @@ import java.util.UUID;
  * Created by Valentyn Berezin on 21.02.18.
  */
 @Getter
+@Setter
+@NoArgsConstructor
 public abstract class AbstractMessage implements Serializable {
 
     protected static final String MIN_DECIMAL = "0.0000000000000000000001";
@@ -21,10 +22,10 @@ public abstract class AbstractMessage implements Serializable {
     protected abstract String getHeader();
 
     @NotBlank
-    private final String clientName;
+    private String clientName;
 
     @NotBlank
-    private final String id;
+    private String id;
 
     public AbstractMessage(String clientName, String id) {
         this.clientName = clientName;

@@ -1,14 +1,15 @@
 package com.gtc.model.tradinggateway.api.dto.response.manage;
 
 import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * Created by Valentyn Berezin on 21.02.18.
  */
 @Getter
+@Setter
+@NoArgsConstructor
 public class CancelOrderResponse extends AbstractMessage {
 
     private static final String HEADER = "resp.cancel";
@@ -16,7 +17,7 @@ public class CancelOrderResponse extends AbstractMessage {
     public static final String SELECTOR = HEADER_NAME + "='" + HEADER + "'";
 
     @NotBlank
-    private final String orderId;
+    private String orderId;
 
     @Builder
     public CancelOrderResponse(String clientName, String id, String orderId) {

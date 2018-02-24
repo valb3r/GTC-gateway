@@ -1,14 +1,15 @@
 package com.gtc.model.tradinggateway.api.dto.response.withdraw;
 
 import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import org.hibernate.validator.constraints.NotBlank;
 
 /**
  * Created by Valentyn Berezin on 21.02.18.
  */
 @Getter
+@Setter
+@NoArgsConstructor
 public class WithdrawOrderResponse extends AbstractMessage {
 
     private static final String HEADER = "resp.withdraw";
@@ -16,12 +17,12 @@ public class WithdrawOrderResponse extends AbstractMessage {
     public static final String SELECTOR = HEADER_NAME + "='" + HEADER + "'";
 
     @NotBlank
-    private final String currency;
+    private String currency;
 
-    private final double amount;
+    private double amount;
 
     @NotBlank
-    private final String toDestination;
+    private String toDestination;
 
     @Builder
     public WithdrawOrderResponse(String clientName, String id, String currency, double amount, String toDestination) {
