@@ -8,6 +8,7 @@ import lombok.*;
  */
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public class ListOpenCommand extends AbstractMessage {
 
