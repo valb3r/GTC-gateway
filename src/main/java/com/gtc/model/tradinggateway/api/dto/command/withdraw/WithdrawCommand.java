@@ -1,10 +1,7 @@
 package com.gtc.model.tradinggateway.api.dto.command.withdraw;
 
 import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.NotNull;
@@ -15,6 +12,7 @@ import java.math.BigDecimal;
  */
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public class WithdrawCommand extends AbstractMessage {
 

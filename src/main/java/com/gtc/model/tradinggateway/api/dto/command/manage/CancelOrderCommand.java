@@ -9,6 +9,7 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public class CancelOrderCommand extends AbstractMessage {
 
