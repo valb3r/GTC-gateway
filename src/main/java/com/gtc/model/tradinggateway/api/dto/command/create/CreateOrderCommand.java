@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.NotBlank;
 
 import javax.validation.constraints.DecimalMin;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**
@@ -31,7 +32,7 @@ public class CreateOrderCommand extends AbstractMessage {
     @DecimalMin(MIN_DECIMAL)
     private BigDecimal price;
 
-    @DecimalMin(MIN_DECIMAL)
+    @NotNull
     private BigDecimal amount;
 
     @Builder
