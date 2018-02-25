@@ -22,6 +22,10 @@ spring:
             reconnect-on-exception: true
             time-between-expiration-check: -1
             use-anonymous-producers: true
+        packages:
+            trusted: com.gtc.model
+    jms:
+        pub-sub-domain: true
 server:
     servlet-path: /api
     port: 8084
