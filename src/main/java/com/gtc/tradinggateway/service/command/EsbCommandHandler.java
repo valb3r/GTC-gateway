@@ -12,6 +12,7 @@ import com.gtc.model.tradinggateway.api.dto.response.manage.CancelOrderResponse;
 import com.gtc.model.tradinggateway.api.dto.response.manage.GetOrderResponse;
 import com.gtc.model.tradinggateway.api.dto.response.manage.ListOpenOrdersResponse;
 import com.gtc.model.tradinggateway.api.dto.response.withdraw.WithdrawOrderResponse;
+import com.gtc.tradinggateway.config.JmsConfig;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.ClientNamed;
 import com.gtc.tradinggateway.service.CreateOrder;
@@ -34,7 +35,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
-@ConditionalOnBean(JmsTemplate.class)
+@ConditionalOnBean(JmsConfig.class)
 public class EsbCommandHandler {
 
     private static final String CREATE_QUEUE = "${app.jms.queue.inOut.create}";
