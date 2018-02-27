@@ -64,7 +64,7 @@ app:
         disconnectIfInactiveS: 20
         ratePerS: 0.17
     jms:
-        queue:
+        topic:
             inOut:
                 create: create
                 manage: manage

@@ -1,4 +1,4 @@
-package com.gtc.tradinggateway.aspect;
+package com.gtc.tradinggateway.aspect.rate;
 
 import java.lang.annotation.*;
 

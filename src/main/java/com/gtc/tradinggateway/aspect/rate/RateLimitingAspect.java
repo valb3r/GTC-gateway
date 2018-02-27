@@ -1,4 +1,4 @@
-package com.gtc.tradinggateway.aspect;
+package com.gtc.tradinggateway.aspect.rate;
 
 import com.google.common.util.concurrent.RateLimiter;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -13,7 +13,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.gtc.tradinggateway.aspect.RateLimited.Mode.CLASS;
+import static com.gtc.tradinggateway.aspect.rate.RateLimited.Mode.CLASS;
 
 /**
  * Created by Valentyn Berezin on 20.02.18.
@@ -31,7 +31,7 @@ public class RateLimitingAspect {
     }
 
     @Around("execution(public * *(..)) && @within(ann) " +
-            "&& !@annotation(com.gtc.tradinggateway.aspect.IgnoreRateLimited)")
+            "&& !@annotation(com.gtc.tradinggateway.aspect.rate.IgnoreRateLimited)")
     public Object rateLimit(ProceedingJoinPoint joinPoint, RateLimited ann) throws Throwable {
         Method method = getMethod(joinPoint);
         String key = getKey(method, ann);
@@ -41,7 +41,7 @@ public class RateLimitingAspect {
         )).tryAcquire();
 
         if (!acquired) {
-            throw new IllegalStateException("Rate limiting");
+            throw new RateTooHighException("Rate limiting");
         }
 
         return joinPoint.proceed();

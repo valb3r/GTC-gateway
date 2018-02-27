@@ -1,8 +1,8 @@
 package com.gtc.tradinggateway.service.binance;
 
 import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
-import com.gtc.tradinggateway.aspect.IgnoreRateLimited;
-import com.gtc.tradinggateway.aspect.RateLimited;
+import com.gtc.tradinggateway.aspect.rate.IgnoreRateLimited;
+import com.gtc.tradinggateway.aspect.rate.RateLimited;
 import com.gtc.tradinggateway.config.BinanceConfig;
 import com.gtc.tradinggateway.meta.PairSymbol;
 import com.gtc.tradinggateway.meta.TradingCurrency;

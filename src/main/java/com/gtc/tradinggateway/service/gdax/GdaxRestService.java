@@ -1,7 +1,7 @@
 package com.gtc.tradinggateway.service.gdax;
 
-import com.gtc.tradinggateway.aspect.IgnoreRateLimited;
-import com.gtc.tradinggateway.aspect.RateLimited;
+import com.gtc.tradinggateway.aspect.rate.IgnoreRateLimited;
+import com.gtc.tradinggateway.aspect.rate.RateLimited;
 import com.gtc.tradinggateway.config.GdaxConfig;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.Account;
