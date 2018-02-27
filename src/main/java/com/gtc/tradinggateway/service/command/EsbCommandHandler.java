@@ -155,6 +155,8 @@ public class EsbCommandHandler {
 
         if (null == handler) {
             log.warn("Missing handler for {}", message);
+            ErrorResponse error = buildError(message, new NoClientException());
+            jmsTemplate.convertAndSend(dest, error, error::enhance);
             return;
         }
 
@@ -164,9 +166,11 @@ public class EsbCommandHandler {
         } catch (RateTooHighException ex) {
             ErrorResponse error = buildError(message, ex);
             error.setTransient(true);
+            log.error("Sending transient error message {} in response to {}", error, message.getId());
             jmsTemplate.convertAndSend(dest, error, error::enhance);
         } catch (Exception ex) {
             ErrorResponse error = buildError(message, ex);
+            log.error("Sending error message {} in response to {}", error, message.getId());
             jmsTemplate.convertAndSend(dest, error, error::enhance);
         }
     }
@@ -179,5 +183,8 @@ public class EsbCommandHandler {
         resp.setOccurredOn(origin.toString());
         resp.setErrorCause(Throwables.getStackTraceAsString(forExc));
         return resp;
+    }
+
+    private static class NoClientException extends IllegalStateException {
     }
 }
