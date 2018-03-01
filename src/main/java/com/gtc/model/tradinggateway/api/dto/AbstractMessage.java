@@ -12,6 +12,7 @@ import java.util.UUID;
  */
 @Getter
 @Setter
+@ToString
 @NoArgsConstructor
 public abstract class AbstractMessage implements Serializable {
 
