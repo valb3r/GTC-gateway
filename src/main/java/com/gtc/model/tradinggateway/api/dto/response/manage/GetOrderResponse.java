@@ -9,7 +9,7 @@ import lombok.*;
  */
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)
 @NoArgsConstructor
 public class GetOrderResponse extends AbstractMessage {
 
