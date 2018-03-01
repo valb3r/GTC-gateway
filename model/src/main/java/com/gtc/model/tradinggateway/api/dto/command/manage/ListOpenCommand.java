@@ -8,7 +8,7 @@ import lombok.*;
  */
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)
 @NoArgsConstructor
 public class ListOpenCommand extends AbstractMessage {
 

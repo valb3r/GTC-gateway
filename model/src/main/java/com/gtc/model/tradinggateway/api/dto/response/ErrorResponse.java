@@ -12,7 +12,7 @@ import org.hibernate.validator.constraints.NotBlank;
  */
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)
 @NoArgsConstructor
 public class ErrorResponse extends AbstractMessage {
 

@@ -11,7 +11,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-@ToString
+@ToString(callSuper = true)
 @NoArgsConstructor
 public class ListOpenOrdersResponse extends AbstractMessage {
 
