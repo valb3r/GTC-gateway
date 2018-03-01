@@ -11,5 +11,5 @@ public enum OrderStatus {
     CANCELED,
     REJECTED,
     EXPIRED,
-    UNAMAPPED
+    UNMAPPED
 }
