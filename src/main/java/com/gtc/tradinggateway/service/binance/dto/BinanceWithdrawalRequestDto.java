@@ -2,6 +2,7 @@ package com.gtc.tradinggateway.service.binance.dto;
 
 import com.gtc.tradinggateway.util.UriFormatter;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Data
 @RequiredArgsConstructor
+@EqualsAndHashCode(callSuper = false)
 public class BinanceWithdrawalRequestDto extends BinanceRequestDto {
 
     private final String asset;

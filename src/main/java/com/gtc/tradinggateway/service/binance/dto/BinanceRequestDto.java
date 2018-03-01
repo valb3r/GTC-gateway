@@ -1,12 +1,14 @@
 package com.gtc.tradinggateway.service.binance.dto;
 
 import com.gtc.tradinggateway.util.UriFormatter;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Created by mikro on 28.01.2018.
  */
-@Data
+@Getter
+@Setter
 public class BinanceRequestDto {
 
     protected long timestamp = System.currentTimeMillis();

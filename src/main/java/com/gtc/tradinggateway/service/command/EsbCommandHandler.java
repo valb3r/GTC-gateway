@@ -22,6 +22,7 @@ import com.gtc.tradinggateway.service.CreateOrder;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
@@ -46,6 +47,15 @@ public class EsbCommandHandler {
     private static final String MANAGE_TOPIC = "${app.jms.topic.inOut.manage}";
     private static final String WITHDRAW_TOPIC = "${app.jms.topic.inOut.withdraw}";
 
+    @Value(CREATE_TOPIC)
+    private String createTopic;
+
+    @Value(MANAGE_TOPIC)
+    private String manageTopic;
+
+    @Value(WITHDRAW_TOPIC)
+    private String withdrawTopic;
+
     private final JmsTemplate jmsTemplate;
     private final Map<String, CreateOrder> createOps;
     private final Map<String, ManageOrders> manageOps;
@@ -62,7 +72,7 @@ public class EsbCommandHandler {
     @JmsListener(destination = CREATE_TOPIC, selector = CreateOrderCommand.SELECTOR)
     public void create(@Valid CreateOrderCommand command) {
         log.info("Request to create order {}", command);
-        doExecute(CREATE_TOPIC, command, createOps, (handler, cmd) -> {
+        doExecute(createTopic, command, createOps, (handler, cmd) -> {
             String id = handler.create(
                     TradingCurrency.fromCode(cmd.getCurrencyFrom()),
                     TradingCurrency.fromCode(cmd.getCurrencyTo()),
@@ -82,7 +92,7 @@ public class EsbCommandHandler {
     @JmsListener(destination = MANAGE_TOPIC, selector = GetOrderCommand.SELECTOR)
     public void get(@Valid GetOrderCommand command) {
         log.info("Request to get order {}", command);
-        doExecute(MANAGE_TOPIC, command, manageOps, (handler, cmd) -> {
+        doExecute(manageTopic, command, manageOps, (handler, cmd) -> {
             OrderDto res = handler.get(
                     cmd.getOrderId()
             ).orElse(null);
@@ -99,7 +109,7 @@ public class EsbCommandHandler {
     @JmsListener(destination = MANAGE_TOPIC, selector = ListOpenCommand.SELECTOR)
     public void listOpen(@Valid ListOpenCommand command) {
         log.info("Request to list orders {}", command);
-        doExecute(MANAGE_TOPIC, command, manageOps, (handler, cmd) -> {
+        doExecute(manageTopic, command, manageOps, (handler, cmd) -> {
             List<OrderDto> res = handler.getOpen();
 
             log.info("Found open orders {} for {}", res, cmd.getClientName());
@@ -114,7 +124,7 @@ public class EsbCommandHandler {
     @JmsListener(destination = MANAGE_TOPIC, selector = CancelOrderCommand.SELECTOR)
     public void cancel(@Valid CancelOrderCommand command) {
         log.info("Request to cancel order {}", command);
-        doExecute(MANAGE_TOPIC, command, manageOps, (handler, cmd) -> {
+        doExecute(manageTopic, command, manageOps, (handler, cmd) -> {
             handler.cancel(cmd.getOrderId());
 
             log.info("Cancelled order {} for {}", cmd.getOrderId(), cmd.getClientName());
@@ -128,7 +138,7 @@ public class EsbCommandHandler {
     @JmsListener(destination = WITHDRAW_TOPIC, selector = WithdrawCommand.SELECTOR)
     public void withdraw(@Valid WithdrawCommand command) {
         log.info("Request to withdraw {}", command);
-        doExecute(WITHDRAW_TOPIC, command, withdrawOps, (handler, cmd) -> {
+        doExecute(withdrawTopic, command, withdrawOps, (handler, cmd) -> {
             handler.withdraw(
                     TradingCurrency.fromCode(cmd.getCurrency()),
                     cmd.getAmount().doubleValue(),
@@ -181,7 +191,7 @@ public class EsbCommandHandler {
         resp.setId(UUID.randomUUID().toString());
         resp.setOnMessageId(origin.getId());
         resp.setOccurredOn(origin.toString());
-        resp.setErrorCause(Throwables.getStackTraceAsString(forExc));
+        resp.setErrorCause(Throwables.getStackTraceAsString(Throwables.getRootCause(forExc)));
         return resp;
     }
 

@@ -1,15 +1,16 @@
 package com.gtc.tradinggateway.service.binance.dto;
 
 import com.gtc.tradinggateway.meta.PairSymbol;
-import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.util.UriFormatter;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 /**
  * Created by mikro on 01.02.2018.
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 public class BinancePlaceOrderRequestDto extends BinanceRequestDto {
 
     private PairSymbol symbol;
@@ -24,7 +25,7 @@ public class BinancePlaceOrderRequestDto extends BinanceRequestDto {
 
     private String timeInForce = "GTC";
 
-    public static enum OrderSide {
+    public enum OrderSide {
         Buy("BUY"),
         Sell("SELL");
 

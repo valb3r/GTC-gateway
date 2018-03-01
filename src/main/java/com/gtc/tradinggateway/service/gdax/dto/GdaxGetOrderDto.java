@@ -15,11 +15,6 @@ public class GdaxGetOrderDto {
     private String status;
 
     public OrderDto map() {
-        return OrderDto.builder()
-                .id(id)
-                .size(size)
-                .price(price)
-                .status(status)
-                .build();
+        throw new IllegalStateException("Unimplemented");
     }
 }
