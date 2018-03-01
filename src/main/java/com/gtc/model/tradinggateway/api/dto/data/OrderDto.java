@@ -15,5 +15,6 @@ public class OrderDto implements Serializable {
     private String id;
     private double size;
     private double price;
-    private String status;
+    private OrderStatus status;
+    private String statusString;
 }
