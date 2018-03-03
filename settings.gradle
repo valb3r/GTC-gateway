@@ -1,2 +1,6 @@
 rootProject.name = 'TradingGateway'
 
+include 'model'
+
+project(":model").projectDir = file("model")
+

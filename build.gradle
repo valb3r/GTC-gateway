@@ -18,7 +18,10 @@ buildscript {
                 commonsCodec              : "1.9",
                 junit                     : "4.12",
                 mockito                   : "1.10.19",
-                assertJ                   : "3.9.0"
+                assertJ                   : "3.9.0",
+                aspectjOAP                : "1.8.12",
+                validator                 : "5.4.1.Final",
+                swagger                   : "2.7.0"
         ]
     }
     dependencies {
@@ -43,14 +46,23 @@ repositories {
 }
 
 dependencies {
-    compile "org.projectlombok:lombok"
+    compile project(":model")
+
+    compileOnly "org.projectlombok:lombok"
+
     compile "org.springframework.boot:spring-boot-configuration-processor"
     compile "org.springframework.boot:spring-boot-starter-web"
+    compile "org.springframework.boot:spring-boot-starter-activemq"
+    compile 'org.springframework.boot:spring-boot-starter-aop'
     compile "com.google.guava:guava:${versions.guava}"
     compile "io.reactivex.rxjava2:rxjava:${versions.reactivex}"
     compile "com.github.jacek-marchwicki:JavaWebsocketClient:${versions.wsClient}"
     compile "com.newrelic.agent.java:newrelic-api:${versions.newRelicAPI}"
     compile "commons-codec:commons-codec:${versions.commonsCodec}"
+    compile "org.hibernate:hibernate-validator:${versions.validator}"
+
+    compile "io.springfox:springfox-swagger2:${versions.swagger}"
+    compile "io.springfox:springfox-swagger-ui:${versions.swagger}"
 
     testCompile "junit:junit:${versions.junit}"
     testCompile "org.mockito:mockito-all:${versions.mockito}"

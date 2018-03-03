@@ -1,11 +1,13 @@
 package com.gtc.tradinggateway.service.gdax;
 
+import com.gtc.tradinggateway.aspect.rate.IgnoreRateLimited;
+import com.gtc.tradinggateway.aspect.rate.RateLimited;
 import com.gtc.tradinggateway.config.GdaxConfig;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.Account;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
-import com.gtc.tradinggateway.service.dto.OrderDto;
+import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.tradinggateway.service.gdax.dto.GdaxGetOrderDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -24,6 +26,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.GDAX;
  */
 @Service
 @RequiredArgsConstructor
+@RateLimited(ratePerSecond = "${app.gdax.ratePerS}", mode = RateLimited.Mode.CLASS)
 public class GdaxRestService implements ManageOrders, Withdraw, Account {
 
     private static final String ORDERS = "/orders";
@@ -68,6 +71,7 @@ public class GdaxRestService implements ManageOrders, Withdraw, Account {
     }
 
     @Override
+    @IgnoreRateLimited
     public String name() {
         return GDAX;
     }

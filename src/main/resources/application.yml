@@ -7,9 +7,28 @@ spring:
         serialization:
             fail-on-empty-beans: false
             write_dates_as_timestamps: false
+    activemq:
+        broker-url: ${ESB_AMQ_ADDRESS}
+        non-blocking-redelivery: true
+        pool:
+            block-if-full: true
+            block-if-full-timeout: -1
+            create-connection-on-startup: true
+            enabled: false
+            expiry-timeout: 10000
+            idle-timeout: 30000
+            max-connections: 1
+            maximum-active-session-per-connection: 500
+            reconnect-on-exception: true
+            time-between-expiration-check: -1
+            use-anonymous-producers: true
+        packages:
+            trusted: com.gtc.model,java.time,java.math
+    jms:
+        pub-sub-domain: true
 server:
     servlet-path: /api
-    port: 9999
+    port: 8084
 app:
     gdax:
         restBase:
@@ -21,9 +40,9 @@ app:
             BTCUSD=BTC-USD,
             LTCBTC=LTC-BTC,
             XMRBTC=XMR-BTC
+        ratePerS: 0.17
     binance:
         restBase: "https://api.binance.com"
-        wsBase:
         passphrase: ${BINANCE_PASSPHRASE}
         publicKey: ${BINANCE_PUBLIC}
         secretKey: ${BINANCE_SECRET}
@@ -31,6 +50,7 @@ app:
             BTCUSD=BTC-USD,
             LTCBTC=LTC-BTC,
             XMRBTC=XMR-BTC
+        ratePerS: 0.17
     hitbtc:
         restBase: "https://api.hitbtc.com/api/2"
         wsBase: "wss://api.hitbtc.com/api/2/ws"
@@ -42,6 +62,13 @@ app:
             LTCBTC=LTC-BTC,
             XMRBTC=XMR-BTC
         disconnectIfInactiveS: 20
+        ratePerS: 0.17
+    jms:
+        topic:
+            inOut:
+                create: create
+                manage: manage
+                withdraw: withdraw
 debug: true
 logging:
     level: DEBUG

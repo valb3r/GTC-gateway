@@ -6,7 +6,7 @@ import com.gtc.tradinggateway.meta.PairSymbol;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.binance.dto.BinanceBalanceDto;
 import com.gtc.tradinggateway.service.binance.dto.BinanceGetOrderDto;
-import com.gtc.tradinggateway.service.dto.OrderDto;
+import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.*;

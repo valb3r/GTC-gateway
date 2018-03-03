@@ -1,11 +1,13 @@
 package com.gtc.tradinggateway.service.hitbtc;
 
+import com.gtc.tradinggateway.aspect.rate.IgnoreRateLimited;
+import com.gtc.tradinggateway.aspect.rate.RateLimited;
 import com.gtc.tradinggateway.config.HitbtcConfig;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.Account;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
-import com.gtc.tradinggateway.service.dto.OrderDto;
+import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcBalanceItemDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcOrderGetDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcWithdrawRequestDto;
@@ -28,6 +30,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.HITBTC;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@RateLimited(ratePerSecond = "${app.hitbtc.ratePerS}", mode = RateLimited.Mode.CLASS)
 public class HitbtcRestService implements ManageOrders, Withdraw, Account {
 
     private static final String ORDERS = "/order/";
@@ -108,6 +111,7 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
     }
 
     @Override
+    @IgnoreRateLimited
     public String name() {
         return HITBTC;
     }

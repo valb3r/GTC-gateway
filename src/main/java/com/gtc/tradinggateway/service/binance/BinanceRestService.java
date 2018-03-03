@@ -1,5 +1,8 @@
 package com.gtc.tradinggateway.service.binance;
 
+import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
+import com.gtc.tradinggateway.aspect.rate.IgnoreRateLimited;
+import com.gtc.tradinggateway.aspect.rate.RateLimited;
 import com.gtc.tradinggateway.config.BinanceConfig;
 import com.gtc.tradinggateway.meta.PairSymbol;
 import com.gtc.tradinggateway.meta.TradingCurrency;
@@ -8,7 +11,6 @@ import com.gtc.tradinggateway.service.CreateOrder;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.binance.dto.*;
-import com.gtc.tradinggateway.service.dto.OrderDto;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -29,9 +31,10 @@ import static com.gtc.tradinggateway.config.Const.Clients.BINANCE;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@RateLimited(ratePerSecond = "${app.binance.ratePerS}", mode = RateLimited.Mode.CLASS)
 public class BinanceRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
-    static final String ORDERS = "/api/v3/order";
+    private static final String ORDERS = "/api/v3/order";
     private static final String ALL_ORDERS = "/api/v3/openOrders";
     private static final String BALANCES = "/api/v3/account";
     private static final String WITHDRAWAL = "/wapi/v3/withdraw.html";
@@ -75,7 +78,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
                         new HttpEntity<>(signer.restHeaders()),
                         BinanceGetOrderDto[].class);
         BinanceGetOrderDto[] list = resp.getBody();
-        List<OrderDto> result = new ArrayList<OrderDto>();
+        List<OrderDto> result = new ArrayList<>();
         for (BinanceGetOrderDto respDto : list) {
             result.add(respDto.mapTo());
         }
@@ -115,7 +118,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
             } catch (RuntimeException ex) {
                 log.error(
                         "Failed mapping currency-code {} having amount {}",
-                        asset.getCode().toString(), String.valueOf(asset.getAmount()));
+                        asset.getCode(), String.valueOf(asset.getAmount()));
             }
         }
         return results;
@@ -160,6 +163,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
     }
 
     @Override
+    @IgnoreRateLimited
     public String name() {
         return BINANCE;
     }

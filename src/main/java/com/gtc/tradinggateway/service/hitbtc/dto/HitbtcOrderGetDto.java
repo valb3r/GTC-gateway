@@ -1,8 +1,12 @@
 package com.gtc.tradinggateway.service.hitbtc.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.gtc.tradinggateway.service.dto.OrderDto;
+import com.google.common.collect.ImmutableMap;
+import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
+import com.gtc.model.tradinggateway.api.dto.data.OrderStatus;
 import lombok.Data;
+
+import java.util.Map;
 
 /**
  * Created by mikro on 13.02.2018.
@@ -10,7 +14,15 @@ import lombok.Data;
 @Data
 public class HitbtcOrderGetDto {
 
-    public static String SELL = "sell";
+    public static final String SELL = "sell";
+
+    private static final Map<String, OrderStatus> MAPPER = ImmutableMap.<String, OrderStatus>builder()
+            .put("new", OrderStatus.NEW)
+            .put("partiallyFilled", OrderStatus.PARTIALLY_FILLED)
+            .put("filled", OrderStatus.FILLED)
+            .put("canceled", OrderStatus.CANCELED)
+            .put("expired", OrderStatus.EXPIRED)
+            .build();
 
     @JsonProperty("clientOrderId")
     private String id;
@@ -26,7 +38,8 @@ public class HitbtcOrderGetDto {
                 .id(id)
                 .size(SELL.equals(side) ? -quantity : quantity)
                 .price(price)
-                .status(status)
+                .status(MAPPER.getOrDefault(status, OrderStatus.UNMAPPED))
+                .statusString(status)
                 .build();
     }
 }

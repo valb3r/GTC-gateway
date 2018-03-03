@@ -1,0 +1,37 @@
+group 'com.gtc.tradinggateway'
+version '1.0-SNAPSHOT'
+description = 'gtc-tradinggateway-model'
+
+buildscript {
+    ext {
+        versions = [
+                lombok     : "1.16.16",
+                geronimoJMS: "1.1.1",
+                validator  : "5.4.1.Final"
+        ]
+    }
+    dependencies {
+    }
+    repositories {
+        mavenCentral()
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly "org.projectlombok:lombok:${versions.lombok}"
+
+    compile "org.hibernate:hibernate-validator:${versions.validator}"
+    compile "org.apache.geronimo.specs:geronimo-jms_1.1_spec:${versions.geronimoJMS}"
+
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}

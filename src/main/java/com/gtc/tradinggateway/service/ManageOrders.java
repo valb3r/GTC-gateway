@@ -1,6 +1,6 @@
 package com.gtc.tradinggateway.service;
 
-import com.gtc.tradinggateway.service.dto.OrderDto;
+import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 
 import java.util.List;
 import java.util.Optional;

@@ -1,9 +1,12 @@
 package com.gtc.tradinggateway.service.binance.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import com.gtc.tradinggateway.service.dto.OrderDto;
+import com.google.common.collect.ImmutableMap;
+import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
+import com.gtc.model.tradinggateway.api.dto.data.OrderStatus;
 import lombok.Data;
+
+import java.util.Map;
 
 
 /**
@@ -11,6 +14,15 @@ import lombok.Data;
  */
 @Data
 public class BinanceGetOrderDto {
+
+    private static final Map<String, OrderStatus> MAPPER = ImmutableMap.<String, OrderStatus>builder()
+            .put("NEW", OrderStatus.NEW)
+            .put("PARTIALLY_FILLED", OrderStatus.PARTIALLY_FILLED)
+            .put("FILLED", OrderStatus.FILLED)
+            .put("CANCELED", OrderStatus.CANCELED)
+            .put("REJECTED", OrderStatus.REJECTED)
+            .put("EXPIRED", OrderStatus.EXPIRED)
+            .build();
 
     @JsonProperty("orderId")
     private String id;
@@ -33,8 +45,8 @@ public class BinanceGetOrderDto {
                 .id(id)
                 .size(currentAmount)
                 .price(price)
-                .status(status)
+                .status(MAPPER.getOrDefault(status, OrderStatus.UNMAPPED))
+                .statusString(status)
                 .build();
-
     }
 }

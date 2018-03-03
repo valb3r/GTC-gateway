@@ -1,6 +1,6 @@
 package com.gtc.tradinggateway.service.gdax.dto;
 
-import com.gtc.tradinggateway.service.dto.OrderDto;
+import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import lombok.Data;
 
 /**
@@ -15,11 +15,6 @@ public class GdaxGetOrderDto {
     private String status;
 
     public OrderDto map() {
-        return OrderDto.builder()
-                .id(id)
-                .size(size)
-                .price(price)
-                .status(status)
-                .build();
+        throw new IllegalStateException("Unimplemented");
     }
 }
