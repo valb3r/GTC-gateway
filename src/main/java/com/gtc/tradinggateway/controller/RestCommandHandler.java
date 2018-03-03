@@ -1,24 +1,24 @@
 package com.gtc.tradinggateway.controller;
 
 import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
+import com.gtc.model.tradinggateway.api.dto.command.account.GetAllBalancesCommand;
 import com.gtc.model.tradinggateway.api.dto.command.create.CreateOrderCommand;
 import com.gtc.model.tradinggateway.api.dto.command.manage.CancelOrderCommand;
 import com.gtc.model.tradinggateway.api.dto.command.manage.GetOrderCommand;
 import com.gtc.model.tradinggateway.api.dto.command.manage.ListOpenCommand;
 import com.gtc.model.tradinggateway.api.dto.command.withdraw.WithdrawCommand;
 import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
+import com.gtc.model.tradinggateway.api.dto.response.account.GetAllBalancesResponse;
 import com.gtc.model.tradinggateway.api.dto.response.create.CreateOrderResponse;
 import com.gtc.model.tradinggateway.api.dto.response.manage.CancelOrderResponse;
 import com.gtc.model.tradinggateway.api.dto.response.manage.GetOrderResponse;
 import com.gtc.model.tradinggateway.api.dto.response.manage.ListOpenOrdersResponse;
 import com.gtc.model.tradinggateway.api.dto.response.withdraw.WithdrawOrderResponse;
 import com.gtc.tradinggateway.meta.TradingCurrency;
-import com.gtc.tradinggateway.service.ClientNamed;
-import com.gtc.tradinggateway.service.CreateOrder;
-import com.gtc.tradinggateway.service.ManageOrders;
-import com.gtc.tradinggateway.service.Withdraw;
+import com.gtc.tradinggateway.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,15 +37,33 @@ import java.util.stream.Collectors;
 @ConditionalOnProperty(name = "REST_ENABLED", havingValue = "true")
 public class RestCommandHandler {
 
+    private final Map<String, Account> accountOps;
     private final Map<String, CreateOrder> createOps;
     private final Map<String, ManageOrders> manageOps;
     private final Map<String, Withdraw> withdrawOps;
 
-    public RestCommandHandler(List<CreateOrder> createCmds, List<ManageOrders> manageCmds,
-                             List<Withdraw> withdrawCmds) {
+    public RestCommandHandler(List<Account> accountCmds, List<CreateOrder> createCmds,
+                              List<ManageOrders> manageCmds, List<Withdraw> withdrawCmds) {
+        accountOps = accountCmds.stream().collect(Collectors.toMap(ClientNamed::name, it -> it));
         createOps = createCmds.stream().collect(Collectors.toMap(ClientNamed::name, it -> it));
         manageOps = manageCmds.stream().collect(Collectors.toMap(ClientNamed::name, it -> it));
         withdrawOps = withdrawCmds.stream().collect(Collectors.toMap(ClientNamed::name, it -> it));
+    }
+
+    @GetMapping("getBalances")
+    public AbstractMessage getBalances(@RequestBody @Valid GetAllBalancesCommand command) {
+        log.info("Request to create order {}", command);
+        return doExecute(command, accountOps, (handler, cmd) -> {
+            Map<TradingCurrency, Double> balances = handler.balances();
+
+            log.info("Got balances {} for {} of {}", balances, cmd.getId(), cmd.getClientName());
+            return GetAllBalancesResponse.builder()
+                    .clientName(cmd.getClientName())
+                    .id(cmd.getId())
+                    .balances(balances.entrySet().stream()
+                            .collect(Collectors.toMap(it -> it.getKey().getCode(), Map.Entry::getValue))
+                    ).build();
+        });
     }
 
     @PostMapping("create")

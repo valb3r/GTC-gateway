@@ -66,6 +66,7 @@ app:
     jms:
         topic:
             inOut:
+                account: account
                 create: create
                 manage: manage
                 withdraw: withdraw
