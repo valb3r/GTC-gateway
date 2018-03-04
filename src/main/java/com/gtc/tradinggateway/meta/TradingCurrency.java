@@ -2,6 +2,8 @@ package com.gtc.tradinggateway.meta;
 
 import lombok.Getter;
 
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -77,5 +79,11 @@ public enum TradingCurrency {
         return Stream.of(TradingCurrency.values())
                 .filter(thresholdType -> thresholdType.getCode().equals(code)).findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("Mapping for " + code + " not found"));
+    }
+
+    public static Optional<TradingCurrency> fromCodeRelaxed(String code, Map<String, String> preMap) {
+        return Stream.of(TradingCurrency.values())
+                .filter(thresholdType -> thresholdType.getCode().equalsIgnoreCase(preMap.getOrDefault(code, code)))
+                .findFirst();
     }
 }

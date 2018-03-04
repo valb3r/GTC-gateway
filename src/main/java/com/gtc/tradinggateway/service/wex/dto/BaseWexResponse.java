@@ -15,6 +15,15 @@ public class BaseWexResponse<T> {
 
     private short success;
 
+    private String error;
+
     @JsonProperty("return")
     private T ret;
+
+    public void selfAssert() {
+
+        if (success != 1) {
+            throw new IllegalStateException(error);
+        }
+    }
 }

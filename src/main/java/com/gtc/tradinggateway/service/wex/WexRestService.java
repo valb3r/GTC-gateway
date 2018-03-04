@@ -1,16 +1,21 @@
 package com.gtc.tradinggateway.service.wex;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.tradinggateway.aspect.rate.IgnoreRateLimited;
 import com.gtc.tradinggateway.aspect.rate.RateLimited;
 import com.gtc.tradinggateway.config.WexConfig;
+import com.gtc.tradinggateway.meta.PairSymbol;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.Account;
 import com.gtc.tradinggateway.service.CreateOrder;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.wex.dto.BaseWexRequest;
+import com.gtc.tradinggateway.service.wex.dto.TradeWexRequest;
 import com.gtc.tradinggateway.service.wex.dto.WexBalancesDto;
+import com.gtc.tradinggateway.service.wex.dto.WexCreateResponse;
+import com.gtc.tradinggateway.util.CodeMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +42,11 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
 
     private static final long NONCE_BEGIN = 1520154667151L;
 
+    private static final String SELL = "sell";
+    private static final String BUY = "buy";
+
     private static final String BALANCES = "getInfo";
+    private static final String CREATE = "Trade";
 
     private final WexConfig cfg;
     private final WexEncryptionService signer;
@@ -53,22 +62,35 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
                         new HttpEntity<>(request, signer.sign(request)),
                         WexBalancesDto.class);
 
+        resp.getBody().selfAssert();
+
         Map<TradingCurrency, Double> results = new EnumMap<>(TradingCurrency.class);
         WexBalancesDto.Value value = resp.getBody().getRet();
-        value.getFunds().forEach((key, amount) -> {
-            try {
-                results.put(TradingCurrency.fromCode(key), amount);
-            } catch (RuntimeException ex) {
-                log.error("Failed mapping currency-code {} having amount {}", key, amount);
-            }
-        });
+        value.getFunds().forEach((key, amount) ->
+                CodeMapper.mapAndPut(key, amount, cfg, results)
+        );
 
         return results;
     }
 
     @Override
     public String create(TradingCurrency from, TradingCurrency to, double amount, double price) {
-        return null;
+        PairSymbol pair = cfg.fromCurrency(from, to)
+                .orElseThrow(() -> new IllegalStateException("Unsupported pair"));
+        TradeWexRequest request = new TradeWexRequest((int) nonce(), CREATE, pair.getSymbol(),
+                amount < 0 ? SELL : BUY, price, amount);
+
+        ResponseEntity<WexCreateResponse> resp = cfg.getRestTemplate()
+                .exchange(
+                        cfg.getRestBase(),
+                        HttpMethod.POST,
+                        new HttpEntity<>(request, signer.sign(request)),
+                        WexCreateResponse.class);
+
+        resp.getBody().selfAssert();
+
+        // TODO: add handling of 0 as already executed
+        return String.valueOf(resp.getBody().getRet().getOrderId());
     }
 
     @Override
@@ -98,7 +120,8 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     }
 
     // sufficient for 9940 days and rate 10 r/s - it has max of 2^32 as per docs
-    private static long nonce() {
+    @VisibleForTesting
+    protected long nonce() {
         return (System.currentTimeMillis() - NONCE_BEGIN) / 100;
     }
 }

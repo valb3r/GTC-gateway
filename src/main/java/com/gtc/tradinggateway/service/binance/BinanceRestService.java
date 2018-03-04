@@ -11,6 +11,7 @@ import com.gtc.tradinggateway.service.CreateOrder;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.binance.dto.*;
+import com.gtc.tradinggateway.util.CodeMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -113,13 +114,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
         BinanceBalanceDto response = resp.getBody();
         BinanceBalanceDto.BinanceBalanceAsset[] assets = response.getBalances();
         for (BinanceBalanceDto.BinanceBalanceAsset asset : assets) {
-            try {
-                results.put(TradingCurrency.fromCode(asset.getCode()), asset.getAmount());
-            } catch (RuntimeException ex) {
-                log.error(
-                        "Failed mapping currency-code {} having amount {}",
-                        asset.getCode(), String.valueOf(asset.getAmount()));
-            }
+            CodeMapper.mapAndPut(asset.getCode(), asset.getAmount(), cfg, results);
         }
         return results;
     }

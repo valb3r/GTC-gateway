@@ -1,15 +1,16 @@
 package com.gtc.tradinggateway.service.wex;
 
 import com.gtc.tradinggateway.config.WexConfig;
+import com.gtc.tradinggateway.config.converters.FormHttpMessageToPojoConverter;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -28,14 +29,12 @@ public class WexEncryptionService {
 
     @SneakyThrows
     public <T> MultiValueMap<String, String> sign(T requestBody) {
-        String body = cfg.getMapper().writeValueAsString(requestBody);
+        String body = FormHttpMessageToPojoConverter.pojoSerialize(cfg.getMapper(), requestBody);
 
         Mac macInst = Mac.getInstance(HMAC_SHA512);
         macInst.init(new SecretKeySpec(cfg.getSecretKey().getBytes(StandardCharsets.UTF_8), HMAC_SHA512));
 
-        String signed = DatatypeConverter
-                .printHexBinary((macInst.doFinal(body.getBytes(StandardCharsets.UTF_8))))
-                .toLowerCase();
+        String signed = new String(Hex.encodeHex((macInst.doFinal(body.getBytes(StandardCharsets.UTF_8)))));
 
         HttpHeaders result = new HttpHeaders();
         result.add(KEY, cfg.getPublicKey());
