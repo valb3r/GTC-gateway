@@ -17,8 +17,8 @@ import static com.gtc.tradinggateway.config.Const.Clients.BINANCE;
 @ConfigurationProperties(CONF_ROOT_CHILD + BINANCE)
 public class BinanceConfig extends BaseConfig {
 
-    public BinanceConfig() {
-        mapper = ConfigFactory.defaultMapper();
-        restTemplate = ConfigFactory.defaultRestTemplate(mapper);
+    public BinanceConfig(ConfigFactory factory) {
+        mapper = factory.defaultMapper();
+        restTemplate = factory.defaultRestTemplate(mapper);
     }
 }

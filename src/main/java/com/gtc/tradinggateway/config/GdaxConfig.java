@@ -17,8 +17,8 @@ import static com.gtc.tradinggateway.config.Const.Clients.GDAX;
 @ConfigurationProperties(CONF_ROOT_CHILD + GDAX)
 public class GdaxConfig extends BaseConfig {
 
-    public GdaxConfig() {
-        mapper = ConfigFactory.defaultMapper();
-        restTemplate = ConfigFactory.defaultRestTemplate(mapper);
+    public GdaxConfig(ConfigFactory factory) {
+        mapper = factory.defaultMapper();
+        restTemplate = factory.defaultRestTemplate(mapper);
     }
 }

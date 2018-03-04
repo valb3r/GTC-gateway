@@ -19,9 +19,9 @@ import static com.gtc.tradinggateway.config.Const.Clients.WEX;
 @ConfigurationProperties(CONF_ROOT_CHILD + WEX)
 public class WexConfig extends BaseConfig {
 
-    public WexConfig() {
-        mapper = ConfigFactory.defaultMapper();
-        restTemplate = ConfigFactory.defaultRestTemplate(mapper);
+    public WexConfig(ConfigFactory factory) {
+        mapper = factory.defaultMapper();
+        restTemplate = factory.defaultRestTemplate(mapper);
         restTemplate.setMessageConverters(ImmutableList.of(new FormHttpMessageToPojoConverter(mapper)));
     }
 }

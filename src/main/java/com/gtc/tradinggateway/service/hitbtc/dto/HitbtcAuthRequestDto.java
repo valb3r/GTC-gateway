@@ -20,10 +20,12 @@ public class HitbtcAuthRequestDto {
         private final String pKey;
         private final String sKey;
 
+        // weird names for proper field mapping
         public String getpKey() {
             return pKey;
         }
 
+        // weird names for proper field mapping
         public String getsKey() {
             return sKey;
         }
