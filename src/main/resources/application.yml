@@ -63,6 +63,16 @@ app:
             XMRBTC=XMR-BTC
         disconnectIfInactiveS: 20
         ratePerS: 0.17
+    wex:
+        restBase: "https://btc-e.com/tapi/"
+        passphrase: ${WEX_PASSPHRASE}
+        publicKey: ${WEX_PUBLIC}
+        secretKey: ${WEX_SECRET}
+        pairs:
+            btc_usd=BTC-USD,
+            ltc_btc=LTC-BTC,
+            dsh_btc=DASH-BTC,
+        ratePerS: 0.17
     jms:
         topic:
             inOut:

@@ -30,6 +30,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
+ * FIXME: Kill duplicate code - bodies similar to EsbCommnadHandler
  * Created by Valentyn Berezin on 24.02.18.
  */
 @Slf4j
