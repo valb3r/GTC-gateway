@@ -9,6 +9,7 @@ import com.gtc.tradinggateway.service.CreateOrder;
 import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import static com.gtc.tradinggateway.config.Const.Clients.GDAX;
@@ -29,7 +30,7 @@ public class GdaxWsService extends BaseWsClient implements CreateOrder {
     }
 
     @Override
-    public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, double amount, double price) {
+    public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, BigDecimal amount, BigDecimal price) {
         return null;
     }
 

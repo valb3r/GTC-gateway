@@ -4,6 +4,9 @@ import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
 import lombok.*;
 import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
+
 /**
  * Created by Valentyn Berezin on 21.02.18.
  */
@@ -20,13 +23,14 @@ public class WithdrawOrderResponse extends AbstractMessage {
     @NotBlank
     private String currency;
 
-    private double amount;
+    @NotNull
+    private BigDecimal amount;
 
     @NotBlank
     private String toDestination;
 
     @Builder
-    public WithdrawOrderResponse(String clientName, String id, String currency, double amount, String toDestination) {
+    public WithdrawOrderResponse(String clientName, String id, String currency, BigDecimal amount, String toDestination) {
         super(clientName, id);
         this.currency = currency;
         this.amount = amount;

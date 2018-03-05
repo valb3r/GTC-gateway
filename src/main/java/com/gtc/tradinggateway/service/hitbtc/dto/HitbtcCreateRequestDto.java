@@ -3,6 +3,7 @@ package com.gtc.tradinggateway.service.hitbtc.dto;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 /**
@@ -22,11 +23,11 @@ public class HitbtcCreateRequestDto {
         private final String clientOrderId;
         private final String symbol;
         private final String side;
-        private final double price;
-        private final double quantity;
+        private final BigDecimal price;
+        private final BigDecimal quantity;
     }
 
-    public HitbtcCreateRequestDto(String symbol, String side, double price, double quantity) {
+    public HitbtcCreateRequestDto(String symbol, String side, BigDecimal price, BigDecimal quantity) {
         String id = UUID.randomUUID().toString().replace("-", "");
         params = new OrderBody(id, symbol, side, price, quantity);
     }

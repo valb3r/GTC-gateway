@@ -6,6 +6,7 @@ import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.model.tradinggateway.api.dto.data.OrderStatus;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -27,16 +28,16 @@ public class HitbtcOrderGetDto {
     @JsonProperty("clientOrderId")
     private String id;
     private String symbol;
-    private double quantity;
+    private BigDecimal quantity;
     private String status;
-    private double price;
+    private BigDecimal price;
 
     private String side;
 
     public OrderDto mapTo () {
         return OrderDto.builder()
                 .orderId(id)
-                .size(SELL.equals(side) ? -quantity : quantity)
+                .size(SELL.equals(side) ? quantity.negate() : quantity)
                 .price(price)
                 .status(MAPPER.getOrDefault(status, OrderStatus.UNMAPPED))
                 .statusString(status)

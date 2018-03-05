@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
+
 /**
  * Created by mikro on 28.01.2018.
  */
@@ -14,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 public class BinanceWithdrawalRequestDto extends BinanceRequestDto {
 
     private final String asset;
-    private final double amount;
+    private final BigDecimal amount;
     private final String address;
 
     @Override
@@ -22,7 +24,7 @@ public class BinanceWithdrawalRequestDto extends BinanceRequestDto {
         UriFormatter uri = new UriFormatter();
         uri.addToUri("asset", getAsset());
         uri.addToUri("address", getAddress());
-        uri.addToUri("amount", String.valueOf(getAmount()));
+        uri.addToUri("amountFromOrig", String.valueOf(getAmount()));
         uri.addToUri("timestamp", String.valueOf(getTimestamp()));
         uri.addToUri("recvWindow", String.valueOf(getRecvWindow()));
         return uri.toString();

@@ -23,6 +23,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
 
     @Override
     @SneakyThrows
-    public Map<TradingCurrency, Double> balances() {
+    public Map<TradingCurrency, BigDecimal> balances() {
         BaseWexRequest request = new BaseWexRequest(nonce(), BALANCES);
         ResponseEntity<WexBalancesDto> resp = cfg.getRestTemplate()
                 .exchange(
@@ -65,7 +66,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
 
         resp.getBody().selfAssert();
 
-        Map<TradingCurrency, Double> results = new EnumMap<>(TradingCurrency.class);
+        Map<TradingCurrency, BigDecimal> results = new EnumMap<>(TradingCurrency.class);
         WexBalancesDto.Value value = resp.getBody().getRet();
         value.getFunds().forEach((key, amount) ->
                 CodeMapper.mapAndPut(key, amount, cfg, results)
@@ -75,15 +76,15 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     }
 
     @Override
-    public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, double amount, double price) {
+    public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, BigDecimal amount, BigDecimal price) {
         PairSymbol pair = cfg.pairFromCurrency(from, to)
                 .orElseThrow(() -> new IllegalStateException("Unsupported pair"));
-        double calcAmount = DefaultInvertHandler.amount(pair, amount, price);
-        double calcPrice = DefaultInvertHandler.price(pair, price);
+        BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pair, amount, price);
+        BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pair, price);
         WexCreateOrder request = new WexCreateOrder(nonce(), CREATE, pair.getSymbol(),
                 DefaultInvertHandler.amountToBuyOrSell(calcAmount),
                 calcPrice,
-                Math.abs(calcAmount)
+                calcAmount.abs()
         );
 
         ResponseEntity<WexCreateResponse> resp = cfg.getRestTemplate()
@@ -147,7 +148,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     }
 
     @Override
-    public void withdraw(TradingCurrency currency, double amount, String destination) {
+    public void withdraw(TradingCurrency currency, BigDecimal amount, String destination) {
         // NOTE: WEX requires special API key permissions for doing that
         WexWithdrawRequest request = new WexWithdrawRequest(
                 nonce(),

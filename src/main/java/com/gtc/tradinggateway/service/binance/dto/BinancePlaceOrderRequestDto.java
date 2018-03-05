@@ -1,10 +1,12 @@
 package com.gtc.tradinggateway.service.binance.dto;
 
 import com.gtc.tradinggateway.meta.PairSymbol;
+import com.gtc.tradinggateway.util.DefaultInvertHandler;
 import com.gtc.tradinggateway.util.UriFormatter;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
+
+import java.math.BigDecimal;
 
 /**
  * Created by mikro on 01.02.2018.
@@ -15,51 +17,34 @@ public class BinancePlaceOrderRequestDto extends BinanceRequestDto {
 
     private PairSymbol symbol;
 
-    private OrderSide side;
+    private String side;
 
     private String type = "LIMIT";
 
-    private double quantity;
+    private BigDecimal quantity;
 
-    private double price;
+    private BigDecimal price;
 
     private String timeInForce = "GTC";
-
-    public enum OrderSide {
-        Buy("BUY"),
-        Sell("SELL");
-
-        @Getter
-        private final String side;
-
-        OrderSide(String side) {
-            this.side = side;
-        }
-
-        @Override
-        public String toString() {
-            return side;
-        }
-    }
 
     @Override
     public String toString() {
         UriFormatter uri = new UriFormatter();
         uri.addToUri("symbol", getSymbol());
-        uri.addToUri("side", getSide().toString());
+        uri.addToUri("side", getSide());
         uri.addToUri("type", getType());
         uri.addToUri("timeInForce", getTimeInForce());
         uri.addToUri("quantity", String.valueOf(getQuantity()));
-        uri.addToUri("price", String.valueOf(getPrice()));
+        uri.addToUri("priceFromOrig", String.valueOf(getPrice()));
         uri.addToUri("recvWindow", String.valueOf(getRecvWindow()));
         uri.addToUri("timestamp", String.valueOf(getTimestamp()));
         return uri.toString();
     }
 
-    public BinancePlaceOrderRequestDto (PairSymbol symbol, double amount, double price) {
+    public BinancePlaceOrderRequestDto (PairSymbol symbol, BigDecimal amount, BigDecimal price) {
         this.symbol = symbol;
-        this.side = amount < 0 ? OrderSide.Sell : OrderSide.Buy;
+        this.side = DefaultInvertHandler.amountToBuyOrSellUpper(amount);
         this.price = price;
-        this.quantity = Math.abs(amount);
+        this.quantity = amount.abs();
     }
 }

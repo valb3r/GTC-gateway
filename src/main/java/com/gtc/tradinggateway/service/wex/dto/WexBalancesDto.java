@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -19,6 +20,6 @@ public class WexBalancesDto extends BaseWexResponse<WexBalancesDto.Value> {
     @NoArgsConstructor
     public static class Value {
 
-        private Map<String, Double> funds;
+        private Map<String, BigDecimal> funds;
     }
 }

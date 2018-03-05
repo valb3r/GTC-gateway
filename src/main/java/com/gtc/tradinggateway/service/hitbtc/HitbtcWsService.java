@@ -13,9 +13,11 @@ import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcAuthRequestDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcCreateRequestDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcErrorDto;
+import com.gtc.tradinggateway.util.DefaultInvertHandler;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -28,8 +30,6 @@ import static com.gtc.tradinggateway.config.Const.Clients.HITBTC;
 @Service
 public class HitbtcWsService extends BaseWsClient implements CreateOrder {
 
-    private static final String SELL = "sell";
-    private static final String BUY = "buy";
     private static final String ERROR_ALIAS = "error";
     private static final String AUTH_ALIAS = "auth";
     private static final String ID_ALIAS = "id";
@@ -88,7 +88,7 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
     }
 
     @SneakyThrows
-    public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, double amount, double price) {
+    public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, BigDecimal amount, BigDecimal price) {
         Optional<PairSymbol> pair = cfg.pairFromCurrency(from, to);
         if (isDisconnected() || !isLoggedIn.get()) {
             throw new IllegalStateException(
@@ -100,16 +100,14 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
                     "Pair from " + from.toString() + " to " + to.toString() + " is not supported");
         }
         PairSymbol pairSym = pair.get();
-        if (pairSym.getIsInverted()) {
-            amount = -1 / amount;
-            price = 1 / price;
-        }
 
-        String side = amount < 0 ? SELL : BUY;
+        BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pairSym, amount, price);
+        BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pairSym, price);
+        String side = DefaultInvertHandler.amountToBuyOrSell(calcAmount);
 
         ObjectWebSocketSender sender = rxConnected.get().sender();
         HitbtcCreateRequestDto requestDto =
-                new HitbtcCreateRequestDto(pairSym.toString(), side, price, Math.abs(amount));
+                new HitbtcCreateRequestDto(pairSym.getSymbol(), side, calcPrice, calcAmount.abs());
 
         RxMoreObservables
                 .sendObjectMessage(sender, requestDto)

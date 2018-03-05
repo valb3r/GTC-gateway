@@ -15,6 +15,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -61,12 +62,12 @@ public class GdaxRestService implements ManageOrders, Withdraw, Account {
     }
 
     @Override
-    public Map<TradingCurrency, Double> balances() {
+    public Map<TradingCurrency, BigDecimal> balances() {
         return null;
     }
 
     @Override
-    public void withdraw(TradingCurrency currency, double amount, String destination) {
+    public void withdraw(TradingCurrency currency, BigDecimal amount, String destination) {
 
     }
 

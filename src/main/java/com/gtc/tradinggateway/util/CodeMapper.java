@@ -5,6 +5,7 @@ import com.gtc.tradinggateway.meta.TradingCurrency;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
 
@@ -15,7 +16,8 @@ import java.util.Optional;
 @UtilityClass
 public class CodeMapper {
 
-    public void mapAndPut(String currencyName, double amount, BaseConfig cfg, Map<TradingCurrency, Double> results) {
+    public void mapAndPut(String currencyName, BigDecimal amount, BaseConfig cfg,
+                          Map<TradingCurrency, BigDecimal> results) {
         Optional<TradingCurrency> currency = TradingCurrency.fromCodeRelaxed(
                 currencyName,
                 cfg.getCustomResponseCurrencyMapping()
@@ -24,7 +26,7 @@ public class CodeMapper {
         currency.ifPresent(it -> results.put(it, amount));
 
         if (!currency.isPresent()) {
-            log.warn("Failed mapping currency-code {} having amount {}", currencyName, amount);
+            log.warn("Failed mapping currency-code {} having amountFromOrig {}", currencyName, amount);
         }
     }
 }

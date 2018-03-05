@@ -20,6 +20,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -78,14 +79,14 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
     }
 
     @Override
-    public Map<TradingCurrency, Double> balances() {
+    public Map<TradingCurrency, BigDecimal> balances() {
         ResponseEntity<HitbtcBalanceItemDto[]> resp = cfg.getRestTemplate()
                 .exchange(
                         cfg.getRestBase() + BALANCES,
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
                         HitbtcBalanceItemDto[].class);
-        Map<TradingCurrency, Double> results = new EnumMap<>(TradingCurrency.class);
+        Map<TradingCurrency, BigDecimal> results = new EnumMap<>(TradingCurrency.class);
         HitbtcBalanceItemDto[] assets = resp.getBody();
         for (HitbtcBalanceItemDto asset : assets) {
             CodeMapper.mapAndPut(asset.getCurrency(), asset.getAvailable(), cfg, results);
@@ -95,7 +96,7 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
 
     @SneakyThrows
     @Override
-    public void withdraw(TradingCurrency currency, double amount, String destination) {
+    public void withdraw(TradingCurrency currency, BigDecimal amount, String destination) {
         HitbtcWithdrawRequestDto requestDto = new HitbtcWithdrawRequestDto(destination, amount, currency.toString());
 
         cfg.getRestTemplate()

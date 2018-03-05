@@ -6,6 +6,7 @@ import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.model.tradinggateway.api.dto.data.OrderStatus;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 
@@ -31,12 +32,12 @@ public class BinanceGetOrderDto {
     private String pair;
 
     @JsonProperty("origQty")
-    private double originalAmount;
+    private BigDecimal originalAmount;
 
     @JsonProperty("icebergQty")
-    private double currentAmount;
+    private BigDecimal currentAmount;
 
-    private double price;
+    private BigDecimal price;
 
     private String status;
 

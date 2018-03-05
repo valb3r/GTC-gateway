@@ -2,6 +2,7 @@ package com.gtc.tradinggateway.service;
 
 import com.gtc.tradinggateway.meta.TradingCurrency;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -9,5 +10,5 @@ import java.util.Map;
  */
 public interface Account extends ClientNamed {
 
-    Map<TradingCurrency, Double> balances();
+    Map<TradingCurrency, BigDecimal> balances();
 }

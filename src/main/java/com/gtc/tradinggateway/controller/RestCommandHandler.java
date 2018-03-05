@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -55,7 +56,7 @@ public class RestCommandHandler {
     public AbstractMessage getBalances(@RequestBody @Valid GetAllBalancesCommand command) {
         log.info("Request to create order {}", command);
         return doExecute(command, accountOps, (handler, cmd) -> {
-            Map<TradingCurrency, Double> balances = handler.balances();
+            Map<TradingCurrency, BigDecimal> balances = handler.balances();
 
             log.info("Got balances {} for {} of {}", balances, cmd.getId(), cmd.getClientName());
             return GetAllBalancesResponse.builder()
@@ -74,8 +75,8 @@ public class RestCommandHandler {
             OrderCreatedDto id = handler.create(
                     TradingCurrency.fromCode(cmd.getCurrencyFrom()),
                     TradingCurrency.fromCode(cmd.getCurrencyTo()),
-                    cmd.getAmount().doubleValue(),
-                    cmd.getPrice().doubleValue()
+                    cmd.getAmount(),
+                    cmd.getPrice()
             );
 
             log.info("Created {} for {} of {}", id, cmd.getId(), cmd.getClientName());
@@ -142,7 +143,7 @@ public class RestCommandHandler {
         return doExecute(command, withdrawOps, (handler, cmd) -> {
             handler.withdraw(
                     TradingCurrency.fromCode(cmd.getCurrency()),
-                    cmd.getAmount().doubleValue(),
+                    cmd.getAmount(),
                     cmd.getToDestination()
             );
 
@@ -151,7 +152,7 @@ public class RestCommandHandler {
                     .clientName(cmd.getClientName())
                     .id(cmd.getId())
                     .currency(cmd.getCurrency())
-                    .amount(cmd.getAmount().doubleValue())
+                    .amount(cmd.getAmount())
                     .toDestination(cmd.getToDestination())
                     .build();
         });

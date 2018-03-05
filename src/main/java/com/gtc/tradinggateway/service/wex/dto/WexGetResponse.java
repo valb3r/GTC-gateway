@@ -4,10 +4,12 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.model.tradinggateway.api.dto.data.OrderStatus;
+import com.gtc.tradinggateway.util.DefaultInvertHandler;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
 
@@ -35,9 +37,9 @@ public class WexGetResponse extends BaseWexResponse<Map<String, WexGetResponse.V
 
         private String pair;
         private String type;
-        private double startAmount;
-        private double amount;
-        private double rate;
+        private BigDecimal startAmount;
+        private BigDecimal amount;
+        private BigDecimal rate;
         private long timestampCreated;
         private int status;
     }
@@ -56,7 +58,7 @@ public class WexGetResponse extends BaseWexResponse<Map<String, WexGetResponse.V
 
         return Optional.of(OrderDto.builder()
                 .orderId(id)
-                .size(SELL.equals(value.getType()) ? -value.getAmount() : value.getAmount())
+                .size(DefaultInvertHandler.mapFromBuyOrSell(value.getType(), value.getAmount()))
                 .price(value.getRate())
                 .status(MAPPER.getOrDefault(value.getStatus(), OrderStatus.UNMAPPED))
                 .statusString(String.valueOf(value.getStatus()))

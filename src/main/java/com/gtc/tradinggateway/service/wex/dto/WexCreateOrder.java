@@ -21,11 +21,11 @@ public class WexCreateOrder extends BaseWexRequest {
 
     private final BigDecimal amount;
 
-    public WexCreateOrder(int nonce, String method, String pair, String type, double price, double amount) {
+    public WexCreateOrder(int nonce, String method, String pair, String type, BigDecimal price, BigDecimal amount) {
         super(nonce, method);
         this.pair = pair;
         this.type = type;
-        this.price = BigDecimal.valueOf(price);
-        this.amount = BigDecimal.valueOf(amount);
+        this.price = price;
+        this.amount = amount;
     }
 }

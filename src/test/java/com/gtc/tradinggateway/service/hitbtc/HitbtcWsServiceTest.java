@@ -6,6 +6,7 @@ import com.gtc.tradinggateway.BaseMockitoTest;
 import com.gtc.tradinggateway.config.HitbtcConfig;
 import com.gtc.tradinggateway.meta.PairSymbol;
 import com.gtc.tradinggateway.meta.TradingCurrency;
+import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcCreateRequestDto;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,8 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,11 +30,10 @@ import static org.mockito.Mockito.when;
 @Slf4j
 public class HitbtcWsServiceTest extends BaseMockitoTest {
 
-    private static final String BASE = "base";
     private static final TradingCurrency from = TradingCurrency.Bitcoin;
     private static final TradingCurrency to = TradingCurrency.Usd;
-    private static final double price = 0.2;
-    private static final double amount = 0.3;
+    private static final BigDecimal price = BigDecimal.valueOf(0.2);
+    private static final BigDecimal amount = BigDecimal.valueOf(0.3);
 
     @Mock
     private HitbtcConfig cfg;
@@ -69,13 +71,13 @@ public class HitbtcWsServiceTest extends BaseMockitoTest {
 
     @Test
     public void testCreate() {
-        String id = hitbtcWsService.create(from, to, amount, price);
+        OrderCreatedDto id = hitbtcWsService.create(from, to, amount, price);
 
         HitbtcCreateRequestDto request = messageCaptor.getValue();
         HitbtcCreateRequestDto.OrderBody params = request.getParams();
 
         assertThat(request.getMethod()).isEqualTo("newOrder");
-        assertThat(params.getClientOrderId()).isEqualTo(id);
+        assertThat(params.getClientOrderId()).isEqualTo(id.getAssignedId());
         assertThat(params.getSide()).isEqualTo("buy");
         assertThat(params.getPrice()).isEqualTo(price);
         assertThat(params.getQuantity()).isEqualTo(amount);
@@ -83,16 +85,16 @@ public class HitbtcWsServiceTest extends BaseMockitoTest {
 
     @Test
     public void testInvertedCreate() {
-        String id = hitbtcWsService.create(to, from, amount, price);
+        OrderCreatedDto id = hitbtcWsService.create(to, from, amount, price);
 
         HitbtcCreateRequestDto request = messageCaptor.getValue();
         HitbtcCreateRequestDto.OrderBody params = request.getParams();
 
         assertThat(request.getMethod()).isEqualTo("newOrder");
-        assertThat(params.getClientOrderId()).isEqualTo(id);
+        assertThat(params.getClientOrderId()).isEqualTo(id.getAssignedId());
         assertThat(params.getSide()).isEqualTo("sell");
-        assertThat(params.getPrice()).isEqualTo(1 / price);
-        assertThat(params.getQuantity()).isEqualTo(1 / amount);
+        assertThat(params.getPrice()).isEqualTo(BigDecimal.ONE.divide(price, RoundingMode.HALF_EVEN));
+        assertThat(params.getQuantity()).isEqualTo(amount.negate().multiply(price).abs());
     }
 
     public static class HitbtcWsServiceTestable extends HitbtcWsService {

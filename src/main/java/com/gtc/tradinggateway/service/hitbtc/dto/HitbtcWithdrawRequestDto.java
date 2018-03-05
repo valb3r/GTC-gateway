@@ -4,6 +4,8 @@ import com.gtc.tradinggateway.util.UriFormatter;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
+import java.math.BigDecimal;
+
 /**
  * Created by mikro on 13.02.2018.
  */
@@ -12,7 +14,7 @@ import lombok.RequiredArgsConstructor;
 public class HitbtcWithdrawRequestDto {
 
     private final String address;
-    private final double amount;
+    private final BigDecimal amount;
     private final String currency;
 
     @Override
@@ -20,7 +22,7 @@ public class HitbtcWithdrawRequestDto {
         UriFormatter uri = new UriFormatter();
         uri.addToUri("currency", getCurrency());
         uri.addToUri("address", getAddress());
-        uri.addToUri("amount", String.valueOf(getAmount()));
+        uri.addToUri("amountFromOrig", String.valueOf(getAmount()));
         uri.addToUri("autoCommit", "true");
         return uri.toString();
     }

@@ -1,18 +1,21 @@
 package com.gtc.tradinggateway.service.binance;
 
+import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.tradinggateway.BaseMockitoTest;
 import com.gtc.tradinggateway.config.BinanceConfig;
 import com.gtc.tradinggateway.meta.PairSymbol;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.binance.dto.BinanceBalanceDto;
 import com.gtc.tradinggateway.service.binance.dto.BinanceGetOrderDto;
-import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
+import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.*;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -142,12 +145,12 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
     public void testGetBalances() {
         BinanceBalanceDto.BinanceBalanceAsset balanceItem = mock(BinanceBalanceDto.BinanceBalanceAsset.class);
         BinanceBalanceDto.BinanceBalanceAsset invalidBalanceItem = mock(BinanceBalanceDto.BinanceBalanceAsset.class);
-        double amount = 0.1;
+        BigDecimal amount = BigDecimal.valueOf(0.1);
         when(balanceDto.getBalances()).thenReturn(new BinanceBalanceDto.BinanceBalanceAsset[]{balanceItem, invalidBalanceItem});
         when(balanceItem.getCode()).thenReturn(TradingCurrency.Bitcoin.toString());
         when(balanceItem.getAmount()).thenReturn(amount);
         when(invalidBalanceItem.getCode()).thenReturn("XXX");
-        when(invalidBalanceItem.getAmount()).thenReturn(0.2);
+        when(invalidBalanceItem.getAmount()).thenReturn(BigDecimal.valueOf(0.1));
 
         when(restTemplate.exchange(
                 requestCaptor.capture(),
@@ -156,7 +159,7 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
                 eq(BinanceBalanceDto.class)
         )).thenReturn(new ResponseEntity<>(balanceDto, HttpStatus.OK));
 
-        Map<TradingCurrency, Double> results = binanceRestService.balances();
+        Map<TradingCurrency, BigDecimal> results = binanceRestService.balances();
 
         assertThat(results.size()).isEqualTo(1);
         assertThat(results.get(TradingCurrency.Bitcoin)).isEqualTo(amount);
@@ -169,7 +172,7 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
     @Test
     public void testWithdraw() {
         String destination = "0x0001";
-        double amount = 0.1;
+        BigDecimal amount = BigDecimal.valueOf(0.1);
         TradingCurrency currency = TradingCurrency.Bitcoin;
         when(restTemplate.exchange(
                 requestCaptor.capture(),
@@ -182,7 +185,7 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
         binanceRestService.withdraw(currency, amount, destination);
 
         assertThat(requestCaptor.getValue()).startsWith(BASE + "/wapi/v3/withdraw.html?asset=" +
-                currency + "&address=" + destination + "&amount=" + amount);
+                currency + "&address=" + destination + "&amountFromOrig=" + amount);
         assertThat(requestCaptor.getValue()).endsWith("signature=" + SIGNED);
         assertThat(requestCaptor.getValue()).contains("timestamp=");
         assertThat(signedCaptor.getValue()).contains("timestamp=");
@@ -195,8 +198,8 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
         Optional<PairSymbol> pair = Optional.of(pairSym);
         TradingCurrency from = TradingCurrency.Bitcoin;
         TradingCurrency to = TradingCurrency.Usd;
-        double amount = 0.1;
-        double price = 0.1;
+        BigDecimal amount = BigDecimal.valueOf(0.1);
+        BigDecimal price = BigDecimal.valueOf(0.2);
         String id = "testid";
         when(getOrderDto.getId()).thenReturn(id);
         when(cfg.pairFromCurrency(from, to)).thenReturn(pair);
@@ -208,11 +211,11 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
 
         )).thenReturn(new ResponseEntity<>(getOrderDto, HttpStatus.OK));
 
-        String result = binanceRestService.create(from, to, amount, price);
+        OrderCreatedDto result = binanceRestService.create(from, to, amount, price);
 
-        assertThat(result).isEqualTo(pairSym.toString() + "." + id);
+        assertThat(result.getAssignedId()).isEqualTo(pairSym.toString() + "." + id);
         assertThat(requestCaptor.getValue()).startsWith(BASE + "/api/v3/order?symbol=" + pairSym +
-            "&side=BUY&type=LIMIT&timeInForce=GTC&quantity=" + amount + "&price=" +
+            "&side=BUY&type=LIMIT&timeInForce=GTC&quantity=" + amount + "&priceFromOrig=" +
                 price + "&recvWindow=5000");
         assertThat(requestCaptor.getValue()).endsWith("signature=" + SIGNED);
         assertThat(requestCaptor.getValue()).contains("timestamp=");
@@ -225,8 +228,8 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
         Optional<PairSymbol> pair = Optional.of(pairSym);
         TradingCurrency from = TradingCurrency.Bitcoin;
         TradingCurrency to = TradingCurrency.Usd;
-        double amount = 0.1;
-        double price = 0.1;
+        BigDecimal amount = BigDecimal.valueOf(0.1);
+        BigDecimal price = BigDecimal.valueOf(0.2);
         String id = "testid";
         when(getOrderDto.getId()).thenReturn(id);
         when(cfg.pairFromCurrency(from, to)).thenReturn(pair);
@@ -240,8 +243,10 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
 
         binanceRestService.create(from, to, amount, price);
 
-        assertThat(requestCaptor.getValue()).startsWith(BASE + "/api/v3/order?symbol=" + pairSym +
-                "&side=SELL&type=LIMIT&timeInForce=GTC&quantity=" + (1 / amount) + "&price=" +
-                (1 / price) + "&recvWindow=5000");
+        assertThat(requestCaptor.getValue()).startsWith(BASE + "/api/v3/order?symbol=" + pairSym
+                + "&side=SELL&type=LIMIT&timeInForce=GTC&quantity="
+                + amount.negate().multiply(price).abs() + "&priceFromOrig="
+                + BigDecimal.ONE.divide(price, RoundingMode.HALF_EVEN) + "&recvWindow=5000"
+        );
     }
 }

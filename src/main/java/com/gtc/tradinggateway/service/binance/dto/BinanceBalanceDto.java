@@ -3,6 +3,8 @@ package com.gtc.tradinggateway.service.binance.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 /**
  * Created by mikro on 31.01.2018.
  */
@@ -18,7 +20,7 @@ public class BinanceBalanceDto {
         private String code;
 
         @JsonProperty("free")
-        private Double amount;
+        private BigDecimal amount;
 
     }
 }

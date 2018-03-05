@@ -13,6 +13,7 @@ import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.binance.dto.*;
 import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import com.gtc.tradinggateway.util.CodeMapper;
+import com.gtc.tradinggateway.util.DefaultInvertHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -100,7 +102,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
     }
 
     @Override
-    public Map<TradingCurrency, Double> balances() {
+    public Map<TradingCurrency, BigDecimal> balances() {
         BinanceRequestDto requestDto = new BinanceRequestDto();
         String body = requestDto.toString();
         String signedBody = getSignedBody(body);
@@ -111,7 +113,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
                         BinanceBalanceDto.class);
-        Map<TradingCurrency, Double> results = new EnumMap<>(TradingCurrency.class);
+        Map<TradingCurrency, BigDecimal> results = new EnumMap<>(TradingCurrency.class);
         BinanceBalanceDto response = resp.getBody();
         BinanceBalanceDto.BinanceBalanceAsset[] assets = response.getBalances();
         for (BinanceBalanceDto.BinanceBalanceAsset asset : assets) {
@@ -121,7 +123,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
     }
 
     @Override
-    public void withdraw(TradingCurrency currency, double amount, String destination) {
+    public void withdraw(TradingCurrency currency, BigDecimal amount, String destination) {
         BinanceRequestDto requestDto = new BinanceWithdrawalRequestDto(currency.toString(), amount, destination);
         String body = requestDto.toString();
         String signedBody = getSignedBody(body);
@@ -133,18 +135,16 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
     }
 
     @Override
-    public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, double amount, double price) {
+    public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, BigDecimal amount, BigDecimal price) {
         Optional<PairSymbol> pair = cfg.pairFromCurrency(from, to);
         if (!pair.isPresent()) {
             throw new IllegalArgumentException(
                     "Pair from " + from.toString() + " to " + to.toString() + " is not supported");
         }
         PairSymbol pairSym = pair.get();
-        if (pairSym.getIsInverted()) {
-            amount = -1 / amount;
-            price = 1 / price;
-        }
-        BinancePlaceOrderRequestDto requestDto = new BinancePlaceOrderRequestDto(pairSym, amount, price);
+        BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pairSym, amount, price);
+        BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pairSym, price);
+        BinancePlaceOrderRequestDto requestDto = new BinancePlaceOrderRequestDto(pairSym, calcAmount, calcPrice);
         String body = requestDto.toString();
         String signedBody = getSignedBody(body);
         RestTemplate template = cfg.getRestTemplate();
