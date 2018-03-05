@@ -2,6 +2,7 @@ package com.gtc.tradinggateway.service.command;
 
 import com.google.common.base.Throwables;
 import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
+import com.gtc.model.tradinggateway.api.dto.WithOrderId;
 import com.gtc.model.tradinggateway.api.dto.command.account.GetAllBalancesCommand;
 import com.gtc.model.tradinggateway.api.dto.command.create.CreateOrderCommand;
 import com.gtc.model.tradinggateway.api.dto.command.manage.CancelOrderCommand;
@@ -108,7 +109,7 @@ public class EsbCommandHandler {
                     .clientName(cmd.getClientName())
                     .id(cmd.getId())
                     .requestOrderId(cmd.getId())
-                    .assignedId(id.getAssignedId())
+                    .orderId(id.getAssignedId())
                     .isExecuted(id.isExecuted())
                     .build();
         });
@@ -156,6 +157,7 @@ public class EsbCommandHandler {
             return CancelOrderResponse.builder()
                     .clientName(cmd.getClientName())
                     .id(cmd.getId())
+                    .orderId(command.getOrderId())
                     .build();
         });
     }
@@ -217,6 +219,11 @@ public class EsbCommandHandler {
         resp.setOnMessageId(origin.getId());
         resp.setOccurredOn(origin.toString());
         resp.setErrorCause(Throwables.getStackTraceAsString(Throwables.getRootCause(forExc)));
+
+        if (origin instanceof WithOrderId) {
+            resp.setOrderId(((WithOrderId) origin).getOrderId());
+        }
+
         return resp;
     }
 

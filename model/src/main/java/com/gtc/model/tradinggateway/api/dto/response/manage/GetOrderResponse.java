@@ -1,6 +1,7 @@
 package com.gtc.model.tradinggateway.api.dto.response.manage;
 
 import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
+import com.gtc.model.tradinggateway.api.dto.WithOrderId;
 import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import lombok.*;
 
@@ -11,12 +12,13 @@ import lombok.*;
 @Setter
 @ToString(callSuper = true)
 @NoArgsConstructor
-public class GetOrderResponse extends AbstractMessage {
+public class GetOrderResponse extends AbstractMessage implements WithOrderId {
 
     private static final String HEADER = "resp.get";
 
     public static final String SELECTOR = HEADER_NAME + "='" + HEADER + "'";
 
+    @lombok.experimental.Delegate
     private OrderDto order;
 
     @Builder

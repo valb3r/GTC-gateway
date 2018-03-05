@@ -83,7 +83,7 @@ public class RestCommandHandler {
                     .clientName(cmd.getClientName())
                     .id(cmd.getId())
                     .requestOrderId(cmd.getId())
-                    .assignedId(id.getAssignedId())
+                    .orderId(id.getAssignedId())
                     .isExecuted(id.isExecuted())
                     .build();
         });
@@ -131,6 +131,7 @@ public class RestCommandHandler {
             return CancelOrderResponse.builder()
                     .clientName(cmd.getClientName())
                     .id(cmd.getId())
+                    .orderId(cmd.getOrderId())
                     .build();
         });
     }

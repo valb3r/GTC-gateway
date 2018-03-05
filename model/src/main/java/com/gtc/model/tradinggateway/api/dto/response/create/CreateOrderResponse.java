@@ -1,6 +1,7 @@
 package com.gtc.model.tradinggateway.api.dto.response.create;
 
 import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
+import com.gtc.model.tradinggateway.api.dto.WithOrderId;
 import lombok.*;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -11,7 +12,7 @@ import org.hibernate.validator.constraints.NotBlank;
 @Setter
 @ToString(callSuper = true)
 @NoArgsConstructor
-public class CreateOrderResponse extends AbstractMessage {
+public class CreateOrderResponse extends AbstractMessage implements WithOrderId {
 
     private static final String HEADER = "resp.create";
 
@@ -22,17 +23,17 @@ public class CreateOrderResponse extends AbstractMessage {
 
     // not all exchanges allow to have client-assigned id
     @NotBlank
-    private String assignedId;
+    private String orderId;
 
     // order can be executed immediately on creation
     private boolean isExecuted;
 
     @Builder
-    public CreateOrderResponse(String clientName, String id, String requestOrderId, String assignedId,
+    public CreateOrderResponse(String clientName, String id, String requestOrderId, String orderId,
                                boolean isExecuted) {
         super(clientName, id);
         this.requestOrderId = requestOrderId;
-        this.assignedId = assignedId;
+        this.orderId = orderId;
         this.isExecuted = isExecuted;
     }
 

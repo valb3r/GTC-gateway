@@ -1,6 +1,7 @@
 package com.gtc.model.tradinggateway.api.dto.command.create;
 
 import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
+import com.gtc.model.tradinggateway.api.dto.WithOrderId;
 import lombok.*;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
 @Setter
 @ToString(callSuper = true)
 @NoArgsConstructor
-public class CreateOrderCommand extends AbstractMessage {
+public class CreateOrderCommand extends AbstractMessage implements WithOrderId {
 
     private static final String HEADER = "create";
 
@@ -33,14 +34,18 @@ public class CreateOrderCommand extends AbstractMessage {
     @NotNull
     private BigDecimal amount;
 
+    @NotNull
+    private String orderId; // it is not guaranteed we will get it assigned
+
     @Builder
     public CreateOrderCommand(String clientName, String id, String currencyFrom, String currencyTo, double price,
-                              double amount) {
+                              double amount, String orderId) {
         super(clientName, id);
         this.currencyFrom = currencyFrom;
         this.currencyTo = currencyTo;
         this.price = BigDecimal.valueOf(price);
         this.amount = BigDecimal.valueOf(amount);
+        this.orderId = orderId;
     }
 
     @Override

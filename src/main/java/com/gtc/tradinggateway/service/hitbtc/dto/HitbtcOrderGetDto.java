@@ -35,7 +35,7 @@ public class HitbtcOrderGetDto {
 
     public OrderDto mapTo () {
         return OrderDto.builder()
-                .id(id)
+                .orderId(id)
                 .size(SELL.equals(side) ? -quantity : quantity)
                 .price(price)
                 .status(MAPPER.getOrDefault(status, OrderStatus.UNMAPPED))
