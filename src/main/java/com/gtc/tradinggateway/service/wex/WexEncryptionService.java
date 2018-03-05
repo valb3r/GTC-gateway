@@ -29,7 +29,7 @@ public class WexEncryptionService {
 
     @SneakyThrows
     public <T> MultiValueMap<String, String> sign(T requestBody) {
-        String body = FormHttpMessageToPojoConverter.pojoSerialize(cfg.getMapper(), requestBody);
+        String body = FormHttpMessageToPojoConverter.pojoSerialize(cfg.getMapper(), requestBody, null);
 
         Mac macInst = Mac.getInstance(HMAC_SHA512);
         macInst.init(new SecretKeySpec(cfg.getSecretKey().getBytes(StandardCharsets.UTF_8), HMAC_SHA512));

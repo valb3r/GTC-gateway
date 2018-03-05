@@ -47,9 +47,9 @@ app:
         publicKey: ${BINANCE_PUBLIC}
         secretKey: ${BINANCE_SECRET}
         pairs:
-            BTC-USD=BTC-USD,
-            LTC-BTC=LTC-BTC,
-            XMR-BTC=XMR-BTC
+            BTC-USD=BTCUSD,
+            LTC-BTC=LTCBTC,
+            XMR-BTC=XMRBTC
         ratePerS: 0.17
     hitbtc:
         restBase: "https://api.hitbtc.com/api/2"
@@ -74,7 +74,7 @@ app:
             dsh=DASH
         ratePerS: 0.17
     clients:
-        active: wex,hitbtc
+        active: binance,wex,hitbtc
     schedule:
         puppeteerS: 10
     jms:

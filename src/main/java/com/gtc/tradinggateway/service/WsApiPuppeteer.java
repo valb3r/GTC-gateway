@@ -1,8 +1,12 @@
 package com.gtc.tradinggateway.service;
 
+import com.gtc.tradinggateway.config.ClientsConf;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.gtc.tradinggateway.config.Const.Schedule.CONF_ROOT_SCHEDULE_CHILD;
 
@@ -11,19 +15,21 @@ import static com.gtc.tradinggateway.config.Const.Schedule.CONF_ROOT_SCHEDULE_CH
  */
 @Slf4j
 @Service
-public class ExternalApiPuppeteer {
+public class WsApiPuppeteer {
 
     // should be used in case cookies are needed
-    private final DeclaredClientsProvider clients;
+    private final List<? extends BaseWsClient> wsClients;
 
-    public ExternalApiPuppeteer(DeclaredClientsProvider clients) {
-        this.clients = clients;
+    public WsApiPuppeteer(List<? extends BaseWsClient> wsClients, ClientsConf conf) {
+        this.wsClients = wsClients.stream()
+                .filter(it -> conf.getActive().contains(it.name()))
+                .collect(Collectors.toList());
     }
 
     @Scheduled(fixedDelayString = "#{${" + CONF_ROOT_SCHEDULE_CHILD + "puppeteerS} * 1000}")
     public void connection() {
         try {
-            clients.getClientList().stream()
+            wsClients.stream()
                     .filter(BaseWsClient::isDisconnected)
                     .forEach(BaseWsClient::connect);
         } catch (RuntimeException ex) {

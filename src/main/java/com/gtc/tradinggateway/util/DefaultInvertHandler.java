@@ -12,7 +12,7 @@ import java.math.RoundingMode;
 @UtilityClass
 public class DefaultInvertHandler {
 
-    private static final int PRECISION = 20;
+    private static final int PRECISION = 8;
 
     private static final String SELL = "sell";
     private static final String BUY = "buy";

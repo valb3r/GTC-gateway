@@ -1,7 +1,6 @@
 package com.gtc.tradinggateway.service.binance;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.BaseEncoding;
 import com.gtc.tradinggateway.config.BinanceConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -12,12 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.time.Instant;
-import java.util.Base64;
 import java.util.Map;
-
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA;
 
 /**
  * Created by mikro on 24.01.2018.
@@ -35,10 +29,10 @@ public class BinanceEncryptionService {
     @SneakyThrows
     public String generate(String message) {
         String secret = cfg.getSecretKey();
-        Mac sha256_HMAC = Mac.getInstance(METHOD);
+        Mac sha256hmac = Mac.getInstance(METHOD);
         SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(), METHOD);
-        sha256_HMAC.init(secretKeySpec);
-        return new String(Hex.encodeHex(sha256_HMAC.doFinal(message.getBytes())));
+        sha256hmac.init(secretKeySpec);
+        return new String(Hex.encodeHex(sha256hmac.doFinal(message.getBytes())));
     }
 
     public Map<String, String> signingHeaders() {

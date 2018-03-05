@@ -18,6 +18,7 @@ import com.gtc.model.tradinggateway.api.dto.response.manage.GetOrderResponse;
 import com.gtc.model.tradinggateway.api.dto.response.manage.ListOpenOrdersResponse;
 import com.gtc.model.tradinggateway.api.dto.response.withdraw.WithdrawOrderResponse;
 import com.gtc.tradinggateway.aspect.rate.RateTooHighException;
+import com.gtc.tradinggateway.config.ClientsConf;
 import com.gtc.tradinggateway.config.JmsConfig;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.*;
@@ -69,14 +70,18 @@ public class EsbCommandHandler {
     private final Map<String, ManageOrders> manageOps;
     private final Map<String, Withdraw> withdrawOps;
 
-    public EsbCommandHandler(JmsTemplate jmsTemplate, List<Account> accountCmds,
-                             List<CreateOrder> createCmds, List<ManageOrders> manageCmds,
-                             List<Withdraw> withdrawCmds) {
+    public EsbCommandHandler(ClientsConf conf, JmsTemplate jmsTemplate, List<Account> accountCmds,
+                               List<CreateOrder> createCmds, List<ManageOrders> manageCmds,
+                               List<Withdraw> withdrawCmds) {
         this.jmsTemplate = jmsTemplate;
-        accountOps = accountCmds.stream().collect(Collectors.toMap(ClientNamed::name, it -> it));
-        createOps = createCmds.stream().collect(Collectors.toMap(ClientNamed::name, it -> it));
-        manageOps = manageCmds.stream().collect(Collectors.toMap(ClientNamed::name, it -> it));
-        withdrawOps = withdrawCmds.stream().collect(Collectors.toMap(ClientNamed::name, it -> it));
+        accountOps = accountCmds.stream().filter(it -> conf.getActive().contains(it.name()))
+                .collect(Collectors.toMap(ClientNamed::name, it -> it));
+        createOps = createCmds.stream().filter(it -> conf.getActive().contains(it.name()))
+                .collect(Collectors.toMap(ClientNamed::name, it -> it));
+        manageOps = manageCmds.stream().filter(it -> conf.getActive().contains(it.name()))
+                .collect(Collectors.toMap(ClientNamed::name, it -> it));
+        withdrawOps = withdrawCmds.stream().filter(it -> conf.getActive().contains(it.name()))
+                .collect(Collectors.toMap(ClientNamed::name, it -> it));
     }
 
     @JmsListener(destination = ACCOUNT_TOPIC, selector = GetAllBalancesCommand.SELECTOR)

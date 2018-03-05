@@ -1,9 +1,11 @@
 package com.gtc.tradinggateway.service.binance;
 
+import com.google.common.collect.ImmutableMap;
 import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.tradinggateway.aspect.rate.IgnoreRateLimited;
 import com.gtc.tradinggateway.aspect.rate.RateLimited;
 import com.gtc.tradinggateway.config.BinanceConfig;
+import com.gtc.tradinggateway.config.converters.FormHttpMessageToPojoConverter;
 import com.gtc.tradinggateway.meta.PairSymbol;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.Account;
@@ -24,13 +26,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.net.URLEncoder;
 import java.util.*;
 
 import static com.gtc.tradinggateway.config.Const.Clients.BINANCE;
 
 /**
- * Created by mikro on 23.01.2018.
+ * Validated basic functionality (create, get, get all, cancel)
+ * 05.03.2018
  */
 @Slf4j
 @Service
@@ -49,35 +51,29 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
     @Override
     public Optional<OrderDto> get(String id) {
         BinanceRequestOrderDto orderDto = new BinanceRequestOrderDto(id);
-        String body = orderDto.toString();
-        String signedBody = getSignedBody(body);
         ResponseEntity<BinanceGetOrderDto> resp = cfg.getRestTemplate()
                 .exchange(
-                        cfg.getRestBase() + ORDERS + "?" + signedBody,
+                        cfg.getRestBase() + ORDERS + getQueryString(orderDto),
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
                         BinanceGetOrderDto.class);
-        if (resp.getStatusCode().is2xxSuccessful()) {
-            return Optional.of(resp.getBody().mapTo());
-        }
 
-        return Optional.empty();
+        return Optional.of(resp.getBody().mapTo());
     }
 
     @SneakyThrows
-    private String getSignedBody(String body) {
-        return body + "&signature=" + URLEncoder.encode(signer.generate(body), "UTF-8");
+    @IgnoreRateLimited
+    public Map<String, String> getSignedBody(String toSign) {
+        return ImmutableMap.of("signature", signer.generate(toSign));
     }
 
     @Override
     public List<OrderDto> getOpen() {
         BinanceRequestDto dto = new BinanceRequestDto();
-        String body = dto.toString();
-        String signedBody = getSignedBody(body);
         RestTemplate template = cfg.getRestTemplate();
         ResponseEntity<BinanceGetOrderDto[]> resp = template
                 .exchange(
-                        cfg.getRestBase() + ALL_ORDERS + "?" + signedBody,
+                        cfg.getRestBase() + ALL_ORDERS + getQueryString(dto),
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
                         BinanceGetOrderDto[].class);
@@ -92,11 +88,9 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
     @Override
     public void cancel(String id) {
         BinanceRequestOrderDto orderDto = new BinanceRequestOrderDto(id);
-        String body = orderDto.toString();
-        String signedBody = getSignedBody(body);
         cfg.getRestTemplate()
                 .exchange(
-                        cfg.getRestBase() + ORDERS + "?" + signedBody,
+                        cfg.getRestBase() + ORDERS + getQueryString(orderDto),
                         HttpMethod.DELETE,
                         new HttpEntity<>(signer.restHeaders()), Object.class);
     }
@@ -104,12 +98,10 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
     @Override
     public Map<TradingCurrency, BigDecimal> balances() {
         BinanceRequestDto requestDto = new BinanceRequestDto();
-        String body = requestDto.toString();
-        String signedBody = getSignedBody(body);
         RestTemplate template = cfg.getRestTemplate();
         ResponseEntity<BinanceBalanceDto> resp = template
                 .exchange(
-                        cfg.getRestBase() + BALANCES + "?" + signedBody,
+                        cfg.getRestBase() + BALANCES + getQueryString(requestDto),
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
                         BinanceBalanceDto.class);
@@ -125,11 +117,9 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
     @Override
     public void withdraw(TradingCurrency currency, BigDecimal amount, String destination) {
         BinanceRequestDto requestDto = new BinanceWithdrawalRequestDto(currency.toString(), amount, destination);
-        String body = requestDto.toString();
-        String signedBody = getSignedBody(body);
         cfg.getRestTemplate()
                 .exchange(
-                        cfg.getRestBase() + WITHDRAWAL + "?" + signedBody,
+                        cfg.getRestBase() + WITHDRAWAL + getQueryString(requestDto),
                         HttpMethod.POST,
                         new HttpEntity<>(signer.restHeaders()), Object.class);
     }
@@ -137,21 +127,22 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
     @Override
     public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
                                             BigDecimal amount, BigDecimal price) {
-        Optional<PairSymbol> pair = cfg.pairFromCurrency(from, to);
-        if (!pair.isPresent()) {
-            throw new IllegalArgumentException(
-                    "Pair from " + from.toString() + " to " + to.toString() + " is not supported");
-        }
-        PairSymbol pairSym = pair.get();
-        BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pairSym, amount, price);
-        BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pairSym, price);
-        BinancePlaceOrderRequestDto requestDto = new BinancePlaceOrderRequestDto(pairSym, calcAmount, calcPrice);
-        String body = requestDto.toString();
-        String signedBody = getSignedBody(body);
+        PairSymbol pair = cfg.pairFromCurrency(from, to).orElseThrow(() -> new IllegalArgumentException(
+                "Pair from " + from.toString() + " to " + to.toString() + " is not supported")
+        );
+
+        BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pair, amount, price);
+        BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pair, price);
+        BinancePlaceOrderRequestDto requestDto = new BinancePlaceOrderRequestDto(
+                pair.getSymbol(),
+                DefaultInvertHandler.amountToBuyOrSellUpper(calcAmount),
+                calcAmount.abs(),
+                calcPrice
+        );
         RestTemplate template = cfg.getRestTemplate();
         ResponseEntity<BinanceGetOrderDto> resp = template
                 .exchange(
-                        cfg.getRestBase() + ORDERS + "?" + signedBody,
+                        cfg.getRestBase() + ORDERS + getQueryString(requestDto),
                         HttpMethod.POST,
                         new HttpEntity<>(signer.restHeaders()),
                         BinanceGetOrderDto.class);
@@ -159,9 +150,13 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
 
         return Optional.of(
                 OrderCreatedDto.builder()
-                        .assignedId(pairSym.toString() + "." + result.getId())
+                        .assignedId(pair.toString() + "." + result.getId())
                         .build()
         );
+    }
+
+    private String getQueryString(Object queryObj) {
+        return "?" + FormHttpMessageToPojoConverter.pojoSerialize(cfg.getMapper(), queryObj, this::getSignedBody);
     }
 
     @Override

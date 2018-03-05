@@ -21,6 +21,5 @@ public class BinanceBalanceDto {
 
         @JsonProperty("free")
         private BigDecimal amount;
-
     }
 }

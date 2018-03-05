@@ -14,6 +14,7 @@ import com.gtc.model.tradinggateway.api.dto.response.manage.CancelOrderResponse;
 import com.gtc.model.tradinggateway.api.dto.response.manage.GetOrderResponse;
 import com.gtc.model.tradinggateway.api.dto.response.manage.ListOpenOrdersResponse;
 import com.gtc.model.tradinggateway.api.dto.response.withdraw.WithdrawOrderResponse;
+import com.gtc.tradinggateway.config.ClientsConf;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.*;
 import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
@@ -45,12 +46,16 @@ public class RestCommandHandler {
     private final Map<String, ManageOrders> manageOps;
     private final Map<String, Withdraw> withdrawOps;
 
-    public RestCommandHandler(List<Account> accountCmds, List<CreateOrder> createCmds,
+    public RestCommandHandler(ClientsConf conf, List<Account> accountCmds, List<CreateOrder> createCmds,
                               List<ManageOrders> manageCmds, List<Withdraw> withdrawCmds) {
-        accountOps = accountCmds.stream().collect(Collectors.toMap(ClientNamed::name, it -> it));
-        createOps = createCmds.stream().collect(Collectors.toMap(ClientNamed::name, it -> it));
-        manageOps = manageCmds.stream().collect(Collectors.toMap(ClientNamed::name, it -> it));
-        withdrawOps = withdrawCmds.stream().collect(Collectors.toMap(ClientNamed::name, it -> it));
+        accountOps = accountCmds.stream().filter(it -> conf.getActive().contains(it.name()))
+                .collect(Collectors.toMap(ClientNamed::name, it -> it));
+        createOps = createCmds.stream().filter(it -> conf.getActive().contains(it.name()))
+                .collect(Collectors.toMap(ClientNamed::name, it -> it));
+        manageOps = manageCmds.stream().filter(it -> conf.getActive().contains(it.name()))
+                .collect(Collectors.toMap(ClientNamed::name, it -> it));
+        withdrawOps = withdrawCmds.stream().filter(it -> conf.getActive().contains(it.name()))
+                .collect(Collectors.toMap(ClientNamed::name, it -> it));
     }
 
     @PostMapping("getBalances")

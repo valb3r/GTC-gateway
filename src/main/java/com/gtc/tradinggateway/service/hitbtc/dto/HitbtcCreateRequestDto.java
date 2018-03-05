@@ -20,6 +20,7 @@ public class HitbtcCreateRequestDto {
     public static class OrderBody {
 
         private final String clientOrderId;
+        private final String type = "limit";
         private final String symbol;
         private final String side;
         private final BigDecimal price;

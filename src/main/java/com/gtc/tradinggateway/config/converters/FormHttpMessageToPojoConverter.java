@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Smart converter to convert {@link MediaType#APPLICATION_FORM_URLENCODED} to POJO. Adds necessary header.
@@ -26,10 +27,19 @@ public class FormHttpMessageToPojoConverter extends AbstractHttpMessageConverter
     private static final FormHttpMessageConverter formHttpMessageConverter = new FormHttpMessageConverter();
 
     private final ObjectMapper mapper;
+    private Function<String, Map<String, String>> signer;
 
     public FormHttpMessageToPojoConverter(ObjectMapper mapper) {
         super(formHttpMessageConverter.getSupportedMediaTypes().toArray(new MediaType[0]));
         this.mapper = mapper;
+    }
+
+    public FormHttpMessageToPojoConverter(
+            ObjectMapper mapper,
+            Function<String, Map<String, String>> signer) {
+        super(formHttpMessageConverter.getSupportedMediaTypes().toArray(new MediaType[0]));
+        this.mapper = mapper;
+        this.signer = signer;
     }
 
     @Override
@@ -45,19 +55,33 @@ public class FormHttpMessageToPojoConverter extends AbstractHttpMessageConverter
 
     @Override
     protected void writeInternal(Object value, HttpOutputMessage outputMessage) {
-        pojoSerialize(mapper, value, outputMessage);
+        pojoSerialize(mapper, value, outputMessage, signer);
     }
 
     @SneakyThrows
-    public static String pojoSerialize(ObjectMapper mapper, Object value) {
+    public static String pojoSerialize(
+            ObjectMapper mapper,
+            Object value,
+            Function<String, Map<String, String>> signer) {
         WrappedHttpOutputMessage outputMessage = new WrappedHttpOutputMessage();
-        pojoSerialize(mapper, value, outputMessage);
+        pojoSerialize(mapper, value, outputMessage, signer);
         return outputMessage.content();
     }
 
     @SneakyThrows
-    private static void pojoSerialize(ObjectMapper mapper, Object value, HttpOutputMessage outputMessage) {
+    private static void pojoSerialize(
+            ObjectMapper mapper,
+            Object value,
+            HttpOutputMessage outputMessage,
+            Function<String, Map<String, String>> signer) {
         Map<String, String> asMap = mapper.convertValue(value, new TypeReference<Map<String, String>>() {});
+
+        if (null != signer) {
+            WrappedHttpOutputMessage wrap = new WrappedHttpOutputMessage();
+            pojoSerialize(mapper, value, wrap, null);
+            asMap.putAll(signer.apply(wrap.content()));
+        }
+
         MultiValueMap<String, String> mvMap = new LinkedMultiValueMap<>();
         asMap.forEach(mvMap::add);
         formHttpMessageConverter.write(mvMap, MediaType.APPLICATION_FORM_URLENCODED, outputMessage);
