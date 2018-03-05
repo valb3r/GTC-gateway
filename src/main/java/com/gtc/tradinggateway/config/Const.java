@@ -12,8 +12,16 @@ public class Const {
     public static final String CONF_ROOT_CHILD = CONF_ROOT + ".";
 
     @UtilityClass
+    public class Schedule {
+
+        public static final String SCHEDULE = "schedule";
+        public static final String CONF_ROOT_SCHEDULE_CHILD = CONF_ROOT_CHILD + SCHEDULE + ".";
+    }
+
+    @UtilityClass
     public class Clients {
 
+        public static final String CLIENTS = "clients";
         public static final String GDAX = "gdax";
         public static final String WEX = "wex";
         public static final String BINANCE = "binance";

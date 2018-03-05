@@ -33,6 +33,7 @@ import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
@@ -98,21 +99,23 @@ public class EsbCommandHandler {
     public void create(@Valid CreateOrderCommand command) {
         log.info("Request to create order {}", command);
         doExecute(createTopic, command, createOps, (handler, cmd) -> {
-            OrderCreatedDto id = handler.create(
+            Optional<OrderCreatedDto> res = handler.create(
+                    cmd.getOrderId(),
                     TradingCurrency.fromCode(cmd.getCurrencyFrom()),
                     TradingCurrency.fromCode(cmd.getCurrencyTo()),
                     cmd.getAmount(),
                     cmd.getPrice()
             );
 
-            log.info("Created {} for {} of {}", id, cmd.getId(), cmd.getClientName());
-            return CreateOrderResponse.builder()
+            log.info("Created {} for {} of {}", res, cmd.getId(), cmd.getClientName());
+            return res.map(id -> CreateOrderResponse.builder()
                     .clientName(cmd.getClientName())
                     .id(cmd.getId())
                     .requestOrderId(cmd.getId())
                     .orderId(id.getAssignedId())
                     .isExecuted(id.isExecuted())
-                    .build();
+                    .build()
+            ).orElse(null);
         });
     }
 
@@ -200,7 +203,10 @@ public class EsbCommandHandler {
 
         try {
             AbstractMessage result = executor.apply(handler, message);
-            jmsTemplate.convertAndSend(dest, result, result::enhance);
+            // result can be null if it was WS based request
+            if (null != result) {
+                jmsTemplate.convertAndSend(dest, result, result::enhance);
+            }
         } catch (RateTooHighException ex) {
             ErrorResponse error = buildError(message, ex);
             error.setTransient(true);

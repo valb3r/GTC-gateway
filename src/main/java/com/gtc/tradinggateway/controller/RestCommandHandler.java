@@ -27,6 +27,7 @@ import javax.validation.Valid;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
@@ -72,21 +73,23 @@ public class RestCommandHandler {
     public AbstractMessage create(@RequestBody @Valid CreateOrderCommand command) {
         log.info("Request to create order {}", command);
         return doExecute(command, createOps, (handler, cmd) -> {
-            OrderCreatedDto id = handler.create(
+            Optional<OrderCreatedDto> res = handler.create(
+                    cmd.getOrderId(),
                     TradingCurrency.fromCode(cmd.getCurrencyFrom()),
                     TradingCurrency.fromCode(cmd.getCurrencyTo()),
                     cmd.getAmount(),
                     cmd.getPrice()
             );
 
-            log.info("Created {} for {} of {}", id, cmd.getId(), cmd.getClientName());
-            return CreateOrderResponse.builder()
-                    .clientName(cmd.getClientName())
-                    .id(cmd.getId())
-                    .requestOrderId(cmd.getId())
-                    .orderId(id.getAssignedId())
-                    .isExecuted(id.isExecuted())
-                    .build();
+            log.info("Created {} for {} of {}", res, cmd.getId(), cmd.getClientName());
+            return res.map(id -> CreateOrderResponse.builder()
+                            .clientName(cmd.getClientName())
+                            .id(cmd.getId())
+                            .requestOrderId(cmd.getId())
+                            .orderId(id.getAssignedId())
+                            .isExecuted(id.isExecuted())
+                            .build()
+            ).orElse(null);
         });
     }
 

@@ -135,7 +135,8 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
     }
 
     @Override
-    public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, BigDecimal amount, BigDecimal price) {
+    public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
+                                            BigDecimal amount, BigDecimal price) {
         Optional<PairSymbol> pair = cfg.pairFromCurrency(from, to);
         if (!pair.isPresent()) {
             throw new IllegalArgumentException(
@@ -156,9 +157,11 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
                         BinanceGetOrderDto.class);
         BinanceGetOrderDto result = resp.getBody();
 
-        return OrderCreatedDto.builder()
-                .assignedId(pairSym.toString() + "." + result.getId())
-                .build();
+        return Optional.of(
+                OrderCreatedDto.builder()
+                        .assignedId(pairSym.toString() + "." + result.getId())
+                        .build()
+        );
     }
 
     @Override

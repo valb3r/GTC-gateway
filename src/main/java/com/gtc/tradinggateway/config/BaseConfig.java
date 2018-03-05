@@ -27,8 +27,6 @@ public class BaseConfig {
 
     protected RestTemplate restTemplate = new RestTemplate();
 
-    protected int disconnectIfInactiveS = 10;
-
     protected Map<String, PairSymbol> pairs;
 
     protected Map<String, String> customResponseCurrencyMapping = new HashMap<>();

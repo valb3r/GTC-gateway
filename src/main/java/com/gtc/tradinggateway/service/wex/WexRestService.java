@@ -76,7 +76,8 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     }
 
     @Override
-    public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, BigDecimal amount, BigDecimal price) {
+    public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
+                                            BigDecimal amount, BigDecimal price) {
         PairSymbol pair = cfg.pairFromCurrency(from, to)
                 .orElseThrow(() -> new IllegalStateException("Unsupported pair"));
         BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pair, amount, price);
@@ -96,10 +97,12 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
 
         resp.getBody().selfAssert();
 
-        return OrderCreatedDto.builder()
-                .assignedId(String.valueOf(resp.getBody().getRet().getOrderId()))
-                .isExecuted(0 == resp.getBody().getRet().getOrderId())
-                .build();
+        return Optional.of(
+                OrderCreatedDto.builder()
+                        .assignedId(String.valueOf(resp.getBody().getRet().getOrderId()))
+                        .isExecuted(0 == resp.getBody().getRet().getOrderId())
+                        .build()
+        );
     }
 
     @Override

@@ -25,7 +25,8 @@ import java.util.Optional;
 import static com.gtc.tradinggateway.config.Const.Clients.HITBTC;
 
 /**
- * Created by mikro on 14.02.2018.
+ * Validated basic functionality (create)
+ * 05.03.2018
  */
 @Service
 public class HitbtcWsService extends BaseWsClient implements CreateOrder {
@@ -61,7 +62,6 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
     protected void parseEventDto(JsonNode node) {
         if (null != node.get(ERROR_ALIAS)) {
             HitbtcErrorDto error = cfg.getMapper().reader().readValue(node.traverse(), HitbtcErrorDto.class);
-            isLoggedIn.set(false);
             throw new IllegalStateException(error.getError().getMessage());
         } else if (AUTH_ALIAS.equals(node.get(ID_ALIAS).asText())) {
             isLoggedIn.set(true);
@@ -74,11 +74,6 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
     }
 
     @Override
-    protected int getDisconnectIfInactiveS() {
-        return cfg.getDisconnectIfInactiveS();
-    }
-
-    @Override
     protected void login() {
         ObjectWebSocketSender sender = rxConnected.get().sender();
         HitbtcAuthRequestDto requestDto = new HitbtcAuthRequestDto(cfg.getPublicKey(), cfg.getSecretKey());
@@ -87,35 +82,33 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
                 .subscribe();
     }
 
+    @Override
     @SneakyThrows
-    public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, BigDecimal amount, BigDecimal price) {
-        Optional<PairSymbol> pair = cfg.pairFromCurrency(from, to);
+    public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
+                                            BigDecimal amount, BigDecimal price) {
+        PairSymbol pair = cfg.pairFromCurrency(from, to).orElseThrow(() -> new IllegalStateException(
+                        "Pair from " + from.toString() + " to " + to.toString() + " is not supported")
+        );
+
         if (isDisconnected() || !isLoggedIn.get()) {
             throw new IllegalStateException(
                     "Failed request. Connect status: " + isDisconnected() + ", Login status: " + !isLoggedIn.get());
         }
 
-        if (!pair.isPresent()) {
-            throw new IllegalArgumentException(
-                    "Pair from " + from.toString() + " to " + to.toString() + " is not supported");
-        }
-        PairSymbol pairSym = pair.get();
-
-        BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pairSym, amount, price);
-        BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pairSym, price);
+        BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pair, amount, price);
+        BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pair, price);
         String side = DefaultInvertHandler.amountToBuyOrSell(calcAmount);
 
         ObjectWebSocketSender sender = rxConnected.get().sender();
         HitbtcCreateRequestDto requestDto =
-                new HitbtcCreateRequestDto(pairSym.getSymbol(), side, calcPrice, calcAmount.abs());
+                new HitbtcCreateRequestDto(tryToAssignId, pair.getSymbol(), side, calcPrice, calcAmount.abs());
 
+        log.info("Sent WS request {} to {}", requestDto, name());
         RxMoreObservables
                 .sendObjectMessage(sender, requestDto)
                 .subscribe();
 
-        return OrderCreatedDto.builder()
-                .assignedId(requestDto.getParams().getClientOrderId())
-                .build();
+        return Optional.empty();
     }
 
     @Override

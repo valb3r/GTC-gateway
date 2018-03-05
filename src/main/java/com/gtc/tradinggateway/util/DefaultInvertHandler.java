@@ -12,6 +12,8 @@ import java.math.RoundingMode;
 @UtilityClass
 public class DefaultInvertHandler {
 
+    private static final int PRECISION = 20;
+
     private static final String SELL = "sell";
     private static final String BUY = "buy";
 
@@ -28,7 +30,7 @@ public class DefaultInvertHandler {
 
     public BigDecimal priceFromOrig(PairSymbol symbol, BigDecimal price) {
         if (symbol.getIsInverted()) {
-            return BigDecimal.ONE.divide(price, RoundingMode.HALF_EVEN);
+            return BigDecimal.ONE.divide(price, PRECISION, RoundingMode.HALF_EVEN);
         }
 
         return price;

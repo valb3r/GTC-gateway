@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.gtc.tradinggateway.config.Const.Clients.GDAX;
 
@@ -30,8 +31,9 @@ public class GdaxWsService extends BaseWsClient implements CreateOrder {
     }
 
     @Override
-    public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, BigDecimal amount, BigDecimal price) {
-        return null;
+    public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
+                                            BigDecimal amount, BigDecimal price) {
+        return Optional.empty();
     }
 
     @Override
@@ -60,11 +62,6 @@ public class GdaxWsService extends BaseWsClient implements CreateOrder {
     @Override
     protected Map<String, String> headers() {
         return signer.signingHeaders("", "", "");
-    }
-
-    @Override
-    protected int getDisconnectIfInactiveS() {
-        return cfg.getDisconnectIfInactiveS();
     }
 
     @Override

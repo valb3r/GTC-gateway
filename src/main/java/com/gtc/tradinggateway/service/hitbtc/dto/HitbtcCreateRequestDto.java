@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.UUID;
 
 /**
  * Created by mikro on 14.02.2018.
@@ -27,8 +26,7 @@ public class HitbtcCreateRequestDto {
         private final BigDecimal quantity;
     }
 
-    public HitbtcCreateRequestDto(String symbol, String side, BigDecimal price, BigDecimal quantity) {
-        String id = UUID.randomUUID().toString().replace("-", "");
+    public HitbtcCreateRequestDto(String id, String symbol, String side, BigDecimal price, BigDecimal quantity) {
         params = new OrderBody(id, symbol, side, price, quantity);
     }
 }

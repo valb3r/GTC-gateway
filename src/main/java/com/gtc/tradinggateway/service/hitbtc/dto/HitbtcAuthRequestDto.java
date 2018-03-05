@@ -1,6 +1,7 @@
 package com.gtc.tradinggateway.service.hitbtc.dto;
 
 import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
@@ -13,6 +14,7 @@ public class HitbtcAuthRequestDto {
     private String id = "auth";
     private AuthBody params;
 
+    @Getter
     @RequiredArgsConstructor
     public static class AuthBody {
 

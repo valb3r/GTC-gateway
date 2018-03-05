@@ -10,6 +10,7 @@ import lombok.Data;
 @Builder
 public class OrderCreatedDto {
 
+    private String requestedId;
     private String assignedId;
     private boolean isExecuted;
 }

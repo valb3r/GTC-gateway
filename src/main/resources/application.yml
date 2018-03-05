@@ -54,18 +54,15 @@ app:
     hitbtc:
         restBase: "https://api.hitbtc.com/api/2"
         wsBase: "wss://api.hitbtc.com/api/2/ws"
-        passphrase: ${HITBTC_PASSPHRASE}
         publicKey: ${HITBTC_PUBLIC}
         secretKey: ${HITBTC_SECRET}
         pairs:
-            BTC-USD=BTC-USD,
-            LTC-BTC=LTC-BTC,
-            XMR-BTC=XMR-BTC
-        disconnectIfInactiveS: 20
+            BTC-USD=BTCUSD,
+            LTC-BTC=LTCBTC,
+            XMR-BTC=XMRBTC
         ratePerS: 0.17
     wex:
         restBase: "https://wex.nz/tapi"
-        passphrase: ${WEX_PASSPHRASE}
         publicKey: ${WEX_PUBLIC}
         secretKey: ${WEX_SECRET}
         pairs:
@@ -76,6 +73,10 @@ app:
         customResponseCurrencyMapping:
             dsh=DASH
         ratePerS: 0.17
+    clients:
+        active: wex,hitbtc
+    schedule:
+        puppeteerS: 10
     jms:
         topic:
             inOut:

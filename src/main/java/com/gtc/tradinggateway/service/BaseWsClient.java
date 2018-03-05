@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import rx.Observable;
 
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -78,7 +77,6 @@ public abstract class BaseWsClient {
         ObjectSerializer serializer = new JacksonSerializer(objectMapper);
         return new RxObjectWebSockets(new RxWebSockets(new OkHttpClient(), request), serializer)
                 .webSocketObservable()
-                .timeout(getDisconnectIfInactiveS(), TimeUnit.SECONDS)
                 .doOnCompleted(() -> handleDisconnectEvt("Disconnected (completed)", null))
                 .doOnError(throwable -> handleDisconnectEvt("Disconnected (exceptional)", throwable))
                 .share();
@@ -108,7 +106,6 @@ public abstract class BaseWsClient {
     protected abstract void onConnected(RxObjectEventConnected conn);
     protected abstract void parseEventDto(JsonNode node);
     protected abstract void parseArray(JsonNode node);
-    protected abstract int getDisconnectIfInactiveS();
     protected abstract void login();
 
     private void handleDisconnectEvt(String reason, Throwable err) {
