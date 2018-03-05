@@ -1,6 +1,7 @@
 package com.gtc.model.tradinggateway.api.dto.command.manage;
 
 import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
+import com.gtc.model.tradinggateway.api.dto.WithOrderId;
 import lombok.*;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -11,7 +12,7 @@ import org.hibernate.validator.constraints.NotBlank;
 @Setter
 @ToString(callSuper = true)
 @NoArgsConstructor
-public class CancelOrderCommand extends AbstractMessage {
+public class CancelOrderCommand extends AbstractMessage implements WithOrderId {
 
     private static final String HEADER = "cancel";
 
