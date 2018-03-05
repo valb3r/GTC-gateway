@@ -20,6 +20,7 @@ import com.gtc.tradinggateway.aspect.rate.RateTooHighException;
 import com.gtc.tradinggateway.config.JmsConfig;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.*;
+import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -95,7 +96,7 @@ public class EsbCommandHandler {
     public void create(@Valid CreateOrderCommand command) {
         log.info("Request to create order {}", command);
         doExecute(createTopic, command, createOps, (handler, cmd) -> {
-            String id = handler.create(
+            OrderCreatedDto id = handler.create(
                     TradingCurrency.fromCode(cmd.getCurrencyFrom()),
                     TradingCurrency.fromCode(cmd.getCurrencyTo()),
                     cmd.getAmount().doubleValue(),
@@ -106,7 +107,9 @@ public class EsbCommandHandler {
             return CreateOrderResponse.builder()
                     .clientName(cmd.getClientName())
                     .id(cmd.getId())
-                    .orderId(id)
+                    .requestOrderId(cmd.getId())
+                    .assignedId(id.getAssignedId())
+                    .isExecuted(id.isExecuted())
                     .build();
         });
     }

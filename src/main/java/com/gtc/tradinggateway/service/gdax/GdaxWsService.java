@@ -6,6 +6,7 @@ import com.gtc.tradinggateway.config.GdaxConfig;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.BaseWsClient;
 import com.gtc.tradinggateway.service.CreateOrder;
+import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -28,7 +29,7 @@ public class GdaxWsService extends BaseWsClient implements CreateOrder {
     }
 
     @Override
-    public String create(TradingCurrency from, TradingCurrency to, double amount, double price) {
+    public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, double amount, double price) {
         return null;
     }
 

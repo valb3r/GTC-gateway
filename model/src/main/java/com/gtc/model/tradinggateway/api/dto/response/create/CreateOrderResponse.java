@@ -18,12 +18,22 @@ public class CreateOrderResponse extends AbstractMessage {
     public static final String SELECTOR = HEADER_NAME + "='" + HEADER + "'";
 
     @NotBlank
-    private String orderId;
+    private String requestOrderId;
+
+    // not all exchanges allow to have client-assigned id
+    @NotBlank
+    private String assignedId;
+
+    // order can be executed immediately on creation
+    private boolean isExecuted;
 
     @Builder
-    public CreateOrderResponse(String clientName, String id, String orderId) {
+    public CreateOrderResponse(String clientName, String id, String requestOrderId, String assignedId,
+                               boolean isExecuted) {
         super(clientName, id);
-        this.orderId = orderId;
+        this.requestOrderId = requestOrderId;
+        this.assignedId = assignedId;
+        this.isExecuted = isExecuted;
     }
 
     @Override

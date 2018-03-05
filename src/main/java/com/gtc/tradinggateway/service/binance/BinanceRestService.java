@@ -11,6 +11,7 @@ import com.gtc.tradinggateway.service.CreateOrder;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.binance.dto.*;
+import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import com.gtc.tradinggateway.util.CodeMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -132,7 +133,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
     }
 
     @Override
-    public String create(TradingCurrency from, TradingCurrency to, double amount, double price) {
+    public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, double amount, double price) {
         Optional<PairSymbol> pair = cfg.fromCurrency(from, to);
         if (!pair.isPresent()) {
             throw new IllegalArgumentException(
@@ -154,7 +155,10 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
                         new HttpEntity<>(signer.restHeaders()),
                         BinanceGetOrderDto.class);
         BinanceGetOrderDto result = resp.getBody();
-        return pairSym.toString() + "." + result.getId();
+
+        return OrderCreatedDto.builder()
+                .assignedId(pairSym.toString() + "." + result.getId())
+                .build();
     }
 
     @Override

@@ -11,6 +11,7 @@ import com.gtc.tradinggateway.service.Account;
 import com.gtc.tradinggateway.service.CreateOrder;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
+import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import com.gtc.tradinggateway.service.wex.dto.BaseWexRequest;
 import com.gtc.tradinggateway.service.wex.dto.TradeWexRequest;
 import com.gtc.tradinggateway.service.wex.dto.WexBalancesDto;
@@ -74,7 +75,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     }
 
     @Override
-    public String create(TradingCurrency from, TradingCurrency to, double amount, double price) {
+    public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, double amount, double price) {
         PairSymbol pair = cfg.fromCurrency(from, to)
                 .orElseThrow(() -> new IllegalStateException("Unsupported pair"));
         TradeWexRequest request = new TradeWexRequest((int) nonce(), CREATE, pair.getSymbol(),
@@ -89,8 +90,10 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
 
         resp.getBody().selfAssert();
 
-        // TODO: add handling of 0 as already executed
-        return String.valueOf(resp.getBody().getRet().getOrderId());
+        return OrderCreatedDto.builder()
+                .assignedId(String.valueOf(resp.getBody().getRet().getOrderId()))
+                .isExecuted(0 == resp.getBody().getRet().getOrderId())
+                .build();
     }
 
     @Override

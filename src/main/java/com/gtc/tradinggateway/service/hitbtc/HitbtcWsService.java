@@ -9,6 +9,7 @@ import com.gtc.tradinggateway.meta.PairSymbol;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.BaseWsClient;
 import com.gtc.tradinggateway.service.CreateOrder;
+import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcAuthRequestDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcCreateRequestDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcErrorDto;
@@ -87,7 +88,7 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
     }
 
     @SneakyThrows
-    public String create(TradingCurrency from, TradingCurrency to, double amount, double price) {
+    public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, double amount, double price) {
         Optional<PairSymbol> pair = cfg.fromCurrency(from, to);
         if (isDisconnected() || !isLoggedIn.get()) {
             throw new IllegalStateException(
@@ -113,7 +114,10 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
         RxMoreObservables
                 .sendObjectMessage(sender, requestDto)
                 .subscribe();
-        return requestDto.getParams().getClientOrderId();
+
+        return OrderCreatedDto.builder()
+                .assignedId(requestDto.getParams().getClientOrderId())
+                .build();
     }
 
     @Override
