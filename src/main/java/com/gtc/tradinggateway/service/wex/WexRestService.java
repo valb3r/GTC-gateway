@@ -12,10 +12,7 @@ import com.gtc.tradinggateway.service.CreateOrder;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
-import com.gtc.tradinggateway.service.wex.dto.BaseWexRequest;
-import com.gtc.tradinggateway.service.wex.dto.TradeWexRequest;
-import com.gtc.tradinggateway.service.wex.dto.WexBalancesDto;
-import com.gtc.tradinggateway.service.wex.dto.WexCreateResponse;
+import com.gtc.tradinggateway.service.wex.dto.*;
 import com.gtc.tradinggateway.util.CodeMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -48,6 +45,10 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
 
     private static final String BALANCES = "getInfo";
     private static final String CREATE = "Trade";
+    private static final String GET = "OrderInfo";
+    private static final String GET_OPEN = "ActiveOrders";
+    private static final String CANCEL = "CancelOrder";
+    private static final String WITHDRAW = "WithdrawCoin";
 
     private final WexConfig cfg;
     private final WexEncryptionService signer;
@@ -55,7 +56,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     @Override
     @SneakyThrows
     public Map<TradingCurrency, Double> balances() {
-        BaseWexRequest request = new BaseWexRequest((int) nonce(), BALANCES);
+        BaseWexRequest request = new BaseWexRequest(nonce(), BALANCES);
         ResponseEntity<WexBalancesDto> resp = cfg.getRestTemplate()
                 .exchange(
                         cfg.getRestBase(),
@@ -78,7 +79,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, double amount, double price) {
         PairSymbol pair = cfg.fromCurrency(from, to)
                 .orElseThrow(() -> new IllegalStateException("Unsupported pair"));
-        TradeWexRequest request = new TradeWexRequest((int) nonce(), CREATE, pair.getSymbol(),
+        TradeWexRequest request = new TradeWexRequest(nonce(), CREATE, pair.getSymbol(),
                 amount < 0 ? SELL : BUY, price, amount);
 
         ResponseEntity<WexCreateResponse> resp = cfg.getRestTemplate()
@@ -98,22 +99,71 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
 
     @Override
     public Optional<OrderDto> get(String id) {
-        return Optional.empty();
+        WexGetRequest request = new WexGetRequest(nonce(), GET, Long.valueOf(id));
+        ResponseEntity<WexGetResponse> resp = cfg.getRestTemplate()
+                .exchange(
+                        cfg.getRestBase(),
+                        HttpMethod.POST,
+                        new HttpEntity<>(request, signer.sign(request)),
+                        WexGetResponse.class);
+
+        resp.getBody().selfAssert();
+
+        return resp.getBody().mapTo();
     }
 
     @Override
     public List<OrderDto> getOpen() {
-        return null;
+        WexGetOpenRequest request = new WexGetOpenRequest(nonce(), GET_OPEN);
+        ResponseEntity<WexGetOpenResponse> resp = cfg.getRestTemplate()
+                .exchange(
+                        cfg.getRestBase(),
+                        HttpMethod.POST,
+                        new HttpEntity<>(request, signer.sign(request)),
+                        WexGetOpenResponse.class);
+
+        resp.getBody().selfAssert();
+
+        return resp.getBody().mapTo();
     }
 
     @Override
     public void cancel(String id) {
+        WexCancelOrderRequest request = new WexCancelOrderRequest(nonce(), CANCEL, Long.valueOf(id));
+        ResponseEntity<WexCancelOrderResponse> resp = cfg.getRestTemplate()
+                .exchange(
+                        cfg.getRestBase(),
+                        HttpMethod.POST,
+                        new HttpEntity<>(request, signer.sign(request)),
+                        WexCancelOrderResponse.class);
 
+        resp.getBody().selfAssert();
+
+        log.info("Cancel request completed {}", resp.getBody());
     }
 
     @Override
     public void withdraw(TradingCurrency currency, double amount, String destination) {
+        // NOTE: WEX requires special API key permissions for doing that
+        WexWithdrawRequest request = new WexWithdrawRequest(
+                nonce(),
+                WITHDRAW,
+                cfg.getCustomResponseCurrencyMapping()
+                        .getOrDefault(currency.getCode(), currency.getCode()).toUpperCase(),
+                amount,
+                destination
+        );
 
+        ResponseEntity<WexWithdrawResponse> resp = cfg.getRestTemplate()
+                .exchange(
+                        cfg.getRestBase(),
+                        HttpMethod.POST,
+                        new HttpEntity<>(request, signer.sign(request)),
+                        WexWithdrawResponse.class);
+
+        resp.getBody().selfAssert();
+
+        log.info("Withdraw request completed {}", resp.getBody());
     }
 
     @Override
@@ -124,7 +174,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
 
     // sufficient for 9940 days and rate 10 r/s - it has max of 2^32 as per docs
     @VisibleForTesting
-    protected long nonce() {
-        return (System.currentTimeMillis() - NONCE_BEGIN) / 100;
+    protected int nonce() {
+        return (int) ((System.currentTimeMillis() - NONCE_BEGIN) / 100);
     }
 }

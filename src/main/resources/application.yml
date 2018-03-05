@@ -82,7 +82,4 @@ app:
                 create: create
                 manage: manage
                 withdraw: withdraw
-debug: true
-logging:
-    level: DEBUG
 
