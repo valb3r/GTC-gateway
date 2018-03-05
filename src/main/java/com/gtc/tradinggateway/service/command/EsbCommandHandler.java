@@ -2,6 +2,7 @@ package com.gtc.tradinggateway.service.command;
 
 import com.google.common.base.Throwables;
 import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
+import com.gtc.model.tradinggateway.api.dto.WithOrderId;
 import com.gtc.model.tradinggateway.api.dto.command.account.GetAllBalancesCommand;
 import com.gtc.model.tradinggateway.api.dto.command.create.CreateOrderCommand;
 import com.gtc.model.tradinggateway.api.dto.command.manage.CancelOrderCommand;
@@ -20,6 +21,7 @@ import com.gtc.tradinggateway.aspect.rate.RateTooHighException;
 import com.gtc.tradinggateway.config.JmsConfig;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.*;
+import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -95,7 +97,7 @@ public class EsbCommandHandler {
     public void create(@Valid CreateOrderCommand command) {
         log.info("Request to create order {}", command);
         doExecute(createTopic, command, createOps, (handler, cmd) -> {
-            String id = handler.create(
+            OrderCreatedDto id = handler.create(
                     TradingCurrency.fromCode(cmd.getCurrencyFrom()),
                     TradingCurrency.fromCode(cmd.getCurrencyTo()),
                     cmd.getAmount().doubleValue(),
@@ -106,7 +108,9 @@ public class EsbCommandHandler {
             return CreateOrderResponse.builder()
                     .clientName(cmd.getClientName())
                     .id(cmd.getId())
-                    .orderId(id)
+                    .requestOrderId(cmd.getId())
+                    .orderId(id.getAssignedId())
+                    .isExecuted(id.isExecuted())
                     .build();
         });
     }
@@ -153,6 +157,7 @@ public class EsbCommandHandler {
             return CancelOrderResponse.builder()
                     .clientName(cmd.getClientName())
                     .id(cmd.getId())
+                    .orderId(command.getOrderId())
                     .build();
         });
     }
@@ -214,6 +219,11 @@ public class EsbCommandHandler {
         resp.setOnMessageId(origin.getId());
         resp.setOccurredOn(origin.toString());
         resp.setErrorCause(Throwables.getStackTraceAsString(Throwables.getRootCause(forExc)));
+
+        if (origin instanceof WithOrderId) {
+            resp.setOrderId(((WithOrderId) origin).getOrderId());
+        }
+
         return resp;
     }
 

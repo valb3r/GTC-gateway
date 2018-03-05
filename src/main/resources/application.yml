@@ -63,6 +63,18 @@ app:
             XMRBTC=XMR-BTC
         disconnectIfInactiveS: 20
         ratePerS: 0.17
+    wex:
+        restBase: "https://wex.nz/tapi"
+        passphrase: ${WEX_PASSPHRASE}
+        publicKey: ${WEX_PUBLIC}
+        secretKey: ${WEX_SECRET}
+        pairs:
+            btc_usd=BTC-USD,
+            ltc_btc=LTC-BTC,
+            dsh_btc=DASH-BTC
+        customResponseCurrencyMapping:
+            dsh=DASH
+        ratePerS: 0.17
     jms:
         topic:
             inOut:
@@ -70,7 +82,4 @@ app:
                 create: create
                 manage: manage
                 withdraw: withdraw
-debug: true
-logging:
-    level: DEBUG
 

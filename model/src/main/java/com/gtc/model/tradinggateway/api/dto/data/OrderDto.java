@@ -12,7 +12,7 @@ import java.io.Serializable;
 @Builder
 public class OrderDto implements Serializable {
 
-    private String id;
+    private String orderId;
     private double size;
     private double price;
     private OrderStatus status;

@@ -16,9 +16,9 @@ import com.gtc.model.tradinggateway.api.dto.response.manage.ListOpenOrdersRespon
 import com.gtc.model.tradinggateway.api.dto.response.withdraw.WithdrawOrderResponse;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.*;
+import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +30,7 @@ import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
+ * FIXME: Kill duplicate code - bodies similar to EsbCommnadHandler
  * Created by Valentyn Berezin on 24.02.18.
  */
 @Slf4j
@@ -50,7 +51,7 @@ public class RestCommandHandler {
         withdrawOps = withdrawCmds.stream().collect(Collectors.toMap(ClientNamed::name, it -> it));
     }
 
-    @GetMapping("getBalances")
+    @PostMapping("getBalances")
     public AbstractMessage getBalances(@RequestBody @Valid GetAllBalancesCommand command) {
         log.info("Request to create order {}", command);
         return doExecute(command, accountOps, (handler, cmd) -> {
@@ -70,7 +71,7 @@ public class RestCommandHandler {
     public AbstractMessage create(@RequestBody @Valid CreateOrderCommand command) {
         log.info("Request to create order {}", command);
         return doExecute(command, createOps, (handler, cmd) -> {
-            String id = handler.create(
+            OrderCreatedDto id = handler.create(
                     TradingCurrency.fromCode(cmd.getCurrencyFrom()),
                     TradingCurrency.fromCode(cmd.getCurrencyTo()),
                     cmd.getAmount().doubleValue(),
@@ -81,7 +82,9 @@ public class RestCommandHandler {
             return CreateOrderResponse.builder()
                     .clientName(cmd.getClientName())
                     .id(cmd.getId())
-                    .orderId(id)
+                    .requestOrderId(cmd.getId())
+                    .orderId(id.getAssignedId())
+                    .isExecuted(id.isExecuted())
                     .build();
         });
     }
@@ -128,6 +131,7 @@ public class RestCommandHandler {
             return CancelOrderResponse.builder()
                     .clientName(cmd.getClientName())
                     .id(cmd.getId())
+                    .orderId(cmd.getOrderId())
                     .build();
         });
     }

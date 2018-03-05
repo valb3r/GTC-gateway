@@ -31,22 +31,17 @@ public class BaseConfig {
 
     protected Map<String, PairSymbol> pairs;
 
-    public void setPairs(List<String> list) {
-        pairs = parse(list);
+    protected Map<String, String> customResponseCurrencyMapping = new HashMap<>();
+
+    public void setCustomResponseCurrencyMapping(List<String> list) {
+        list.forEach(it -> {
+            String[] origMap = it.split("=");
+            customResponseCurrencyMapping.put(origMap[0], TradingCurrency.fromCode(origMap[1]).getCode());
+        });
     }
 
-    protected Map<String, PairSymbol> parse(List<String> input) {
-        return input.stream()
-                .collect(
-                        HashMap::new,
-                        (HashMap<String, PairSymbol> map, String val) -> {
-                            String[] pair = val.split("=");
-                            String[] symbol = pair[1].split("-");
-                            map.computeIfAbsent(pair[0], (String mKey) -> {
-                                return new PairSymbol(TradingCurrency.fromCode(symbol[0]), TradingCurrency.fromCode(symbol[1]), pair[0]);
-                            });
-                        },
-                        HashMap::putAll);
+    public void setPairs(List<String> list) {
+        pairs = parse(list);
     }
 
     public Optional<PairSymbol> fromCurrency(TradingCurrency from, TradingCurrency to) {
@@ -58,5 +53,20 @@ public class BaseConfig {
         String invertedSymbol = to.toString() + from.toString();
         PairSymbol invertedPair = pairs.get(invertedSymbol);
         return invertedPair != null ? Optional.of(invertedPair.invert()) : Optional.empty();
+    }
+
+    private Map<String, PairSymbol> parse(List<String> input) {
+        return input.stream()
+                .collect(
+                        HashMap::new,
+                        (HashMap<String, PairSymbol> map, String val) -> {
+                            String[] pair = val.split("=");
+                            String[] symbol = pair[1].split("-");
+                            map.computeIfAbsent(pair[0], (String mKey) ->
+                                    new PairSymbol(
+                                            TradingCurrency.fromCode(symbol[0]),
+                                            TradingCurrency.fromCode(symbol[1]), pair[0]));
+                        },
+                        HashMap::putAll);
     }
 }

@@ -11,6 +11,7 @@ import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcBalanceItemDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcOrderGetDto;
 import com.gtc.tradinggateway.service.hitbtc.dto.HitbtcWithdrawRequestDto;
+import com.gtc.tradinggateway.util.CodeMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -87,13 +88,7 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
         Map<TradingCurrency, Double> results = new EnumMap<>(TradingCurrency.class);
         HitbtcBalanceItemDto[] assets = resp.getBody();
         for (HitbtcBalanceItemDto asset : assets) {
-            try {
-                results.put(TradingCurrency.fromCode(asset.getCurrency()), asset.getAvailable());
-            } catch (RuntimeException ex) {
-                log.error(
-                        "Failed mapping currency-code {} having amount {}",
-                        asset.toString(), String.valueOf(asset.getAvailable()));
-            }
+            CodeMapper.mapAndPut(asset.getCurrency(), asset.getAvailable(), cfg, results);
         }
         return results;
     }

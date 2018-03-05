@@ -19,9 +19,9 @@ import static com.gtc.tradinggateway.config.Const.Clients.HITBTC;
 @ConfigurationProperties(CONF_ROOT_CHILD + HITBTC)
 public class HitbtcConfig extends BaseConfig {
 
-    public HitbtcConfig() {
-        mapper = ConfigFactory.defaultMapper();
-        restTemplate = ConfigFactory.defaultRestTemplate(mapper);
+    public HitbtcConfig(ConfigFactory factory) {
+        mapper = factory.defaultMapper();
+        restTemplate = factory.defaultRestTemplate(mapper);
         restTemplate.setMessageConverters(ImmutableList.of(new FormHttpMessageToPojoConverter(mapper)));
     }
 }
