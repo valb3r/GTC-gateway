@@ -44,13 +44,13 @@ public class BaseConfig {
         pairs = parse(list);
     }
 
-    public Optional<PairSymbol> fromCurrency(TradingCurrency from, TradingCurrency to) {
-        String symbol = from.toString() + to.toString();
+    public Optional<PairSymbol> pairFromCurrency(TradingCurrency from, TradingCurrency to) {
+        String symbol = from.toString() + "-" + to.toString();
         PairSymbol pair = pairs.get(symbol);
         if (pair != null) {
             return Optional.of(pair);
         }
-        String invertedSymbol = to.toString() + from.toString();
+        String invertedSymbol = to.toString() + "-" + from.toString();
         PairSymbol invertedPair = pairs.get(invertedSymbol);
         return invertedPair != null ? Optional.of(invertedPair.invert()) : Optional.empty();
     }
@@ -60,12 +60,12 @@ public class BaseConfig {
                 .collect(
                         HashMap::new,
                         (HashMap<String, PairSymbol> map, String val) -> {
-                            String[] pair = val.split("=");
-                            String[] symbol = pair[1].split("-");
-                            map.computeIfAbsent(pair[0], (String mKey) ->
+                            String[] mapping = val.split("=", 2);
+                            String[] symbol = mapping[0].split("-", 2);
+                            map.computeIfAbsent(mapping[0], (String mKey) ->
                                     new PairSymbol(
                                             TradingCurrency.fromCode(symbol[0]),
-                                            TradingCurrency.fromCode(symbol[1]), pair[0]));
+                                            TradingCurrency.fromCode(symbol[1]), mapping[1]));
                         },
                         HashMap::putAll);
     }

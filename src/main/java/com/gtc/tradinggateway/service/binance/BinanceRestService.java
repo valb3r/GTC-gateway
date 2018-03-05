@@ -134,7 +134,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
 
     @Override
     public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, double amount, double price) {
-        Optional<PairSymbol> pair = cfg.fromCurrency(from, to);
+        Optional<PairSymbol> pair = cfg.pairFromCurrency(from, to);
         if (!pair.isPresent()) {
             throw new IllegalArgumentException(
                     "Pair from " + from.toString() + " to " + to.toString() + " is not supported");

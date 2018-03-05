@@ -10,10 +10,10 @@ import lombok.Setter;
 @Setter
 public class WexGetRequest extends BaseWexRequest {
 
-    private long id;
+    private long orderId;
 
-    public WexGetRequest(int nonce, String method, long id) {
+    public WexGetRequest(int nonce, String method, long orderId) {
         super(nonce, method);
-        this.id = id;
+        this.orderId = orderId;
     }
 }

@@ -89,7 +89,7 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
 
     @SneakyThrows
     public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, double amount, double price) {
-        Optional<PairSymbol> pair = cfg.fromCurrency(from, to);
+        Optional<PairSymbol> pair = cfg.pairFromCurrency(from, to);
         if (isDisconnected() || !isLoggedIn.get()) {
             throw new IllegalStateException(
                     "Failed request. Connect status: " + isDisconnected() + ", Login status: " + !isLoggedIn.get());

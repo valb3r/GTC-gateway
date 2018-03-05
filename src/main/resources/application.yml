@@ -37,9 +37,9 @@ app:
         publicKey: ${GDAX_PUBLIC}
         secretKey: ${GDAX_SECRET}
         pairs:
-            BTCUSD=BTC-USD,
-            LTCBTC=LTC-BTC,
-            XMRBTC=XMR-BTC
+            BTC-USD=BTC-USD,
+            LTC-BTC=LTC-BTC,
+            XMR-BTC=XMR-BTC
         ratePerS: 0.17
     binance:
         restBase: "https://api.binance.com"
@@ -47,9 +47,9 @@ app:
         publicKey: ${BINANCE_PUBLIC}
         secretKey: ${BINANCE_SECRET}
         pairs:
-            BTCUSD=BTC-USD,
-            LTCBTC=LTC-BTC,
-            XMRBTC=XMR-BTC
+            BTC-USD=BTC-USD,
+            LTC-BTC=LTC-BTC,
+            XMR-BTC=XMR-BTC
         ratePerS: 0.17
     hitbtc:
         restBase: "https://api.hitbtc.com/api/2"
@@ -58,9 +58,9 @@ app:
         publicKey: ${HITBTC_PUBLIC}
         secretKey: ${HITBTC_SECRET}
         pairs:
-            BTCUSD=BTC-USD,
-            LTCBTC=LTC-BTC,
-            XMRBTC=XMR-BTC
+            BTC-USD=BTC-USD,
+            LTC-BTC=LTC-BTC,
+            XMR-BTC=XMR-BTC
         disconnectIfInactiveS: 20
         ratePerS: 0.17
     wex:
@@ -69,9 +69,10 @@ app:
         publicKey: ${WEX_PUBLIC}
         secretKey: ${WEX_SECRET}
         pairs:
-            btc_usd=BTC-USD,
-            ltc_btc=LTC-BTC,
-            dsh_btc=DASH-BTC
+            BTC-USD=btc_usd,
+            LTC-BTC=ltc_btc,
+            DASH-BTC=dsh_btc,
+            DASH-LTC=dsh_ltc
         customResponseCurrencyMapping:
             dsh=DASH
         ratePerS: 0.17

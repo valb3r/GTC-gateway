@@ -14,6 +14,7 @@ import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import com.gtc.tradinggateway.service.wex.dto.*;
 import com.gtc.tradinggateway.util.CodeMapper;
+import com.gtc.tradinggateway.util.DefaultInvertHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,8 @@ import java.util.Optional;
 import static com.gtc.tradinggateway.config.Const.Clients.WEX;
 
 /**
- * Created by Valentyn Berezin on 04.03.18.
+ * Validated basic functionality (create, get, get all, cancel)
+ * 05.03.2018
  */
 @Slf4j
 @Service
@@ -39,9 +41,6 @@ import static com.gtc.tradinggateway.config.Const.Clients.WEX;
 public class WexRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
     private static final long NONCE_BEGIN = 1520154667151L;
-
-    private static final String SELL = "sell";
-    private static final String BUY = "buy";
 
     private static final String BALANCES = "getInfo";
     private static final String CREATE = "Trade";
@@ -77,10 +76,15 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
 
     @Override
     public OrderCreatedDto create(TradingCurrency from, TradingCurrency to, double amount, double price) {
-        PairSymbol pair = cfg.fromCurrency(from, to)
+        PairSymbol pair = cfg.pairFromCurrency(from, to)
                 .orElseThrow(() -> new IllegalStateException("Unsupported pair"));
-        TradeWexRequest request = new TradeWexRequest(nonce(), CREATE, pair.getSymbol(),
-                amount < 0 ? SELL : BUY, price, amount);
+        double calcAmount = DefaultInvertHandler.amount(pair, amount, price);
+        double calcPrice = DefaultInvertHandler.price(pair, price);
+        WexCreateOrder request = new WexCreateOrder(nonce(), CREATE, pair.getSymbol(),
+                DefaultInvertHandler.amountToBuyOrSell(calcAmount),
+                calcPrice,
+                Math.abs(calcAmount)
+        );
 
         ResponseEntity<WexCreateResponse> resp = cfg.getRestTemplate()
                 .exchange(

@@ -19,6 +19,6 @@ public class WexCreateResponse extends BaseWexResponse<WexCreateResponse.Value> 
 
         private double received;
         private double remains;
-        private int orderId;
+        private long orderId;
     }
 }

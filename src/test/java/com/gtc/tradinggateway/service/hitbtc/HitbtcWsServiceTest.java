@@ -63,8 +63,8 @@ public class HitbtcWsServiceTest extends BaseMockitoTest {
         when(sender.sendObjectMessage(messageCaptor.capture())).thenReturn(true);
         when(pair.getIsInverted()).thenReturn(false);
         when(invertedPair.getIsInverted()).thenReturn(true);
-        when(cfg.fromCurrency(from, to)).thenReturn(Optional.of(pair));
-        when(cfg.fromCurrency(to, from)).thenReturn(Optional.of(invertedPair));
+        when(cfg.pairFromCurrency(from, to)).thenReturn(Optional.of(pair));
+        when(cfg.pairFromCurrency(to, from)).thenReturn(Optional.of(invertedPair));
     }
 
     @Test

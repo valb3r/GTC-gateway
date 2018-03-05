@@ -1,5 +1,6 @@
 package com.gtc.tradinggateway.config;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.common.collect.ImmutableList;
 import com.gtc.tradinggateway.config.converters.FormHttpMessageToPojoConverter;
 import lombok.Getter;
@@ -25,12 +26,14 @@ import static com.gtc.tradinggateway.config.Const.Clients.WEX;
 public class WexConfig extends BaseConfig {
 
     public WexConfig(ConfigFactory factory) {
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        mapper = factory.defaultMapper();
+        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.SNAKE_CASE);
+
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter(mapper);
         List<MediaType> supported = new ArrayList<>(converter.getSupportedMediaTypes());
         supported.add(MediaType.TEXT_HTML);
         converter.setSupportedMediaTypes(supported);
 
-        mapper = factory.defaultMapper();
         restTemplate = factory.defaultRestTemplate(mapper);
         restTemplate.setMessageConverters(ImmutableList.of(new FormHttpMessageToPojoConverter(mapper), converter));
     }

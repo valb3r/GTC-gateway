@@ -199,7 +199,7 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
         double price = 0.1;
         String id = "testid";
         when(getOrderDto.getId()).thenReturn(id);
-        when(cfg.fromCurrency(from, to)).thenReturn(pair);
+        when(cfg.pairFromCurrency(from, to)).thenReturn(pair);
         when(restTemplate.exchange(
                 requestCaptor.capture(),
                 eq(HttpMethod.POST),
@@ -229,7 +229,7 @@ public class BinanceRestServiceTest extends BaseMockitoTest {
         double price = 0.1;
         String id = "testid";
         when(getOrderDto.getId()).thenReturn(id);
-        when(cfg.fromCurrency(from, to)).thenReturn(pair);
+        when(cfg.pairFromCurrency(from, to)).thenReturn(pair);
         when(pairSym.getIsInverted()).thenReturn(true);
         when(restTemplate.exchange(
                 requestCaptor.capture(),
