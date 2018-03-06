@@ -3,6 +3,7 @@ package com.gtc.model.tradinggateway.api.dto.response.account;
 import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 /**
@@ -18,7 +19,7 @@ public class GetAllBalancesResponse extends AbstractMessage {
 
     public static final String SELECTOR = HEADER_NAME + "='" + HEADER + "'";
 
-    private Map<String, Double> balances;
+    private Map<String, BigDecimal> balances;
 
     @Override
     protected String getHeader() {
@@ -26,7 +27,7 @@ public class GetAllBalancesResponse extends AbstractMessage {
     }
 
     @Builder
-    public GetAllBalancesResponse(String clientName, String id, Map<String, Double> balances) {
+    public GetAllBalancesResponse(String clientName, String id, Map<String, BigDecimal> balances) {
         super(clientName, id);
         this.balances = balances;
     }
