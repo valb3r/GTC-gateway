@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.validation.Valid;
@@ -44,6 +45,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
+@Async
 @ConditionalOnBean(JmsConfig.class)
 public class EsbCommandHandler {
 
@@ -86,7 +88,7 @@ public class EsbCommandHandler {
 
     @JmsListener(destination = ACCOUNT_TOPIC, selector = GetAllBalancesCommand.SELECTOR)
     public void getAllBalances(@Valid GetAllBalancesCommand command) {
-        log.info("Request to create order {}", command);
+        log.info("Request to get balances {}", command);
         doExecute(accountTopic, command, accountOps, (handler, cmd) -> {
             Map<TradingCurrency, BigDecimal> balances = handler.balances();
 

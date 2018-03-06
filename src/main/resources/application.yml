@@ -84,4 +84,8 @@ app:
                 create: create
                 manage: manage
                 withdraw: withdraw
+    async:
+        pool:
+            core: 10
+            max: 50
 
