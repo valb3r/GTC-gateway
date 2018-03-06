@@ -23,7 +23,7 @@ spring:
             time-between-expiration-check: -1
             use-anonymous-producers: true
         packages:
-            trusted: com.gtc.model,java.time,java.math
+            trusted: com.gtc.model,java.time,java.math,java.util
     jms:
         pub-sub-domain: true
 server:
