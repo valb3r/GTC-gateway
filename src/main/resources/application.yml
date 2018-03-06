@@ -26,6 +26,8 @@ spring:
             trusted: com.gtc.model,java.time,java.math,java.util
     jms:
         pub-sub-domain: true
+        template:
+            time-to-live: 5000
 server:
     servlet-path: /api
     port: 8084
@@ -40,7 +42,7 @@ app:
             BTC-USD=BTC-USD,
             LTC-BTC=LTC-BTC,
             XMR-BTC=XMR-BTC
-        ratePerS: 0.17
+        ratePerS: 1
     binance:
         restBase: "https://api.binance.com"
         passphrase: ${BINANCE_PASSPHRASE}
@@ -49,8 +51,9 @@ app:
         pairs:
             BTC-USD=BTCUSD,
             LTC-BTC=LTCBTC,
-            XMR-BTC=XMRBTC
-        ratePerS: 0.17
+            XMR-BTC=XMRBTC,
+            DASH-BTC=DASHBTC
+        ratePerS: 1
     hitbtc:
         restBase: "https://api.hitbtc.com/api/2"
         wsBase: "wss://api.hitbtc.com/api/2/ws"
@@ -59,8 +62,9 @@ app:
         pairs:
             BTC-USD=BTCUSD,
             LTC-BTC=LTCBTC,
-            XMR-BTC=XMRBTC
-        ratePerS: 0.17
+            XMR-BTC=XMRBTC,
+            DASH-BTC=DASHBTC
+        ratePerS: 1
     wex:
         restBase: "https://wex.nz/tapi"
         publicKey: ${WEX_PUBLIC}
@@ -72,7 +76,7 @@ app:
             DASH-LTC=dsh_ltc
         customResponseCurrencyMapping:
             dsh=DASH
-        ratePerS: 0.17
+        ratePerS: 1
     clients:
         active: binance,wex,hitbtc
     schedule:

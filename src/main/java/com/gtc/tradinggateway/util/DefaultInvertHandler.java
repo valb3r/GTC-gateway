@@ -12,8 +12,6 @@ import java.math.RoundingMode;
 @UtilityClass
 public class DefaultInvertHandler {
 
-    public static final int PRECISION = 8;
-
     private static final String SELL = "sell";
     private static final String BUY = "buy";
 
@@ -21,19 +19,23 @@ public class DefaultInvertHandler {
     private static final String BUY_UPPER = "BUY";
 
     public BigDecimal amountFromOrig(PairSymbol symbol, BigDecimal amount, BigDecimal price) {
+        BigDecimal amountRes = amount;
+
         if (symbol.getIsInverted()) {
-            return amount.negate().multiply(price);
+            amountRes = amount.negate().multiply(price);
         }
 
-        return amount;
+        return amountRes;
     }
 
     public BigDecimal priceFromOrig(PairSymbol symbol, BigDecimal price) {
+        BigDecimal priceRes = price;
+
         if (symbol.getIsInverted()) {
-            return BigDecimal.ONE.divide(price, PRECISION, RoundingMode.HALF_EVEN);
+            priceRes = BigDecimal.ONE.divide(price, price.scale(), RoundingMode.HALF_EVEN);
         }
 
-        return price;
+        return priceRes;
     }
 
     public String amountToBuyOrSell(BigDecimal amount) {

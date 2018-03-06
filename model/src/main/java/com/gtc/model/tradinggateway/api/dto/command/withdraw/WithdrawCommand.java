@@ -30,10 +30,10 @@ public class WithdrawCommand extends AbstractMessage {
     private String toDestination;
 
     @Builder
-    public WithdrawCommand(String clientName, String id, String currency, double amount, String toDestination) {
+    public WithdrawCommand(String clientName, String id, String currency, BigDecimal amount, String toDestination) {
         super(clientName, id);
         this.currency = currency;
-        this.amount = BigDecimal.valueOf(amount);
+        this.amount = amount;
         this.toDestination = toDestination;
     }
 

@@ -38,13 +38,13 @@ public class CreateOrderCommand extends AbstractMessage implements WithOrderId {
     private String orderId; // it is not guaranteed we will get it assigned
 
     @Builder
-    public CreateOrderCommand(String clientName, String id, String currencyFrom, String currencyTo, double price,
-                              double amount, String orderId) {
+    public CreateOrderCommand(String clientName, String id, String currencyFrom, String currencyTo,
+                              BigDecimal price, BigDecimal amount, String orderId) {
         super(clientName, id);
         this.currencyFrom = currencyFrom;
         this.currencyTo = currencyTo;
-        this.price = BigDecimal.valueOf(price);
-        this.amount = BigDecimal.valueOf(amount);
+        this.price = price;
+        this.amount = amount;
         this.orderId = orderId;
     }
 
