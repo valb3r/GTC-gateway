@@ -150,7 +150,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
 
         return Optional.of(
                 OrderCreatedDto.builder()
-                        .assignedId(pair.toString() + "." + result.getId())
+                        .assignedId(resp.getBody().getPair() + "." + result.getId())
                         .build()
         );
     }

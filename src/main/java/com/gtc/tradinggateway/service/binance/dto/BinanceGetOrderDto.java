@@ -43,7 +43,7 @@ public class BinanceGetOrderDto {
 
     public OrderDto mapTo() {
         return OrderDto.builder()
-                .orderId(id)
+                .orderId(pair + "." + id)
                 .size(currentAmount)
                 .price(price)
                 .status(MAPPER.getOrDefault(status, OrderStatus.UNMAPPED))

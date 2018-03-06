@@ -26,7 +26,7 @@ public class CodeMapper {
         currency.ifPresent(it -> results.put(it, amount));
 
         if (!currency.isPresent()) {
-            log.warn("Failed mapping currency-code {} having amountFromOrig {}", currencyName, amount);
+            log.debug("Failed mapping currency-code {} having amountFromOrig {}", currencyName, amount);
         }
     }
 }
