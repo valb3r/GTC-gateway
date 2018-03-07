@@ -42,7 +42,7 @@ app:
             BTC-USD=BTC-USD,
             LTC-BTC=LTC-BTC,
             XMR-BTC=XMR-BTC
-        ratePerM: 1
+        ratePerM: 60
     binance:
         restBase: "https://api.binance.com"
         passphrase: ${BINANCE_PASSPHRASE}
@@ -53,7 +53,7 @@ app:
             LTC-BTC=LTCBTC,
             XMR-BTC=XMRBTC,
             DASH-BTC=DASHBTC
-        ratePerM: 1
+        ratePerM: 60
     hitbtc:
         restBase: "https://api.hitbtc.com/api/2"
         wsBase: "wss://api.hitbtc.com/api/2/ws"
@@ -64,7 +64,7 @@ app:
             LTC-BTC=LTCBTC,
             XMR-BTC=XMRBTC,
             DASH-BTC=DASHBTC
-        ratePerM: 1
+        ratePerM: 60
     wex:
         restBase: "https://wex.nz/tapi"
         publicKey: ${WEX_PUBLIC}
@@ -76,7 +76,7 @@ app:
             DASH-LTC=dsh_ltc
         customResponseCurrencyMapping:
             dsh=DASH
-        ratePerM: 1
+        ratePerM: 60
     clients:
         active: binance,wex,hitbtc
     schedule:

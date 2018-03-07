@@ -37,7 +37,7 @@ public class RateLimitingAspect {
     public Object rateLimit(ProceedingJoinPoint joinPoint, RateLimited ann) throws Throwable {
         Method method = getMethod(joinPoint);
         String key = getKey(method, ann);
-        int tokens = Integer.valueOf(resolver.resolveStringValue(ann.ratePerMinute()));
+        int tokens = Integer.parseInt(resolver.resolveStringValue(ann.ratePerMinute()));
         boolean acquired = limiters.computeIfAbsent(key, id ->
                         TokenBuckets.builder()
                         .withCapacity(tokens)
