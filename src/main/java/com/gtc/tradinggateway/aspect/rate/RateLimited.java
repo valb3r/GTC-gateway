@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface RateLimited {
 
-    String ratePerSecond() default "";
+    String ratePerMinute() default "";
 
     Mode mode() default Mode.METHOD;
 

@@ -1,10 +1,11 @@
 package com.gtc.tradinggateway.aspect.rate;
 
-import com.google.common.util.concurrent.RateLimiter;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.isomorphism.util.TokenBucket;
+import org.isomorphism.util.TokenBuckets;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.beans.factory.config.EmbeddedValueResolver;
 import org.springframework.stereotype.Component;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 import static com.gtc.tradinggateway.aspect.rate.RateLimited.Mode.CLASS;
 
@@ -22,7 +24,7 @@ import static com.gtc.tradinggateway.aspect.rate.RateLimited.Mode.CLASS;
 @Component
 public class RateLimitingAspect {
 
-    private final Map<String, RateLimiter> limiters = new ConcurrentHashMap<>();
+    private final Map<String, TokenBucket> limiters = new ConcurrentHashMap<>();
 
     private final EmbeddedValueResolver resolver;
 
@@ -35,10 +37,13 @@ public class RateLimitingAspect {
     public Object rateLimit(ProceedingJoinPoint joinPoint, RateLimited ann) throws Throwable {
         Method method = getMethod(joinPoint);
         String key = getKey(method, ann);
-
-        boolean acquired = limiters.computeIfAbsent(key, id -> RateLimiter.create(
-                Double.valueOf(resolver.resolveStringValue(ann.ratePerSecond()))
-        )).tryAcquire();
+        int tokens = Integer.valueOf(resolver.resolveStringValue(ann.ratePerMinute()));
+        boolean acquired = limiters.computeIfAbsent(key, id ->
+                        TokenBuckets.builder()
+                        .withCapacity(tokens)
+                        .withFixedIntervalRefillStrategy(tokens, 1, TimeUnit.MINUTES)
+                        .build()
+        ).tryConsume();
 
         if (!acquired) {
             throw new RateTooHighException("Rate limiting");

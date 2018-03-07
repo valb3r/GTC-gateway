@@ -37,7 +37,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.BINANCE;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@RateLimited(ratePerSecond = "${app.binance.ratePerS}", mode = RateLimited.Mode.CLASS)
+@RateLimited(ratePerMinute = "${app.binance.ratePerM}", mode = RateLimited.Mode.CLASS)
 public class BinanceRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
     private static final String ORDERS = "/api/v3/order";

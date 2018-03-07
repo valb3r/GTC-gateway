@@ -27,7 +27,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.GDAX;
  */
 @Service
 @RequiredArgsConstructor
-@RateLimited(ratePerSecond = "${app.gdax.ratePerS}", mode = RateLimited.Mode.CLASS)
+@RateLimited(ratePerMinute = "${app.gdax.ratePerM}", mode = RateLimited.Mode.CLASS)
 public class GdaxRestService implements ManageOrders, Withdraw, Account {
 
     private static final String ORDERS = "/orders";

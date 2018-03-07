@@ -38,7 +38,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.WEX;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@RateLimited(ratePerSecond = "${app.wex.ratePerS}", mode = RateLimited.Mode.CLASS)
+@RateLimited(ratePerMinute = "${app.wex.ratePerM}", mode = RateLimited.Mode.CLASS)
 public class WexRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
     private static final long NONCE_BEGIN = 1520154667151L;
