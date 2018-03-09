@@ -77,8 +77,18 @@ app:
         customResponseCurrencyMapping:
             dsh=DASH
         ratePerM: 60
+    mock:
+        restBase: "http://localhost:9090/api"
+        publicKey: trade-gateway
+        pairs:
+            BTC-USD=BTCUSD
+        customResponseCurrencyMapping:
+            Bitcoin=BTC
+        ratePerM: 60
     clients:
-        active: binance,wex,hitbtc
+        # all-clients: binance,wex,hitbtc
+        # mocks (need MOCK_ENABLED as true): mock-asia,mock-europe
+        active: mock-asia,mock-europe
     schedule:
         puppeteerS: 10
     jms:

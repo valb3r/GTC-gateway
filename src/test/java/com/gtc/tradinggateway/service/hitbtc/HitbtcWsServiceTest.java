@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Optional;
 
-import static com.gtc.tradinggateway.util.DefaultInvertHandler.PRECISION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -92,7 +91,7 @@ public class HitbtcWsServiceTest extends BaseMockitoTest {
 
         assertThat(request.getMethod()).isEqualTo("newOrder");
         assertThat(params.getSide()).isEqualTo("sell");
-        assertThat(params.getPrice()).isEqualTo(BigDecimal.ONE.divide(price, PRECISION, RoundingMode.HALF_EVEN));
+        assertThat(params.getPrice()).isEqualTo(BigDecimal.ONE.divide(price, 1, RoundingMode.HALF_EVEN));
         assertThat(params.getQuantity()).isEqualTo(amount.negate().multiply(price).abs());
     }
 
