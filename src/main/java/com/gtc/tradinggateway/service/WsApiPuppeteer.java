@@ -1,6 +1,8 @@
 package com.gtc.tradinggateway.service;
 
 import com.gtc.tradinggateway.config.ClientsConf;
+import com.newrelic.api.agent.NewRelic;
+import com.newrelic.api.agent.Trace;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class WsApiPuppeteer {
                 .collect(Collectors.toList());
     }
 
+    @Trace(dispatcher = true)
     @Scheduled(fixedDelayString = "#{${" + CONF_ROOT_SCHEDULE_CHILD + "puppeteerS} * 1000}")
     public void connection() {
         try {
@@ -34,6 +37,7 @@ public class WsApiPuppeteer {
                     .forEach(BaseWsClient::connect);
         } catch (RuntimeException ex) {
             log.error("Failed connecting", ex);
+            NewRelic.noticeError(ex);
         }
     }
 }

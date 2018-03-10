@@ -1,0 +1,64 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: bid-gateway
+  labels:
+    app: bid-gateway
+spec:
+  template:
+    metadata:
+      labels:
+        app: bid-gateway
+    spec:
+      containers:
+        - name: trader-gateway
+          image: gcr.io/bidcache/bidgateway:1
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ENABLE_NEWRELIC
+              value: "true"
+            - name: NEW_RELIC_LICENSE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: newrelic-credentials
+                  key: license
+            - name: WEX_PUBLIC
+              valueFrom:
+                secretKeyRef:
+                  name: trade-credentials
+                  key: wex_public
+            - name: WEX_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: trade-credentials
+                  key: wex_secret
+            - name: HITBTC_PUBLIC
+              valueFrom:
+                secretKeyRef:
+                  name: trade-credentials
+                  key: hitbtc_public
+            - name: HITBTC_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: trade-credentials
+                  key: hitbtc_secret
+            - name: BINANCE_PUBLIC
+              valueFrom:
+                secretKeyRef:
+                  name: trade-credentials
+                  key: binance_public
+            - name: BINANCE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: trade-credentials
+                  key: binance_secret
+            - name: ESB_AMQ_ADDRESS
+              value: tcp://bid-speculator-svc.default.svc.cluster.local:6061

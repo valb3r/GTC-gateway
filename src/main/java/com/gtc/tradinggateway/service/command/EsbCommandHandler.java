@@ -23,6 +23,8 @@ import com.gtc.tradinggateway.config.JmsConfig;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.*;
 import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
+import com.newrelic.api.agent.NewRelic;
+import com.newrelic.api.agent.Trace;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -86,6 +88,7 @@ public class EsbCommandHandler {
                 .collect(Collectors.toMap(ClientNamed::name, it -> it));
     }
 
+    @Trace(dispatcher = true)
     @JmsListener(destination = ACCOUNT_TOPIC, selector = GetAllBalancesCommand.SELECTOR)
     public void getAllBalances(@Valid GetAllBalancesCommand command) {
         log.info("Request to get balances {}", command);
@@ -102,6 +105,7 @@ public class EsbCommandHandler {
         });
     }
 
+    @Trace(dispatcher = true)
     @JmsListener(destination = CREATE_TOPIC, selector = CreateOrderCommand.SELECTOR)
     public void create(@Valid CreateOrderCommand command) {
         log.info("Request to create order {}", command);
@@ -126,6 +130,7 @@ public class EsbCommandHandler {
         });
     }
 
+    @Trace(dispatcher = true)
     @JmsListener(destination = MANAGE_TOPIC, selector = GetOrderCommand.SELECTOR)
     public void get(@Valid GetOrderCommand command) {
         log.info("Request to get order {}", command);
@@ -143,6 +148,7 @@ public class EsbCommandHandler {
         });
     }
 
+    @Trace(dispatcher = true)
     @JmsListener(destination = MANAGE_TOPIC, selector = ListOpenCommand.SELECTOR)
     public void listOpen(@Valid ListOpenCommand command) {
         log.info("Request to list orders {}", command);
@@ -158,6 +164,7 @@ public class EsbCommandHandler {
         });
     }
 
+    @Trace(dispatcher = true)
     @JmsListener(destination = MANAGE_TOPIC, selector = CancelOrderCommand.SELECTOR)
     public void cancel(@Valid CancelOrderCommand command) {
         log.info("Request to cancel order {}", command);
@@ -173,6 +180,7 @@ public class EsbCommandHandler {
         });
     }
 
+    @Trace(dispatcher = true)
     @JmsListener(destination = WITHDRAW_TOPIC, selector = WithdrawCommand.SELECTOR)
     public void withdraw(@Valid WithdrawCommand command) {
         log.info("Request to withdraw {}", command);
@@ -215,11 +223,13 @@ public class EsbCommandHandler {
                 jmsTemplate.convertAndSend(dest, result, result::enhance);
             }
         } catch (RateTooHighException ex) {
+            NewRelic.noticeError(ex);
             ErrorResponse error = buildError(message, ex);
             error.setTransient(true);
             log.error("Sending transient error message {} in response to {}", error, message.getId());
             jmsTemplate.convertAndSend(dest, error, error::enhance);
         } catch (Exception ex) {
+            NewRelic.noticeError(ex);
             ErrorResponse error = buildError(message, ex);
             log.error("Sending error message {} in response to {}", error, message.getId());
             jmsTemplate.convertAndSend(dest, error, error::enhance);
