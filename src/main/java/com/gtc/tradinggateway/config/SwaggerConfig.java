@@ -1,7 +1,6 @@
 package com.gtc.tradinggateway.config;
 
-import com.gtc.tradinggateway.controller.RestCommandHandler;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.PathSelectors;
@@ -15,7 +14,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  */
 @Configuration
 @EnableSwagger2
-@ConditionalOnBean(RestCommandHandler.class)
+@ConditionalOnProperty(name = "REST_ENABLED", havingValue = "true")
 public class SwaggerConfig {
 
     @Bean
