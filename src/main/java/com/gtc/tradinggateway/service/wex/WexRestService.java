@@ -32,7 +32,7 @@ import java.util.Optional;
 import static com.gtc.tradinggateway.config.Const.Clients.WEX;
 
 /**
- * Done orders will appear in /OrderInfo.
+ * Done orders will appear in /OrderInfo (no need for extra check).
  * Validated basic functionality (create, get, get all, cancel)
  * 05.03.2018
  */

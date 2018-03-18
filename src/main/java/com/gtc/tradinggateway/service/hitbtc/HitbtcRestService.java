@@ -17,8 +17,11 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -38,32 +41,32 @@ import static com.gtc.tradinggateway.config.Const.Clients.HITBTC;
 public class HitbtcRestService implements ManageOrders, Withdraw, Account {
 
     private static final String ORDERS = "/order/";
+    private static final String HISTORY_ORDERS = "history/order";
     private static final String BALANCES = "/trading/balance";
     private static final String WITHDRAWAL = "/account/crypto/withdraw";
+
+    private static final String PARAM_ID = "clientOrderId";
 
     private final HitbtcConfig cfg;
     private final HitbtcEncryptionService signer;
 
     @Override
     public Optional<OrderDto> get(String id) {
-        ResponseEntity<HitbtcOrderGetDto> resp = cfg.getRestTemplate()
-                .exchange(
-                        cfg.getRestBase() + ORDERS + id,
-                        HttpMethod.GET,
-                        new HttpEntity<>(signer.restHeaders()),
-                        HitbtcOrderGetDto.class);
-        if (resp.getStatusCode().is2xxSuccessful()) {
-            return Optional.of(resp.getBody().mapTo());
+        try {
+            return getOpenOrderById(id);
+        } catch (HttpClientErrorException ex) {
+            if (ex.getStatusCode() != HttpStatus.BAD_REQUEST) {
+                throw ex;
+            }
+            return getClosedOrderById(id);
         }
-
-        return Optional.empty();
     }
 
     @Override
     public List<OrderDto> getOpen() {
         ResponseEntity<HitbtcOrderGetDto[]> resp = cfg.getRestTemplate()
                 .exchange(
-                        cfg.getRestBase() + ORDERS,
+                        cfg.getRestBase() + "/history/order",
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
                         HitbtcOrderGetDto[].class);
@@ -112,5 +115,33 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
     @IgnoreRateLimited
     public String name() {
         return HITBTC;
+    }
+
+    private Optional<OrderDto> getOpenOrderById(String id) {
+        ResponseEntity<HitbtcOrderGetDto> resp = cfg.getRestTemplate()
+                .exchange(
+                        cfg.getRestBase() + ORDERS + id,
+                        HttpMethod.GET,
+                        new HttpEntity<>(signer.restHeaders()),
+                        HitbtcOrderGetDto.class);
+        return Optional.of(resp.getBody().mapTo());
+    }
+
+    private Optional<OrderDto> getClosedOrderById(String id) {
+        ResponseEntity<HitbtcOrderGetDto[]> resp = cfg.getRestTemplate()
+                .exchange(
+                        UriComponentsBuilder
+                                .fromHttpUrl(cfg.getRestBase())
+                                .pathSegment(HISTORY_ORDERS)
+                                .queryParam(PARAM_ID, id)
+                        .build().toUri(),
+                        HttpMethod.GET,
+                        new HttpEntity<>(signer.restHeaders()),
+                        HitbtcOrderGetDto[].class);
+        if (resp.getBody().length == 0) {
+            return Optional.empty();
+        }
+
+        return Optional.of(resp.getBody()[0].mapTo());
     }
 }

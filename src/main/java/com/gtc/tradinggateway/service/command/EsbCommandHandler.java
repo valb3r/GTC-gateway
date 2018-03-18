@@ -216,6 +216,9 @@ public class EsbCommandHandler {
             return;
         }
 
+        String oldName = Thread.currentThread().getName();
+        Thread.currentThread().setName(message.getClientName() + " / " + message.getId());
+
         try {
             AbstractMessage result = executor.apply(handler, message);
             // result can be null if it was WS based request
@@ -233,6 +236,8 @@ public class EsbCommandHandler {
             ErrorResponse error = buildError(message, ex);
             log.error("Sending error message {} in response to {}", error, message.getId());
             jmsTemplate.convertAndSend(dest, error, error::enhance);
+        } finally {
+            Thread.currentThread().setName(oldName);
         }
     }
 
