@@ -66,7 +66,7 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
     public List<OrderDto> getOpen() {
         ResponseEntity<HitbtcOrderGetDto[]> resp = cfg.getRestTemplate()
                 .exchange(
-                        cfg.getRestBase() + "/history/order",
+                        cfg.getRestBase() + ORDERS,
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
                         HitbtcOrderGetDto[].class);
