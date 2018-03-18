@@ -31,6 +31,7 @@ import java.util.*;
 import static com.gtc.tradinggateway.config.Const.Clients.BINANCE;
 
 /**
+ * Done orders will appear in /myTrades (needs symbol).
  * Validated basic functionality (create, get, get all, cancel)
  * 05.03.2018
  */

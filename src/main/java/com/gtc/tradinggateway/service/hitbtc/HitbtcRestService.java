@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 import static com.gtc.tradinggateway.config.Const.Clients.HITBTC;
 
 /**
+ * Done orders will appear in /trades.
  * Validated basic functionality (get, get all, cancel)
  * 05.03.2018
  */
