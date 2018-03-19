@@ -22,7 +22,7 @@ public class MultiOrderCreateCommand extends AbstractMessage {
     @NotEmpty
     private Set<CreateOrderCommand> commands;
 
-    @Builder(toBuilder = true)
+    @Builder
     public MultiOrderCreateCommand(String clientName, String id, Set<CreateOrderCommand> commands) {
         super(clientName, id);
         this.commands = commands;
