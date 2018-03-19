@@ -5,6 +5,7 @@ import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
 import com.gtc.model.tradinggateway.api.dto.WithOrderId;
 import com.gtc.model.tradinggateway.api.dto.command.account.GetAllBalancesCommand;
 import com.gtc.model.tradinggateway.api.dto.command.create.CreateOrderCommand;
+import com.gtc.model.tradinggateway.api.dto.command.create.MultiOrderCreateCommand;
 import com.gtc.model.tradinggateway.api.dto.command.manage.CancelOrderCommand;
 import com.gtc.model.tradinggateway.api.dto.command.manage.GetOrderCommand;
 import com.gtc.model.tradinggateway.api.dto.command.manage.ListOpenCommand;
@@ -136,6 +137,19 @@ public class EsbCommandHandler {
     }
 
     @Trace(dispatcher = true)
+    @JmsListener(destination = CREATE_REQ, selector = MultiOrderCreateCommand.SELECTOR)
+    public void create(@Valid MultiOrderCreateCommand command) {
+        log.info("Request to create multi-orders {}", command);
+        command.getCommands().stream().map(CreateOrderCommand::getClientName).forEach(name -> {
+            if (!createOps.keySet().contains(name)) {
+                throw new NoClientException(name);
+            }
+        });
+
+        command.getCommands().forEach(this::create);
+    }
+
+    @Trace(dispatcher = true)
     @JmsListener(destination = MANAGE_REQ, selector = GetOrderCommand.SELECTOR)
     public void get(@Valid GetOrderCommand command) {
         log.info("Request to get order {}", command);
@@ -262,6 +276,13 @@ public class EsbCommandHandler {
     }
 
     private static class NoClientException extends IllegalStateException {
+
+        NoClientException() {
+        }
+
+        NoClientException(String s) {
+            super(s);
+        }
     }
 
     private static class NotFoundException extends IllegalArgumentException {
