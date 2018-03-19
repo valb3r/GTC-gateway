@@ -142,7 +142,7 @@ public class EsbCommandHandler {
         doExecute(manageTopic, command, manageOps, (handler, cmd) -> {
             OrderDto res = handler.get(
                     cmd.getOrderId()
-            ).orElse(null);
+            ).orElseThrow(() -> new NotFoundException(cmd.getOrderId()));
 
             log.info("Found {} for {} of {}", res, cmd.getOrderId(), cmd.getClientName());
             return GetOrderResponse.builder()
@@ -262,5 +262,12 @@ public class EsbCommandHandler {
     }
 
     private static class NoClientException extends IllegalStateException {
+    }
+
+    private static class NotFoundException extends IllegalArgumentException {
+
+        NotFoundException(String s) {
+            super(s);
+        }
     }
 }
