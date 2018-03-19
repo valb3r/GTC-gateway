@@ -51,21 +51,26 @@ import java.util.stream.Collectors;
 @ConditionalOnBean(JmsConfig.class)
 public class EsbCommandHandler {
 
-    private static final String ACCOUNT_TOPIC = "${app.jms.topic.inOut.account}";
-    private static final String CREATE_TOPIC = "${app.jms.topic.inOut.create}";
-    private static final String MANAGE_TOPIC = "${app.jms.topic.inOut.manage}";
-    private static final String WITHDRAW_TOPIC = "${app.jms.topic.inOut.withdraw}";
+    private static final String ACCOUNT_REQ = "${app.jms.queue.in.account}";
+    private static final String CREATE_REQ = "${app.jms.queue.in.create}";
+    private static final String MANAGE_REQ = "${app.jms.queue.in.manage}";
+    private static final String WITHDRAW_REQ = "${app.jms.queue.in.withdraw}";
 
-    @Value(ACCOUNT_TOPIC)
+    private static final String ACCOUNT_RESP = "${app.jms.vtopic.out.account}";
+    private static final String CREATE_RESP = "${app.jms.vtopic.out.create}";
+    private static final String MANAGE_RESP = "${app.jms.vtopic.out.manage}";
+    private static final String WITHDRAW_RESP = "${app.jms.vtopic.out.withdraw}";
+
+    @Value(ACCOUNT_RESP)
     private String accountTopic;
 
-    @Value(CREATE_TOPIC)
+    @Value(CREATE_RESP)
     private String createTopic;
 
-    @Value(MANAGE_TOPIC)
+    @Value(MANAGE_RESP)
     private String manageTopic;
 
-    @Value(WITHDRAW_TOPIC)
+    @Value(WITHDRAW_RESP)
     private String withdrawTopic;
 
     private final JmsTemplate jmsTemplate;
@@ -89,7 +94,7 @@ public class EsbCommandHandler {
     }
 
     @Trace(dispatcher = true)
-    @JmsListener(destination = ACCOUNT_TOPIC, selector = GetAllBalancesCommand.SELECTOR)
+    @JmsListener(destination = ACCOUNT_REQ, selector = GetAllBalancesCommand.SELECTOR)
     public void getAllBalances(@Valid GetAllBalancesCommand command) {
         log.info("Request to get balances {}", command);
         doExecute(accountTopic, command, accountOps, (handler, cmd) -> {
@@ -106,7 +111,7 @@ public class EsbCommandHandler {
     }
 
     @Trace(dispatcher = true)
-    @JmsListener(destination = CREATE_TOPIC, selector = CreateOrderCommand.SELECTOR)
+    @JmsListener(destination = CREATE_REQ, selector = CreateOrderCommand.SELECTOR)
     public void create(@Valid CreateOrderCommand command) {
         log.info("Request to create order {}", command);
         doExecute(createTopic, command, createOps, (handler, cmd) -> {
@@ -131,7 +136,7 @@ public class EsbCommandHandler {
     }
 
     @Trace(dispatcher = true)
-    @JmsListener(destination = MANAGE_TOPIC, selector = GetOrderCommand.SELECTOR)
+    @JmsListener(destination = MANAGE_REQ, selector = GetOrderCommand.SELECTOR)
     public void get(@Valid GetOrderCommand command) {
         log.info("Request to get order {}", command);
         doExecute(manageTopic, command, manageOps, (handler, cmd) -> {
@@ -149,7 +154,7 @@ public class EsbCommandHandler {
     }
 
     @Trace(dispatcher = true)
-    @JmsListener(destination = MANAGE_TOPIC, selector = ListOpenCommand.SELECTOR)
+    @JmsListener(destination = MANAGE_REQ, selector = ListOpenCommand.SELECTOR)
     public void listOpen(@Valid ListOpenCommand command) {
         log.info("Request to list orders {}", command);
         doExecute(manageTopic, command, manageOps, (handler, cmd) -> {
@@ -165,7 +170,7 @@ public class EsbCommandHandler {
     }
 
     @Trace(dispatcher = true)
-    @JmsListener(destination = MANAGE_TOPIC, selector = CancelOrderCommand.SELECTOR)
+    @JmsListener(destination = MANAGE_REQ, selector = CancelOrderCommand.SELECTOR)
     public void cancel(@Valid CancelOrderCommand command) {
         log.info("Request to cancel order {}", command);
         doExecute(manageTopic, command, manageOps, (handler, cmd) -> {
@@ -181,7 +186,7 @@ public class EsbCommandHandler {
     }
 
     @Trace(dispatcher = true)
-    @JmsListener(destination = WITHDRAW_TOPIC, selector = WithdrawCommand.SELECTOR)
+    @JmsListener(destination = WITHDRAW_REQ, selector = WithdrawCommand.SELECTOR)
     public void withdraw(@Valid WithdrawCommand command) {
         log.info("Request to withdraw {}", command);
         doExecute(withdrawTopic, command, withdrawOps, (handler, cmd) -> {

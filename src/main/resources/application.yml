@@ -25,7 +25,6 @@ spring:
         packages:
             trusted: com.gtc.model,java.time,java.math,java.util
     jms:
-        pub-sub-domain: true
         template:
             time-to-live: 5000
 server:
@@ -93,12 +92,18 @@ app:
     schedule:
         puppeteerS: 10
     jms:
-        topic:
-            inOut:
+        queue:
+            in:
                 account: account
                 create: create
                 manage: manage
                 withdraw: withdraw
+        vtopic:
+            out:
+                account: VirtualTopic.account
+                create: VirtualTopic.create
+                manage: VirtualTopic.manage
+                withdraw: VirtualTopic.withdraw
     async:
         pool:
             core: 10
