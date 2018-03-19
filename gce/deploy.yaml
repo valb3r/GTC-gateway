@@ -12,13 +12,13 @@ spec:
     spec:
       containers:
         - name: trader-gateway
-          image: gcr.io/bidcache/bidgateway:1
+          image: gcr.io/bidcache/bidgateway:3
           resources:
             requests:
               memory: "128Mi"
               cpu: "100m"
             limits:
-              memory: "400Mi"
+              memory: "512Mi"
               cpu: "500m"
           ports:
             - containerPort: 8080
