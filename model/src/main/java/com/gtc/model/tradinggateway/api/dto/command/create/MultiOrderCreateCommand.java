@@ -1,10 +1,7 @@
 package com.gtc.model.tradinggateway.api.dto.command.create;
 
 import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import java.util.Set;
@@ -24,6 +21,12 @@ public class MultiOrderCreateCommand extends AbstractMessage {
 
     @NotEmpty
     private Set<CreateOrderCommand> commands;
+
+    @Builder(toBuilder = true)
+    public MultiOrderCreateCommand(String clientName, String id, Set<CreateOrderCommand> commands) {
+        super(clientName, id);
+        this.commands = commands;
+    }
 
     @Override
     protected String getHeader() {
