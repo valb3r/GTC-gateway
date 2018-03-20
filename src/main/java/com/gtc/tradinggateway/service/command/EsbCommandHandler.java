@@ -33,6 +33,7 @@ import org.springframework.jms.annotation.JmsListener;
 import org.springframework.jms.core.JmsTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
@@ -266,7 +267,17 @@ public class EsbCommandHandler {
         resp.setId(UUID.randomUUID().toString());
         resp.setOnMessageId(origin.getId());
         resp.setOccurredOn(origin.toString());
-        resp.setErrorCause(Throwables.getStackTraceAsString(Throwables.getRootCause(forExc)));
+        String rootCause = Throwables.getStackTraceAsString(Throwables.getRootCause(forExc));
+        if (forExc instanceof HttpStatusCodeException) {
+            HttpStatusCodeException codeEx = (HttpStatusCodeException) forExc;
+            rootCause = String.format("Http status %d  / (%s) / (%s) / %s",
+                    codeEx.getRawStatusCode(),
+                    codeEx.getResponseBodyAsString(),
+                    codeEx.getMessage(),
+                    rootCause);
+        }
+        
+        resp.setErrorCause(rootCause);
 
         if (origin instanceof WithOrderId) {
             resp.setOrderId(((WithOrderId) origin).getOrderId());
