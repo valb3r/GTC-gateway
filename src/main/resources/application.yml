@@ -88,7 +88,7 @@ app:
     clients:
         # all-clients: binance,wex,hitbtc
         # mocks (need MOCK_ENABLED as true): mock-asia,mock-europe
-        active: mock-asia,mock-europe
+        active: binance,wex,hitbtc
     schedule:
         puppeteerS: 10
     jms:
