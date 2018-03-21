@@ -22,7 +22,8 @@ buildscript {
                 aspectjOAP                : "1.8.12",
                 validator                 : "5.4.1.Final",
                 swagger                   : "2.7.0",
-                tokenBucket               : "1.6"
+                tokenBucket               : "1.6",
+                activeMq                  : "5.15.3"
         ]
     }
     dependencies {
@@ -62,6 +63,7 @@ dependencies {
     compile "commons-codec:commons-codec:${versions.commonsCodec}"
     compile "org.hibernate:hibernate-validator:${versions.validator}"
     compile "org.isomorphism:token-bucket:${versions.tokenBucket}"
+    compile "org.apache.activemq:activemq-pool:${versions.activeMq}"
 
     compile "io.springfox:springfox-swagger2:${versions.swagger}"
     compile "io.springfox:springfox-swagger-ui:${versions.swagger}"
