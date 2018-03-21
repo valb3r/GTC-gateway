@@ -147,7 +147,7 @@ public class EsbCommandHandler {
             }
         });
 
-        command.getCommands().forEach(this::create);
+        command.getCommands().parallelStream().forEach(this::create);
     }
 
     @Trace(dispatcher = true)
