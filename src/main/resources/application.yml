@@ -14,7 +14,7 @@ spring:
             block-if-full: true
             block-if-full-timeout: -1
             create-connection-on-startup: true
-            enabled: false
+            enabled: true
             expiry-timeout: 10000
             idle-timeout: 30000
             max-connections: 1
@@ -88,7 +88,7 @@ app:
     clients:
         # all-clients: binance,wex,hitbtc
         # mocks (need MOCK_ENABLED as true): mock-asia,mock-europe
-        active: binance,wex,hitbtc
+        active: mock-asia,mock-europe
     schedule:
         puppeteerS: 10
     jms:

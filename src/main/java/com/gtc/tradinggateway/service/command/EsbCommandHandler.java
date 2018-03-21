@@ -276,7 +276,7 @@ public class EsbCommandHandler {
                     codeEx.getMessage(),
                     rootCause);
         }
-        
+
         resp.setErrorCause(rootCause);
 
         if (origin instanceof WithOrderId) {
