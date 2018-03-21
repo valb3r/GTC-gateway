@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: trader-gateway
-          image: gcr.io/bidcache/bidgateway:3
+          image: gcr.io/bidcache/bidgateway:7
           resources:
             requests:
               memory: "128Mi"
@@ -61,4 +61,4 @@ spec:
                   name: trade-credentials
                   key: binance_secret
             - name: ESB_AMQ_ADDRESS
-              value: tcp://bid-speculator-svc.default.svc.cluster.local:6061
+              value: tcp://esb-svc.default.svc.cluster.local:61616
