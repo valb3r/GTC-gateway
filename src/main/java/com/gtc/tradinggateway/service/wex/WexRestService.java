@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static com.gtc.tradinggateway.config.Const.Clients.WEX;
 
 /**
+ * All functions except create (which simply jumps in priority) are synchronized due to nonce requirement.
  * Done orders will appear in /OrderInfo (no need for extra check).
  * Validated basic functionality (create, get, get all, cancel)
  * 05.03.2018
@@ -44,6 +45,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.WEX;
 public class WexRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
     private static final AtomicLong NONCE = new AtomicLong(System.currentTimeMillis() - 1520154667151L);
+    private static final int PRIO_STEP = 5;
 
     private static final String BALANCES = "getInfo";
     private static final String CREATE = "Trade";
@@ -57,7 +59,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
 
     @Override
     @SneakyThrows
-    public Map<TradingCurrency, BigDecimal> balances() {
+    public synchronized Map<TradingCurrency, BigDecimal> balances() {
         BaseWexRequest request = new BaseWexRequest(nonce(), BALANCES);
         ResponseEntity<WexBalancesDto> resp = cfg.getRestTemplate()
                 .exchange(
@@ -77,14 +79,19 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
         return results;
     }
 
+    /**
+     * Uses priority mechanism instead of synchronized - invalidates #PRIO_STEP requests before it and jumps ahead.
+     * This way we can execute it immediately out of sync. Hopefully 2 create requests will not collide.
+     */
     @Override
-    public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
-                                            BigDecimal amount, BigDecimal price) {
+    public Optional<OrderCreatedDto> create(
+            String tryToAssignId, TradingCurrency from, TradingCurrency to, BigDecimal amount, BigDecimal price) {
         PairSymbol pair = cfg.pairFromCurrency(from, to)
                 .orElseThrow(() -> new IllegalStateException("Unsupported pair"));
+
         BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pair, amount, price);
         BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pair, price);
-        WexCreateOrder request = new WexCreateOrder(nonce(), CREATE, pair.getSymbol(),
+        WexCreateOrder request = new WexCreateOrder(nonce(PRIO_STEP), CREATE, pair.getSymbol(),
                 DefaultInvertHandler.amountToBuyOrSell(calcAmount),
                 calcPrice,
                 calcAmount.abs()
@@ -108,7 +115,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     }
 
     @Override
-    public Optional<OrderDto> get(String id) {
+    public synchronized Optional<OrderDto> get(String id) {
         WexGetRequest request = new WexGetRequest(nonce(), GET, Long.valueOf(id));
         ResponseEntity<WexGetResponse> resp = cfg.getRestTemplate()
                 .exchange(
@@ -123,7 +130,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     }
 
     @Override
-    public List<OrderDto> getOpen() {
+    public synchronized List<OrderDto> getOpen() {
         WexGetOpenRequest request = new WexGetOpenRequest(nonce(), GET_OPEN);
         ResponseEntity<WexGetOpenResponse> resp = cfg.getRestTemplate()
                 .exchange(
@@ -138,7 +145,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     }
 
     @Override
-    public void cancel(String id) {
+    public synchronized void cancel(String id) {
         WexCancelOrderRequest request = new WexCancelOrderRequest(nonce(), CANCEL, Long.valueOf(id));
         ResponseEntity<WexCancelOrderResponse> resp = cfg.getRestTemplate()
                 .exchange(
@@ -153,7 +160,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     }
 
     @Override
-    public void withdraw(TradingCurrency currency, BigDecimal amount, String destination) {
+    public synchronized void withdraw(TradingCurrency currency, BigDecimal amount, String destination) {
         // NOTE: WEX requires special API key permissions for doing that
         WexWithdrawRequest request = new WexWithdrawRequest(
                 nonce(),
@@ -184,7 +191,11 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
 
     @VisibleForTesting
     protected int nonce() {
+        return nonce(1);
+    }
+
+    private int nonce(int step) {
         // most probably we don't do 1 request per ms, so initial value will be always fine
-        return (int) NONCE.incrementAndGet();
+        return (int) NONCE.addAndGet(step);
     }
 }
