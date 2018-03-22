@@ -22,6 +22,8 @@ public abstract class AbstractMessage implements Serializable {
 
     protected abstract String getHeader();
 
+    private final long createdTimestamp = System.currentTimeMillis();
+
     @NotBlank
     private String clientName;
 

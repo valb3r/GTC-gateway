@@ -181,7 +181,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     public String name() {
         return WEX;
     }
-    
+
     @VisibleForTesting
     protected int nonce() {
         // most probably we don't do 1 request per ms, so initial value will be always fine
