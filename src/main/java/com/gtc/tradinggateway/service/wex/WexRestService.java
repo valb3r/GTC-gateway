@@ -4,6 +4,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.tradinggateway.aspect.rate.IgnoreRateLimited;
 import com.gtc.tradinggateway.aspect.rate.RateLimited;
+import com.gtc.tradinggateway.aspect.synchroniz.Asynchronous;
+import com.gtc.tradinggateway.aspect.synchroniz.LockAndProceed;
+import com.gtc.tradinggateway.aspect.synchroniz.Synchronous;
 import com.gtc.tradinggateway.config.WexConfig;
 import com.gtc.tradinggateway.meta.PairSymbol;
 import com.gtc.tradinggateway.meta.TradingCurrency;
@@ -41,6 +44,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.WEX;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Synchronous
 @RateLimited(ratePerMinute = "${app.wex.ratePerM}", mode = RateLimited.Mode.CLASS)
 public class WexRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
@@ -59,7 +63,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
 
     @Override
     @SneakyThrows
-    public synchronized Map<TradingCurrency, BigDecimal> balances() {
+    public Map<TradingCurrency, BigDecimal> balances() {
         BaseWexRequest request = new BaseWexRequest(nonce(), BALANCES);
         ResponseEntity<WexBalancesDto> resp = cfg.getRestTemplate()
                 .exchange(
@@ -84,6 +88,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
      * This way we can execute it immediately out of sync. Hopefully 2 create requests will not collide.
      */
     @Override
+    @LockAndProceed
     public Optional<OrderCreatedDto> create(
             String tryToAssignId, TradingCurrency from, TradingCurrency to, BigDecimal amount, BigDecimal price) {
         PairSymbol pair = cfg.pairFromCurrency(from, to)
@@ -115,7 +120,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     }
 
     @Override
-    public synchronized Optional<OrderDto> get(String id) {
+    public Optional<OrderDto> get(String id) {
         WexGetRequest request = new WexGetRequest(nonce(), GET, Long.valueOf(id));
         ResponseEntity<WexGetResponse> resp = cfg.getRestTemplate()
                 .exchange(
@@ -130,7 +135,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     }
 
     @Override
-    public synchronized List<OrderDto> getOpen() {
+    public List<OrderDto> getOpen() {
         WexGetOpenRequest request = new WexGetOpenRequest(nonce(), GET_OPEN);
         ResponseEntity<WexGetOpenResponse> resp = cfg.getRestTemplate()
                 .exchange(
@@ -145,7 +150,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     }
 
     @Override
-    public synchronized void cancel(String id) {
+    public void cancel(String id) {
         WexCancelOrderRequest request = new WexCancelOrderRequest(nonce(), CANCEL, Long.valueOf(id));
         ResponseEntity<WexCancelOrderResponse> resp = cfg.getRestTemplate()
                 .exchange(
@@ -160,7 +165,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     }
 
     @Override
-    public synchronized void withdraw(TradingCurrency currency, BigDecimal amount, String destination) {
+    public void withdraw(TradingCurrency currency, BigDecimal amount, String destination) {
         // NOTE: WEX requires special API key permissions for doing that
         WexWithdrawRequest request = new WexWithdrawRequest(
                 nonce(),
@@ -184,6 +189,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     }
 
     @Override
+    @Asynchronous
     @IgnoreRateLimited
     public String name() {
         return WEX;
