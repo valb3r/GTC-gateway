@@ -28,6 +28,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static com.gtc.tradinggateway.config.Const.Clients.WEX;
 
@@ -42,7 +43,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.WEX;
 @RateLimited(ratePerMinute = "${app.wex.ratePerM}", mode = RateLimited.Mode.CLASS)
 public class WexRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
-    private static final long NONCE_BEGIN = 1520154667151L;
+    private static final AtomicLong NONCE = new AtomicLong(System.currentTimeMillis() - 1520154667151L);
 
     private static final String BALANCES = "getInfo";
     private static final String CREATE = "Trade";
@@ -180,10 +181,10 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     public String name() {
         return WEX;
     }
-
-    // sufficient for 99.4 days and rate 1000 r/s - it has max of 2^32 as per docs
+    
     @VisibleForTesting
     protected int nonce() {
-        return (int) (System.currentTimeMillis() - NONCE_BEGIN);
+        // most probably we don't do 1 request per ms, so initial value will be always fine
+        return (int) NONCE.incrementAndGet();
     }
 }
