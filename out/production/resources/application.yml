@@ -1,0 +1,127 @@
+spring:
+    application:
+        name: gtc-trading-gateway
+    jackson:
+        property-naming-strategy: SNAKE_CASE
+        locale: en_US
+        serialization:
+            fail-on-empty-beans: false
+            write_dates_as_timestamps: false
+    activemq:
+        broker-url: ${ESB_AMQ_ADDRESS}
+        non-blocking-redelivery: true
+        pool:
+            block-if-full: true
+            block-if-full-timeout: -1
+            create-connection-on-startup: true
+            enabled: true
+            expiry-timeout: 10000
+            idle-timeout: 30000
+            max-connections: 1
+            maximum-active-session-per-connection: 500
+            reconnect-on-exception: true
+            time-between-expiration-check: -1
+            use-anonymous-producers: true
+        packages:
+            trusted: com.gtc.model,java.time,java.math,java.util
+    jms:
+        template:
+            time-to-live: 5000
+server:
+    servlet-path: /api
+    port: 8084
+app:
+    gdax:
+        restBase:
+        wsBase:
+        passphrase: ${GDAX_PASSPHRASE}
+        publicKey: ${GDAX_PUBLIC}
+        secretKey: ${GDAX_SECRET}
+        pairs:
+            BTC-USD=BTC-USD,
+            LTC-BTC=LTC-BTC,
+            XMR-BTC=XMR-BTC
+        ratePerM: 60
+    binance:
+        restBase: "https://api.binance.com"
+        passphrase: ${BINANCE_PASSPHRASE}
+        publicKey: ${BINANCE_PUBLIC}
+        secretKey: ${BINANCE_SECRET}
+        pairs:
+            BTC-USD=BTCUSD,
+            LTC-BTC=LTCBTC,
+            XMR-BTC=XMRBTC,
+            DASH-BTC=DASHBTC
+        ratePerM: 60
+    bitfinex:
+        restBase: "https://api.bitfinex.com"
+        wsBase: "wss://api.bitfinex.com/ws/2"
+        passphrase: ${BITFINEX_PASSPHRASE}
+        publicKey: ${BITFINEX_PUBLIC}
+        secretKey: ${BITFINEX_SECRET}
+        pairs:
+            BTC-USD=BTCUSD,
+            LTC-BTC=LTCBTC,
+            XMR-BTC=XMRBTC,
+            DASH-BTC=DASHBTC
+        symbols:
+            BTC=bitcoin,
+            LTC=litecoin,
+            XMR=monero
+        ratePerM: 60
+    hitbtc:
+        restBase: "https://api.hitbtc.com/api/2"
+        wsBase: "wss://api.hitbtc.com/api/2/ws"
+        publicKey: ${HITBTC_PUBLIC}
+        secretKey: ${HITBTC_SECRET}
+        pairs:
+            BTC-USD=BTCUSD,
+            LTC-BTC=LTCBTC,
+            XMR-BTC=XMRBTC,
+            DASH-BTC=DASHBTC
+        ratePerM: 60
+    wex:
+        restBase: "https://wex.nz/tapi"
+        publicKey: ${WEX_PUBLIC}
+        secretKey: ${WEX_SECRET}
+        pairs:
+            BTC-USD=btc_usd,
+            LTC-BTC=ltc_btc,
+            DASH-BTC=dsh_btc,
+            DASH-LTC=dsh_ltc
+        customResponseCurrencyMapping:
+            dsh=DASH
+        ratePerM: 60
+    mock:
+        restBase: "http://localhost:9090/api"
+        publicKey: trade-gateway
+        pairs:
+            BTC-USDT=BTCUSDT
+        customResponseCurrencyMapping:
+            Bitcoin=BTC,
+            Tether=USDT
+        ratePerM: 60
+    clients:
+        # all-clients: binance,wex,hitbtc
+        # mocks (need MOCK_ENABLED as true): mock-asia,mock-europe
+        active: bitfinex #binance,wex,hitbtc
+    schedule:
+        puppeteerS: 10
+    jms:
+        queue:
+            in:
+                account: account
+                create: create
+                manage: manage
+                withdraw: withdraw
+        vtopic:
+            out:
+                account: VirtualTopic.account
+                create: VirtualTopic.create
+                manage: VirtualTopic.manage
+                withdraw: VirtualTopic.withdraw
+    async:
+        pool:
+            core: 10
+            max: 50
+

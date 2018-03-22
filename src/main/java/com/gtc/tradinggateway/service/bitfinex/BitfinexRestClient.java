@@ -1,6 +1,8 @@
 package com.gtc.tradinggateway.service.bitfinex;
 
 import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
+import com.gtc.tradinggateway.aspect.rate.IgnoreRateLimited;
+import com.gtc.tradinggateway.aspect.rate.RateLimited;
 import com.gtc.tradinggateway.config.BitfinexConfig;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.Account;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.gtc.tradinggateway.config.Const.Clients.BITFINEX;
 
@@ -25,6 +28,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.BITFINEX;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@RateLimited(ratePerMinute = "${app.bitfinex.ratePerM}", mode = RateLimited.Mode.CLASS)
 public class BitfinexRestClient implements Withdraw, ManageOrders, Account {
 
     private static String SELL = "sell";
@@ -59,11 +63,7 @@ public class BitfinexRestClient implements Withdraw, ManageOrders, Account {
                         new HttpEntity<>(signer.restHeaders(requestDto)),
                         BitfinexOrderDto[].class);
         BitfinexOrderDto[] orders = resp.getBody();
-        List<OrderDto> result = new ArrayList<>();
-        for (BitfinexOrderDto order : orders) {
-            result.add(parseOrderDto(order));
-        }
-        return result;
+        return Arrays.stream(orders).map(this::parseOrderDto).collect(Collectors.toList());
     }
 
     public void cancel(String id) {
@@ -103,7 +103,7 @@ public class BitfinexRestClient implements Withdraw, ManageOrders, Account {
                 continue;
             }
             try {
-                results.put(TradingCurrency.fromCode(asset.getCurrency()), asset.getAmount());
+                results.put(TradingCurrency.fromCode(asset.getCurrency().toUpperCase()), asset.getAmount());
             } catch (RuntimeException ex) {
                 log.error(
                         "Failed mapping currency-code {} having amount {}",
@@ -117,7 +117,7 @@ public class BitfinexRestClient implements Withdraw, ManageOrders, Account {
         return OrderDto.builder()
                 .orderId(response.getId())
                 .size(SELL.equals(response.getSide())
-                        ? response.getAmount().multiply(new BigDecimal(-1))
+                        ? response.getAmount().negate()
                         : response.getAmount())
                 .price(response.getPrice())
                 .status(response.getStatus())
@@ -125,6 +125,7 @@ public class BitfinexRestClient implements Withdraw, ManageOrders, Account {
     }
 
     @Override
+    @IgnoreRateLimited
     public String name() {
         return BITFINEX;
     }

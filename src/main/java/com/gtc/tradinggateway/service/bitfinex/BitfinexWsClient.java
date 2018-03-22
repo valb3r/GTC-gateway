@@ -13,6 +13,7 @@ import com.gtc.tradinggateway.service.bitfinex.dto.BitfinexAuthWsRequestDto;
 import com.gtc.tradinggateway.service.bitfinex.dto.BitfinexAuthWsResponseDto;
 import com.gtc.tradinggateway.service.bitfinex.dto.BitfinexCreateOrderWsDto;
 import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
+import com.gtc.tradinggateway.util.DefaultInvertHandler;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -37,6 +38,8 @@ public class BitfinexWsClient extends BaseWsClient implements CreateOrder {
     private static String AUTH_EVENT = "auth";
     private static String NEW_ORDER_EVENT = "on";
     private static String SUCCESS_STATUS = "OK";
+    private static int ORDER_EVENT_TYPE_POS = 1;
+    private static int ORDER_EVENT_DATA_POS = 3;
 
     private final BitfinexConfig cfg;
     private final BitfinexEncryptionService signer;
@@ -64,19 +67,15 @@ public class BitfinexWsClient extends BaseWsClient implements CreateOrder {
         if (AUTH_EVENT.equals(node.get(EVENT_ALIAS).asText())) {
             BitfinexAuthWsResponseDto authEvent = objectMapper.readerFor(BitfinexAuthWsResponseDto.class)
                     .readValue(node);
-            if (SUCCESS_STATUS.equals(authEvent.getStatus())) {
-                isLoggedIn.set(true);
-            } else {
-                isLoggedIn.set(false);
-            }
+            isLoggedIn.set(SUCCESS_STATUS.equals(authEvent.getStatus()));
         }
     }
 
     @SneakyThrows
     protected void parseArray(JsonNode node) {
-        if (NEW_ORDER_EVENT.equals(node.get(1).asText())) {
+        if (NEW_ORDER_EVENT.equals(node.get(ORDER_EVENT_TYPE_POS).asText())) {
             BitfinexCreateOrderWsDto dto = objectMapper.readerFor(BitfinexCreateOrderWsDto.class)
-                    .readValue(node.get(3));
+                    .readValue(node.get(ORDER_EVENT_DATA_POS));
             // TODO: order created event
         }
     }
@@ -113,14 +112,13 @@ public class BitfinexWsClient extends BaseWsClient implements CreateOrder {
         }
         PairSymbol pairSym = pair.get();
         if (pairSym.getIsInverted()) {
-            BigDecimal reverse = new BigDecimal(1);
-            amount = reverse.divide(amount);
-            price = reverse.divide(price);
+            amount = DefaultInvertHandler.amountFromOrig(pairSym, amount, price);
+            price = DefaultInvertHandler.priceFromOrig(pairSym, price);
         }
 
         ObjectWebSocketSender sender = rxConnected.get().sender();
         BitfinexCreateOrderWsDto requestDto =
-                new BitfinexCreateOrderWsDto(tryToAssignId, pair.toString(), amount, price);
+                new BitfinexCreateOrderWsDto(tryToAssignId, pairSym.toString(), amount, price);
 
         RxMoreObservables
                 .sendObjectMessage(sender, requestDto)

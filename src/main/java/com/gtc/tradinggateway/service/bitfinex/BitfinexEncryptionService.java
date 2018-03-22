@@ -4,8 +4,10 @@ import com.google.common.collect.ImmutableMap;
 import com.gtc.tradinggateway.config.BitfinexConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.apache.commons.codec.binary.Hex;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import sun.nio.cs.StandardCharsets;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -46,23 +48,11 @@ public class BitfinexEncryptionService {
 
     @SneakyThrows
     public String generateSignature(String msg, String keyString) {
-        String digest;
         SecretKeySpec key = new SecretKeySpec((keyString).getBytes("UTF-8"), METHOD);
         Mac mac = Mac.getInstance(METHOD);
         mac.init(key);
 
-        byte[] bytes = mac.doFinal(msg.getBytes("ASCII"));
-
-        StringBuffer hash = new StringBuffer();
-        for (int i = 0; i < bytes.length; i++) {
-            String hex = Integer.toHexString(0xFF & bytes[i]);
-            if (hex.length() == 1) {
-                hash.append('0');
-            }
-            hash.append(hex);
-        }
-        digest = hash.toString();
-        return digest;
+        return new String(Hex.encodeHex(mac.doFinal(msg.getBytes("UTF-8"))));
     }
 
     public HttpHeaders restHeaders(Object request) {

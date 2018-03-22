@@ -1,0 +1,322 @@
+{
+  "hints": [],
+  "groups": [
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BinanceConfig",
+      "name": "app.binance",
+      "type": "com.gtc.tradinggateway.config.BinanceConfig"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BitfinexConfig",
+      "name": "app.bitfinex",
+      "type": "com.gtc.tradinggateway.config.BitfinexConfig"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.ClientsConf",
+      "name": "app.clients",
+      "type": "com.gtc.tradinggateway.config.ClientsConf"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.GdaxConfig",
+      "name": "app.gdax",
+      "type": "com.gtc.tradinggateway.config.GdaxConfig"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.HitbtcConfig",
+      "name": "app.hitbtc",
+      "type": "com.gtc.tradinggateway.config.HitbtcConfig"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.MockExchangeConfig",
+      "name": "app.mock",
+      "type": "com.gtc.tradinggateway.config.MockExchangeConfig"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.WexConfig",
+      "name": "app.wex",
+      "type": "com.gtc.tradinggateway.config.WexConfig"
+    }
+  ],
+  "properties": [
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BinanceConfig",
+      "name": "app.binance.custom-response-currency-mapping",
+      "type": "java.util.Map<java.lang.String,java.lang.String>"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BinanceConfig",
+      "name": "app.binance.mapper",
+      "type": "com.fasterxml.jackson.databind.ObjectMapper"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BinanceConfig",
+      "name": "app.binance.pairs",
+      "type": "java.util.Map<java.lang.String,com.gtc.tradinggateway.meta.PairSymbol>"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BinanceConfig",
+      "name": "app.binance.passphrase",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BinanceConfig",
+      "name": "app.binance.public-key",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BinanceConfig",
+      "name": "app.binance.rest-base",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BinanceConfig",
+      "name": "app.binance.rest-template",
+      "type": "org.springframework.web.client.RestTemplate"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BinanceConfig",
+      "name": "app.binance.secret-key",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BinanceConfig",
+      "name": "app.binance.ws-base",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BitfinexConfig",
+      "name": "app.bitfinex.custom-response-currency-mapping",
+      "type": "java.util.Map<java.lang.String,java.lang.String>"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BitfinexConfig",
+      "name": "app.bitfinex.mapper",
+      "type": "com.fasterxml.jackson.databind.ObjectMapper"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BitfinexConfig",
+      "name": "app.bitfinex.pairs",
+      "type": "java.util.Map<java.lang.String,com.gtc.tradinggateway.meta.PairSymbol>"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BitfinexConfig",
+      "name": "app.bitfinex.passphrase",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BitfinexConfig",
+      "name": "app.bitfinex.public-key",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BitfinexConfig",
+      "name": "app.bitfinex.rest-base",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BitfinexConfig",
+      "name": "app.bitfinex.rest-template",
+      "type": "org.springframework.web.client.RestTemplate"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BitfinexConfig",
+      "name": "app.bitfinex.secret-key",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BitfinexConfig",
+      "name": "app.bitfinex.symbols",
+      "type": "java.util.Map<com.gtc.tradinggateway.meta.TradingCurrency,java.lang.String>"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BitfinexConfig",
+      "name": "app.bitfinex.ws-base",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.ClientsConf",
+      "name": "app.clients.active",
+      "type": "java.util.List<java.lang.String>"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.GdaxConfig",
+      "name": "app.gdax.custom-response-currency-mapping",
+      "type": "java.util.Map<java.lang.String,java.lang.String>"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.GdaxConfig",
+      "name": "app.gdax.mapper",
+      "type": "com.fasterxml.jackson.databind.ObjectMapper"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.GdaxConfig",
+      "name": "app.gdax.pairs",
+      "type": "java.util.Map<java.lang.String,com.gtc.tradinggateway.meta.PairSymbol>"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.GdaxConfig",
+      "name": "app.gdax.passphrase",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.GdaxConfig",
+      "name": "app.gdax.public-key",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.GdaxConfig",
+      "name": "app.gdax.rest-base",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.GdaxConfig",
+      "name": "app.gdax.rest-template",
+      "type": "org.springframework.web.client.RestTemplate"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.GdaxConfig",
+      "name": "app.gdax.secret-key",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.GdaxConfig",
+      "name": "app.gdax.ws-base",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.HitbtcConfig",
+      "name": "app.hitbtc.custom-response-currency-mapping",
+      "type": "java.util.Map<java.lang.String,java.lang.String>"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.HitbtcConfig",
+      "name": "app.hitbtc.mapper",
+      "type": "com.fasterxml.jackson.databind.ObjectMapper"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.HitbtcConfig",
+      "name": "app.hitbtc.pairs",
+      "type": "java.util.Map<java.lang.String,com.gtc.tradinggateway.meta.PairSymbol>"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.HitbtcConfig",
+      "name": "app.hitbtc.passphrase",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.HitbtcConfig",
+      "name": "app.hitbtc.public-key",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.HitbtcConfig",
+      "name": "app.hitbtc.rest-base",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.HitbtcConfig",
+      "name": "app.hitbtc.rest-template",
+      "type": "org.springframework.web.client.RestTemplate"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.HitbtcConfig",
+      "name": "app.hitbtc.secret-key",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.HitbtcConfig",
+      "name": "app.hitbtc.ws-base",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.MockExchangeConfig",
+      "name": "app.mock.custom-response-currency-mapping",
+      "type": "java.util.Map<java.lang.String,java.lang.String>"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.MockExchangeConfig",
+      "name": "app.mock.mapper",
+      "type": "com.fasterxml.jackson.databind.ObjectMapper"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.MockExchangeConfig",
+      "name": "app.mock.pairs",
+      "type": "java.util.Map<java.lang.String,com.gtc.tradinggateway.meta.PairSymbol>"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.MockExchangeConfig",
+      "name": "app.mock.passphrase",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.MockExchangeConfig",
+      "name": "app.mock.public-key",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.MockExchangeConfig",
+      "name": "app.mock.rest-base",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.MockExchangeConfig",
+      "name": "app.mock.rest-template",
+      "type": "org.springframework.web.client.RestTemplate"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.MockExchangeConfig",
+      "name": "app.mock.secret-key",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.MockExchangeConfig",
+      "name": "app.mock.ws-base",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.WexConfig",
+      "name": "app.wex.custom-response-currency-mapping",
+      "type": "java.util.Map<java.lang.String,java.lang.String>"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.WexConfig",
+      "name": "app.wex.mapper",
+      "type": "com.fasterxml.jackson.databind.ObjectMapper"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.WexConfig",
+      "name": "app.wex.pairs",
+      "type": "java.util.Map<java.lang.String,com.gtc.tradinggateway.meta.PairSymbol>"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.WexConfig",
+      "name": "app.wex.passphrase",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.WexConfig",
+      "name": "app.wex.public-key",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.WexConfig",
+      "name": "app.wex.rest-base",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.WexConfig",
+      "name": "app.wex.rest-template",
+      "type": "org.springframework.web.client.RestTemplate"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.WexConfig",
+      "name": "app.wex.secret-key",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.WexConfig",
+      "name": "app.wex.ws-base",
+      "type": "java.lang.String"
+    }
+  ]
+}
