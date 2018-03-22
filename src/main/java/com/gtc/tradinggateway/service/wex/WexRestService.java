@@ -181,9 +181,9 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
         return WEX;
     }
 
-    // sufficient for 9940 days and rate 10 r/s - it has max of 2^32 as per docs
+    // sufficient for 994 days and rate 100 r/s - it has max of 2^32 as per docs
     @VisibleForTesting
     protected int nonce() {
-        return (int) ((System.currentTimeMillis() - NONCE_BEGIN) / 100);
+        return (int) ((System.currentTimeMillis() - NONCE_BEGIN) / 10);
     }
 }
