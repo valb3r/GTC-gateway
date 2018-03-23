@@ -125,11 +125,11 @@ public class BitfinexRestClient implements Withdraw, ManageOrders, Account, Crea
 
     private OrderStatus getOrderStatus(BitfinexOrderDto response) {
         OrderStatus result = OrderStatus.NEW;
-        if (response.getIsCancelled()) {
+        if (response.isCancelled()) {
             result = OrderStatus.CANCELED;
-        } else if (!response.getIsActive()) {
+        } else if (!response.isActive()) {
             result = OrderStatus.FILLED;
-        } else if (response.getExecutedAmount() > 0) {
+        } else if (response.getExecutedAmount().compareTo(BigDecimal.ZERO) > 0) {
             return OrderStatus.PARTIALLY_FILLED;
         }
         return result;
@@ -166,7 +166,7 @@ public class BitfinexRestClient implements Withdraw, ManageOrders, Account, Crea
 
         return Optional.of(
                 OrderCreatedDto.builder()
-                        .assignedId(result.getSymbol() + "." + result.getId())
+                        .assignedId(result.getId())
                         .build()
         );
     }
