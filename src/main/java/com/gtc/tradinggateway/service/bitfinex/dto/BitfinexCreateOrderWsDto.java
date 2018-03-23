@@ -16,8 +16,15 @@ public class BitfinexCreateOrderWsDto {
     private String type = "EXCHANGE LIMIT";
 
     @JsonProperty("cid")
-    private final String id;
-    private final String symbol;
-    private final BigDecimal amount;
-    private final BigDecimal price;
+    private long id;
+    private String symbol;
+    private String amount;
+    private String price;
+
+    public BitfinexCreateOrderWsDto(String id, String symbol, BigDecimal amount, BigDecimal price) {
+        this.id = Long.parseLong(id);
+        this.symbol = "t" + symbol;
+        this.amount = amount.toString();
+        this.price = price.toString();
+    }
 }

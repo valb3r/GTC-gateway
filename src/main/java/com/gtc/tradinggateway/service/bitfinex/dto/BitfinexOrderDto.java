@@ -17,8 +17,15 @@ public class BitfinexOrderDto {
     private BigDecimal price;
     private String side;
 
-    private OrderStatus status;
+    @JsonProperty("is_live")
+    private boolean isActive;
+
+    @JsonProperty("is_cancelled")
+    private boolean isCancelled;
 
     @JsonProperty("remaining_amount")
     private BigDecimal amount;
+
+    @JsonProperty("executed_amount")
+    private BigDecimal executedAmount;
 }

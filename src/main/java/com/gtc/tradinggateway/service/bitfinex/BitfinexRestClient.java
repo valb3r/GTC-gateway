@@ -1,15 +1,22 @@
 package com.gtc.tradinggateway.service.bitfinex;
 
 import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
+import com.gtc.model.tradinggateway.api.dto.data.OrderStatus;
 import com.gtc.tradinggateway.aspect.rate.IgnoreRateLimited;
 import com.gtc.tradinggateway.aspect.rate.RateLimited;
 import com.gtc.tradinggateway.config.BitfinexConfig;
+import com.gtc.tradinggateway.meta.PairSymbol;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.Account;
+import com.gtc.tradinggateway.service.CreateOrder;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.bitfinex.dto.*;
+import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
+import com.gtc.tradinggateway.util.CodeMapper;
+import com.gtc.tradinggateway.util.DefaultInvertHandler;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -29,12 +36,13 @@ import static com.gtc.tradinggateway.config.Const.Clients.BITFINEX;
 @Service
 @RequiredArgsConstructor
 @RateLimited(ratePerMinute = "${app.bitfinex.ratePerM}", mode = RateLimited.Mode.CLASS)
-public class BitfinexRestClient implements Withdraw, ManageOrders, Account {
+public class BitfinexRestClient implements Withdraw, ManageOrders, Account, CreateOrder {
 
     private static String SELL = "sell";
     private static String ORDERS = "/v1/orders";
     private static String ORDER = "/v1/order/status";
     private static String ORDER_CANCEL = "/v1/order/cancel";
+    private static String ORDER_NEW = "/v1/order/new";
     private static String WITHDRAW = "/v1/withdraw";
     private static String BALANCE = "/v1/balances";
 
@@ -78,7 +86,7 @@ public class BitfinexRestClient implements Withdraw, ManageOrders, Account {
 
     public void withdraw(TradingCurrency currency, BigDecimal amount, String destination) {
         BitfinexWithdrawRequestDto requestDto =
-                new BitfinexWithdrawRequestDto(WITHDRAW, cfg.getSymbols().get(currency), amount, destination);
+                new BitfinexWithdrawRequestDto(WITHDRAW, cfg.getCustomCurrencyName().get(currency), amount, destination);
         cfg.getRestTemplate()
                 .exchange(
                         cfg.getRestBase() + WITHDRAW,
@@ -98,18 +106,9 @@ public class BitfinexRestClient implements Withdraw, ManageOrders, Account {
 
         Map<TradingCurrency, BigDecimal> results = new EnumMap<>(TradingCurrency.class);
         BitfinexBalanceItemDto[] assets = resp.getBody();
-        for (BitfinexBalanceItemDto asset : assets) {
-            if (!EXCHANGE_TYPE.equals(asset.getType())) {
-                continue;
-            }
-            try {
-                results.put(TradingCurrency.fromCode(asset.getCurrency().toUpperCase()), asset.getAmount());
-            } catch (RuntimeException ex) {
-                log.error(
-                        "Failed mapping currency-code {} having amount {}",
-                        asset.getCurrency().toString(), String.valueOf(asset.getAmount()));
-            }
-        }
+        Arrays.stream(assets)
+                .filter(it -> EXCHANGE_TYPE.equals(it.getType()))
+                .forEach(it -> CodeMapper.mapAndPut(it.getCurrency(), it.getAmount(), cfg, results));
         return results;
     }
 
@@ -120,8 +119,56 @@ public class BitfinexRestClient implements Withdraw, ManageOrders, Account {
                         ? response.getAmount().negate()
                         : response.getAmount())
                 .price(response.getPrice())
-                .status(response.getStatus())
+                .status(getOrderStatus(response))
                 .build();
+    }
+
+    private OrderStatus getOrderStatus(BitfinexOrderDto response) {
+        OrderStatus result = OrderStatus.NEW;
+        if (response.getIsCancelled()) {
+            result = OrderStatus.CANCELED;
+        } else if (!response.getIsActive()) {
+            result = OrderStatus.FILLED;
+        } else if (response.getExecutedAmount() > 0) {
+            return OrderStatus.PARTIALLY_FILLED;
+        }
+        return result;
+    }
+
+    @SneakyThrows
+    public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
+                                            BigDecimal amount, BigDecimal price) {
+        PairSymbol pair = cfg.pairFromCurrency(from, to).orElseThrow(() -> new IllegalArgumentException(
+                "Pair from " + from.toString() + " to " + to.toString() + " is not supported")
+        );
+
+        BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pair, amount, price);
+        BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pair, price);
+
+        BitfinexCreateOrderRequestDto requestDto = new BitfinexCreateOrderRequestDto(
+                ORDER_NEW,
+                pair.toString(),
+                DefaultInvertHandler.amountToBuyOrSell(calcAmount),
+                calcAmount.abs(),
+                calcPrice
+        );
+
+        log.info(cfg.getMapper().writeValueAsString(requestDto));
+
+        ResponseEntity<BitfinexOrderDto> resp = cfg.getRestTemplate()
+                .exchange(
+                        cfg.getRestBase() + ORDER_NEW,
+                        HttpMethod.POST,
+                        new HttpEntity<>(signer.restHeaders(requestDto)),
+                        BitfinexOrderDto.class);
+
+        BitfinexOrderDto result = resp.getBody();
+
+        return Optional.of(
+                OrderCreatedDto.builder()
+                        .assignedId(result.getSymbol() + "." + result.getId())
+                        .build()
+        );
     }
 
     @Override

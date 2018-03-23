@@ -85,6 +85,11 @@
     },
     {
       "sourceType": "com.gtc.tradinggateway.config.BitfinexConfig",
+      "name": "app.bitfinex.custom-currency-name",
+      "type": "java.util.Map<com.gtc.tradinggateway.meta.TradingCurrency,java.lang.String>"
+    },
+    {
+      "sourceType": "com.gtc.tradinggateway.config.BitfinexConfig",
       "name": "app.bitfinex.custom-response-currency-mapping",
       "type": "java.util.Map<java.lang.String,java.lang.String>"
     },
@@ -122,11 +127,6 @@
       "sourceType": "com.gtc.tradinggateway.config.BitfinexConfig",
       "name": "app.bitfinex.secret-key",
       "type": "java.lang.String"
-    },
-    {
-      "sourceType": "com.gtc.tradinggateway.config.BitfinexConfig",
-      "name": "app.bitfinex.symbols",
-      "type": "java.util.Map<com.gtc.tradinggateway.meta.TradingCurrency,java.lang.String>"
     },
     {
       "sourceType": "com.gtc.tradinggateway.config.BitfinexConfig",

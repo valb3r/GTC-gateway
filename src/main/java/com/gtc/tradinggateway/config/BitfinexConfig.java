@@ -22,19 +22,6 @@ import static com.gtc.tradinggateway.config.Const.Clients.BITFINEX;
 @ConfigurationProperties(CONF_ROOT_CHILD + BITFINEX)
 public class BitfinexConfig extends BaseConfig {
 
-    protected Map<TradingCurrency, String> symbols;
-
-    public void setSymbols(List<String> list) {
-        symbols = list.stream()
-                .collect(
-                        HashMap::new,
-                        (HashMap<TradingCurrency, String> map, String val) -> {
-                            String[] pair = val.split("=");
-                            map.put(TradingCurrency.fromCode(pair[0]), pair[1]);
-                        },
-                        HashMap::putAll);
-    }
-
     public BitfinexConfig(ConfigFactory factory) {
         mapper = factory.defaultMapper();
         restTemplate = factory.defaultRestTemplate(mapper);

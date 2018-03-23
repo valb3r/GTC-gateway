@@ -64,7 +64,7 @@ app:
             LTC-BTC=LTCBTC,
             XMR-BTC=XMRBTC,
             DASH-BTC=DASHBTC
-        symbols:
+        customCurrencyName:
             BTC=bitcoin,
             LTC=litecoin,
             XMR=monero
