@@ -27,6 +27,8 @@ spring:
     jms:
         template:
             time-to-live: 5000
+            qos-enabled: true
+            delivery-mode: persistent
 server:
     servlet-path: /api
     port: 8084
