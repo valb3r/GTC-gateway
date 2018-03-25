@@ -49,7 +49,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.WEX;
 public class WexRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
     private static final AtomicLong NONCE = new AtomicLong(System.currentTimeMillis() - 1520154667151L);
-    private static final int PRIO_STEP = 5;
+    private static final int PRIO_STEP = 25;
 
     private static final String BALANCES = "getInfo";
     private static final String CREATE = "Trade";
