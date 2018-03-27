@@ -78,6 +78,15 @@ app:
         customResponseCurrencyMapping:
             dsh=DASH
         ratePerM: 60
+    huobi:
+        restBase: "https://wex.nz/tapi"
+        publicKey: ${HUOBI_PUBLIC}
+        secretKey: ${HUOBI_SECRET}
+        pairs:
+            BTC-USD=btc_usd,
+            LTC-BTC=ltc_btc,
+            DASH-BTC=dsh_btc,
+            DASH-LTC=dsh_ltc
     mock:
         restBase: "http://localhost:9090/api"
         publicKey: trade-gateway
