@@ -1,14 +1,14 @@
 package com.gtc.tradinggateway.service.bitfinex.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 
 /**
  * Created by mikro on 20.02.2018.
  */
-@Data
+@Getter
 public class BitfinexWithdrawRequestDto extends BitfinexRequestDto {
 
     @JsonProperty("withdraw_type")

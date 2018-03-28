@@ -1,12 +1,12 @@
 package com.gtc.tradinggateway.service.bitfinex.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.Getter;
 
 /**
  * Created by mikro on 20.02.2018.
  */
-@Data
+@Getter
 public class BitfinexGetOrderRequestDto extends BitfinexRequestDto {
 
     @JsonProperty("order_id")

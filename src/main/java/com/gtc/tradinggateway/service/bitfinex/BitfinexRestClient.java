@@ -39,15 +39,15 @@ import static com.gtc.tradinggateway.config.Const.Clients.BITFINEX;
 @RateLimited(ratePerMinute = "${app.bitfinex.ratePerM}", mode = RateLimited.Mode.CLASS)
 public class BitfinexRestClient implements Withdraw, ManageOrders, Account, CreateOrder {
 
-    private static String SELL = "sell";
-    private static String ORDERS = "/v1/orders";
-    private static String ORDER = "/v1/order/status";
-    private static String ORDER_CANCEL = "/v1/order/cancel";
-    private static String ORDER_NEW = "/v1/order/new";
-    private static String WITHDRAW = "/v1/withdraw";
-    private static String BALANCE = "/v1/balances";
+    private static final String SELL = "sell";
+    private static final String ORDERS = "/v1/orders";
+    private static final String ORDER = "/v1/order/status";
+    private static final String ORDER_CANCEL = "/v1/order/cancel";
+    private static final String ORDER_NEW = "/v1/order/new";
+    private static final String WITHDRAW = "/v1/withdraw";
+    private static final String BALANCE = "/v1/balances";
 
-    private static String EXCHANGE_TYPE = "exchange";
+    private static final String EXCHANGE_TYPE = "exchange";
 
     private final BitfinexConfig cfg;
     private final BitfinexEncryptionService signer;

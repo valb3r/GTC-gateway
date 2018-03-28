@@ -1,5 +1,6 @@
 package com.gtc.tradinggateway.service.bitfinex;
 
+import com.google.common.base.Charsets;
 import com.google.common.collect.ImmutableMap;
 import com.gtc.tradinggateway.config.BitfinexConfig;
 import lombok.RequiredArgsConstructor;
@@ -7,11 +8,9 @@ import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
-import sun.nio.cs.StandardCharsets;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.time.Instant;
 import java.util.Base64;
 import java.util.Map;
 
@@ -28,7 +27,28 @@ public class BitfinexEncryptionService {
 
     private final BitfinexConfig cfg;
 
-    public Map<String, String> signingHeaders(Object request) {
+    @SneakyThrows
+    private String generatePayload(Object request) {
+        String payload = cfg.getMapper().writeValueAsString(request);
+        return Base64.getEncoder().encodeToString(payload.getBytes());
+    }
+
+    @SneakyThrows
+    public String generateSignature(String msg, String keyString) {
+        SecretKeySpec key = new SecretKeySpec((keyString).getBytes(Charsets.UTF_8), METHOD);
+        Mac mac = Mac.getInstance(METHOD);
+        mac.init(key);
+
+        return new String(Hex.encodeHex(mac.doFinal(msg.getBytes(Charsets.UTF_8))));
+    }
+
+    public HttpHeaders restHeaders(Object request) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAll(signingHeaders(request));
+        return headers;
+    }
+
+    private Map<String, String> signingHeaders(Object request) {
         String payload = generatePayload(request);
         return ImmutableMap.<String, String>builder()
                 .put("accept", APPLICATION_JSON.toString())
@@ -38,26 +58,5 @@ public class BitfinexEncryptionService {
                 .put("X-BFX-SIGNATURE",
                         generateSignature(payload, cfg.getSecretKey()).replace("-", "").toLowerCase())
                 .build();
-    }
-
-    @SneakyThrows
-    private String generatePayload(Object request) {
-        String payload = cfg.getMapper().writeValueAsString(request);
-        return Base64.getEncoder().encodeToString(payload.getBytes());
-    }
-
-    @SneakyThrows
-    public String generateSignature(String msg, String keyString) {
-        SecretKeySpec key = new SecretKeySpec((keyString).getBytes("UTF-8"), METHOD);
-        Mac mac = Mac.getInstance(METHOD);
-        mac.init(key);
-
-        return new String(Hex.encodeHex(mac.doFinal(msg.getBytes("UTF-8"))));
-    }
-
-    public HttpHeaders restHeaders(Object request) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAll(signingHeaders(request));
-        return headers;
     }
 }
