@@ -17,7 +17,6 @@ import com.gtc.tradinggateway.util.DefaultInvertHandler;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -28,6 +27,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.BITFINEX;
  * Created by mikro on 20.02.2018.
  */
 @Slf4j
+// FIXME: REST api MUST be updated to V2 to be able to use this:
 //@Service
 @EnableScheduling
 public class BitfinexWsClient extends BaseWsClient implements CreateOrder {

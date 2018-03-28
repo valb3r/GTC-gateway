@@ -32,6 +32,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.BITFINEX;
 /**
  * Created by mikro on 15.02.2018.
  */
+// FIXME: It is V1 outdated API
 @Slf4j
 @Service
 @RequiredArgsConstructor

@@ -102,9 +102,9 @@ app:
             Tether=USDT
         ratePerM: 60
     clients:
-        # all-clients: binance,wex,hitbtc
+        # all-clients: bitfinex,binance,wex,hitbtc
         # mocks (need MOCK_ENABLED as true): mock-asia,mock-europe
-        active: bitfinex #binance,wex,hitbtc
+        active: bitfinex,binance,wex,hitbtc
     schedule:
         puppeteerS: 10
     jms:
