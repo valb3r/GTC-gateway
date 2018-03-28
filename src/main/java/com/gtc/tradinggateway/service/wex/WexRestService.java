@@ -27,6 +27,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +50,8 @@ import static com.gtc.tradinggateway.config.Const.Clients.WEX;
 @RateLimited(ratePerMinute = "${app.wex.ratePerM}", mode = RateLimited.Mode.CLASS)
 public class WexRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
-    private static final AtomicLong NONCE = new AtomicLong(System.currentTimeMillis() - 1520154667151L);
+    private static final AtomicLong NONCE
+            = new AtomicLong(LocalDateTime.now().toInstant(ZoneOffset.UTC).getEpochSecond());
     private static final int PRIO_STEP = 25;
 
     private static final String BALANCES = "getInfo";
@@ -72,7 +75,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
                         new HttpEntity<>(request, signer.sign(request)),
                         WexBalancesDto.class);
 
-        resp.getBody().selfAssert();
+        checkResponse(resp.getBody());
 
         Map<TradingCurrency, BigDecimal> results = new EnumMap<>(TradingCurrency.class);
         WexBalancesDto.Value value = resp.getBody().getRet();
@@ -109,7 +112,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
                         new HttpEntity<>(request, signer.sign(request)),
                         WexCreateResponse.class);
 
-        resp.getBody().selfAssert();
+        checkResponse(resp.getBody());
 
         return Optional.of(
                 OrderCreatedDto.builder()
@@ -129,7 +132,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
                         new HttpEntity<>(request, signer.sign(request)),
                         WexGetResponse.class);
 
-        resp.getBody().selfAssert();
+        checkResponse(resp.getBody());
 
         return resp.getBody().mapTo();
     }
@@ -144,7 +147,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
                         new HttpEntity<>(request, signer.sign(request)),
                         WexGetOpenResponse.class);
 
-        resp.getBody().selfAssert();
+        checkResponse(resp.getBody());
 
         return resp.getBody().mapTo();
     }
@@ -159,7 +162,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
                         new HttpEntity<>(request, signer.sign(request)),
                         WexCancelOrderResponse.class);
 
-        resp.getBody().selfAssert();
+        checkResponse(resp.getBody());
 
         log.info("Cancel request completed {}", resp.getBody());
     }
@@ -183,7 +186,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
                         new HttpEntity<>(request, signer.sign(request)),
                         WexWithdrawResponse.class);
 
-        resp.getBody().selfAssert();
+        checkResponse(resp.getBody());
 
         log.info("Withdraw request completed {}", resp.getBody());
     }
@@ -203,5 +206,16 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     private int nonce(int step) {
         // most probably we don't do 1 request per ms, so initial value will be always fine
         return (int) NONCE.addAndGet(step);
+    }
+
+    private void checkResponse(BaseWexResponse<?> response) {
+        if (!response.isOk()) {
+            // parse 'invalid nonce parameter; on key:2072397085, you sent:'1522253970', you should send:2072397086'
+            if (response.getError().contains("nonce")) {
+                NONCE.set(Long.valueOf(response.getError().split(":")[3]));
+            }
+        }
+
+        response.selfAssert();
     }
 }
