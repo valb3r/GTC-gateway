@@ -55,6 +55,22 @@ app:
             XMR-BTC=XMRBTC,
             DASH-BTC=DASHBTC
         ratePerM: 60
+    bitfinex:
+        restBase: "https://api.bitfinex.com"
+        wsBase: "wss://api.bitfinex.com/ws/2"
+        passphrase: ${BITFINEX_PASSPHRASE}
+        publicKey: ${BITFINEX_PUBLIC}
+        secretKey: ${BITFINEX_SECRET}
+        pairs:
+            BTC-USD=BTCUSD,
+            LTC-BTC=LTCBTC,
+            XMR-BTC=XMRBTC,
+            DASH-BTC=DASHBTC
+        customCurrencyName:
+            BTC=bitcoin,
+            LTC=litecoin,
+            XMR=monero
+        ratePerM: 60
     hitbtc:
         restBase: "https://api.hitbtc.com/api/2"
         wsBase: "wss://api.hitbtc.com/api/2/ws"
@@ -88,9 +104,9 @@ app:
             Tether=USDT
         ratePerM: 60
     clients:
-        # all-clients: binance,wex,hitbtc
+        # all-clients: bitfinex,binance,wex,hitbtc
         # mocks (need MOCK_ENABLED as true): mock-asia,mock-europe
-        active: binance,wex,hitbtc
+        active: bitfinex,binance,wex,hitbtc
     schedule:
         puppeteerS: 10
     jms:
