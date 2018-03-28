@@ -34,7 +34,7 @@ public class BinanceGetOrderDto {
     @JsonProperty("origQty")
     private BigDecimal originalAmount;
 
-    @JsonProperty("icebergQty")
+    @JsonProperty("quantity")
     private BigDecimal currentAmount;
 
     private BigDecimal price;
