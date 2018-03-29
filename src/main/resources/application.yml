@@ -29,6 +29,7 @@ spring:
             time-to-live: 5000
             qos-enabled: true
             delivery-mode: persistent
+        pub-sub-domain: true
 server:
     servlet-path: /api
     port: 8084
@@ -50,10 +51,30 @@ app:
         publicKey: ${BINANCE_PUBLIC}
         secretKey: ${BINANCE_SECRET}
         pairs:
+            # USD is actually tether
+            LTC-BTC=LTCBTC,
+            XMR-BTC=XMRBTC,
+            ETH-BTC=ETHBTC,
+            DASH-BTC=DASHBTC,
+            BTC-USDT=BTCUSDT,
+            LTC-USDT=LTCUSDT,
+            ETH-USDT=ETHUSDT
+        ratePerM: 60
+    bitfinex:
+        restBase: "https://api.bitfinex.com"
+        wsBase: "wss://api.bitfinex.com/ws/2"
+        passphrase: ${BITFINEX_PASSPHRASE}
+        publicKey: ${BITFINEX_PUBLIC}
+        secretKey: ${BITFINEX_SECRET}
+        pairs:
             BTC-USD=BTCUSD,
             LTC-BTC=LTCBTC,
             XMR-BTC=XMRBTC,
             DASH-BTC=DASHBTC
+        customCurrencyName:
+            BTC=bitcoin,
+            LTC=litecoin,
+            XMR=monero
         ratePerM: 60
     hitbtc:
         restBase: "https://api.hitbtc.com/api/2"
@@ -61,10 +82,20 @@ app:
         publicKey: ${HITBTC_PUBLIC}
         secretKey: ${HITBTC_SECRET}
         pairs:
+            # USD is actually usdt
             BTC-USD=BTCUSD,
             LTC-BTC=LTCBTC,
             XMR-BTC=XMRBTC,
-            DASH-BTC=DASHBTC
+            ETH-BTC=ETHBTC,
+            DASH-BTC=DASHBTC,
+            BTC-USDT=BTCUSD,
+            LTC-USDT=LTCUSD,
+            XMR-USDT=XMRUSD,
+            ETH-USDT=ETHUSD,
+            XRP-USDT=XRPUSD,
+            DASH-USDT=DASHUSD
+        customResponseCurrencyMapping:
+            USD=USDT
         ratePerM: 60
     wex:
         restBase: "https://wex.nz/tapi"
@@ -97,12 +128,14 @@ app:
             Tether=USDT
         ratePerM: 60
     clients:
-        # all-clients: binance,wex,hitbtc
+        # all-clients: bitfinex,binance,wex,hitbtc
         # mocks (need MOCK_ENABLED as true): mock-asia,mock-europe
-        active: huobi #binance,wex,hitbtc
+        #active: bitfinex,binance,wex,hitbtc,huobi
+        active: huobi #bitfinex,binance,wex,hitbtc
     schedule:
         puppeteerS: 10
     jms:
+        receiveTimeout: 50
         queue:
             in:
                 account: account

@@ -60,6 +60,11 @@ public class GdaxWsService extends BaseWsClient implements CreateOrder {
     protected void login() {}
 
     @Override
+    protected boolean handledAsLogin(JsonNode node) {
+        return false;
+    }
+
+    @Override
     protected Map<String, String> headers() {
         return signer.signingHeaders("", "", "");
     }

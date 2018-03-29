@@ -44,6 +44,8 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import static com.gtc.tradinggateway.config.JmsConfig.INBOUND;
+
 /**
  * Created by Valentyn Berezin on 20.02.18.
  */
@@ -96,7 +98,7 @@ public class EsbCommandHandler {
     }
 
     @Trace(dispatcher = true)
-    @JmsListener(destination = ACCOUNT_REQ, selector = GetAllBalancesCommand.SELECTOR)
+    @JmsListener(destination = ACCOUNT_REQ, selector = GetAllBalancesCommand.SELECTOR, containerFactory = INBOUND)
     public void getAllBalances(@Valid GetAllBalancesCommand command) {
         log.info("Request to get balances {}", command);
         doExecute(accountTopic, command, accountOps, (handler, cmd) -> {
@@ -113,7 +115,7 @@ public class EsbCommandHandler {
     }
 
     @Trace(dispatcher = true)
-    @JmsListener(destination = CREATE_REQ, selector = CreateOrderCommand.SELECTOR)
+    @JmsListener(destination = CREATE_REQ, selector = CreateOrderCommand.SELECTOR, containerFactory = INBOUND)
     public void create(@Valid CreateOrderCommand command) {
         log.info("Request to create order {}", command);
         doExecute(createTopic, command, createOps, (handler, cmd) -> {
@@ -138,20 +140,22 @@ public class EsbCommandHandler {
     }
 
     @Trace(dispatcher = true)
-    @JmsListener(destination = CREATE_REQ, selector = MultiOrderCreateCommand.SELECTOR)
+    @JmsListener(destination = CREATE_REQ, selector = MultiOrderCreateCommand.SELECTOR, containerFactory = INBOUND)
     public void create(@Valid MultiOrderCreateCommand command) {
         log.info("Request to create multi-orders {}", command);
         command.getCommands().stream().map(CreateOrderCommand::getClientName).forEach(name -> {
             if (!createOps.keySet().contains(name)) {
                 throw new NoClientException(name);
             }
+
+            checkReadiness(name, createOps.get(name));
         });
 
         command.getCommands().parallelStream().forEach(this::create);
     }
 
     @Trace(dispatcher = true)
-    @JmsListener(destination = MANAGE_REQ, selector = GetOrderCommand.SELECTOR)
+    @JmsListener(destination = MANAGE_REQ, selector = GetOrderCommand.SELECTOR, containerFactory = INBOUND)
     public void get(@Valid GetOrderCommand command) {
         log.info("Request to get order {}", command);
         doExecute(manageTopic, command, manageOps, (handler, cmd) -> {
@@ -169,7 +173,7 @@ public class EsbCommandHandler {
     }
 
     @Trace(dispatcher = true)
-    @JmsListener(destination = MANAGE_REQ, selector = ListOpenCommand.SELECTOR)
+    @JmsListener(destination = MANAGE_REQ, selector = ListOpenCommand.SELECTOR, containerFactory = INBOUND)
     public void listOpen(@Valid ListOpenCommand command) {
         log.info("Request to list orders {}", command);
         doExecute(manageTopic, command, manageOps, (handler, cmd) -> {
@@ -185,7 +189,7 @@ public class EsbCommandHandler {
     }
 
     @Trace(dispatcher = true)
-    @JmsListener(destination = MANAGE_REQ, selector = CancelOrderCommand.SELECTOR)
+    @JmsListener(destination = MANAGE_REQ, selector = CancelOrderCommand.SELECTOR, containerFactory = INBOUND)
     public void cancel(@Valid CancelOrderCommand command) {
         log.info("Request to cancel order {}", command);
         doExecute(manageTopic, command, manageOps, (handler, cmd) -> {
@@ -201,7 +205,7 @@ public class EsbCommandHandler {
     }
 
     @Trace(dispatcher = true)
-    @JmsListener(destination = WITHDRAW_REQ, selector = WithdrawCommand.SELECTOR)
+    @JmsListener(destination = WITHDRAW_REQ, selector = WithdrawCommand.SELECTOR, containerFactory = INBOUND)
     public void withdraw(@Valid WithdrawCommand command) {
         log.info("Request to withdraw {}", command);
         doExecute(withdrawTopic, command, withdrawOps, (handler, cmd) -> {
@@ -220,6 +224,17 @@ public class EsbCommandHandler {
                     .toDestination(cmd.getToDestination())
                     .build();
         });
+    }
+
+    private void checkReadiness(String name, CreateOrder createOrderExec) {
+        if (!(createOrderExec instanceof BaseWsClient)) {
+            return;
+        }
+
+        BaseWsClient wsClient = (BaseWsClient) createOrderExec;
+        if (!wsClient.isReady()) {
+            throw new NotReadyException(name);
+        }
     }
 
     private <T extends ClientNamed, U extends AbstractMessage> void doExecute(
@@ -299,6 +314,13 @@ public class EsbCommandHandler {
     private static class NotFoundException extends IllegalArgumentException {
 
         NotFoundException(String s) {
+            super(s);
+        }
+    }
+
+    private static class NotReadyException extends IllegalArgumentException {
+
+        NotReadyException(String s) {
             super(s);
         }
     }

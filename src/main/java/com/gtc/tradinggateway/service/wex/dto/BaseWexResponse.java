@@ -20,6 +20,10 @@ public class BaseWexResponse<T> {
     @JsonProperty("return")
     private T ret;
 
+    public boolean isOk() {
+        return success == 1;
+    }
+
     public void selfAssert() {
 
         if (success != 1) {

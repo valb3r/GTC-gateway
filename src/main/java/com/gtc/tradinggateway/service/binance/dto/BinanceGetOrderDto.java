@@ -32,9 +32,11 @@ public class BinanceGetOrderDto {
     private String pair;
 
     @JsonProperty("origQty")
-    private BigDecimal originalAmount;
+    private BigDecimal originalAmount = BigDecimal.ZERO;
 
-    @JsonProperty("icebergQty")
+    private BigDecimal executedQty = BigDecimal.ZERO;
+
+    @JsonProperty("quantity")
     private BigDecimal currentAmount;
 
     private BigDecimal price;
@@ -44,7 +46,7 @@ public class BinanceGetOrderDto {
     public OrderDto mapTo() {
         return OrderDto.builder()
                 .orderId(pair + "." + id)
-                .size(currentAmount)
+                .size(originalAmount.subtract(executedQty))
                 .price(price)
                 .status(MAPPER.getOrDefault(status, OrderStatus.UNMAPPED))
                 .statusString(status)

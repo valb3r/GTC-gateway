@@ -31,6 +31,19 @@ public class BaseConfig {
 
     protected Map<String, String> customResponseCurrencyMapping = new HashMap<>();
 
+    protected Map<TradingCurrency, String> customCurrencyName;
+
+    public void setCustomCurrencyName(List<String> list) {
+        customCurrencyName = list.stream()
+                .collect(
+                        HashMap::new,
+                        (HashMap<TradingCurrency, String> map, String val) -> {
+                            String[] pair = val.split("=");
+                            map.put(TradingCurrency.fromCode(pair[0]), pair[1]);
+                        },
+                        HashMap::putAll);
+    }
+
     public void setCustomResponseCurrencyMapping(List<String> list) {
         list.forEach(it -> {
             String[] origMap = it.split("=");
@@ -51,6 +64,13 @@ public class BaseConfig {
         String invertedSymbol = to.toString() + "-" + from.toString();
         PairSymbol invertedPair = pairs.get(invertedSymbol);
         return invertedPair != null ? Optional.of(invertedPair.invert()) : Optional.empty();
+    }
+
+    public PairSymbol pairFromCurrencyOrThrow(TradingCurrency from, TradingCurrency to) {
+
+        return pairFromCurrency(from, to).orElseThrow(() -> new IllegalStateException(
+                "Pair from " + from.toString() + " to " + to.toString() + " is not supported")
+        );
     }
 
     private Map<String, PairSymbol> parse(List<String> input) {

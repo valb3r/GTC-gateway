@@ -43,57 +43,10 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
     }
 
     @Override
-    protected String getWs() {
-        return cfg.getWsBase();
-    }
-
-    @Override
-    protected Map<String, String> headers() {
-        return new HashMap<>();
-    }
-
-    @Override
-    protected void onConnected(RxObjectEventConnected conn) {
-        login();
-    }
-
-    @Override
-    @SneakyThrows
-    protected void parseEventDto(JsonNode node) {
-        if (null != node.get(ERROR_ALIAS)) {
-            HitbtcErrorDto error = cfg.getMapper().reader().readValue(node.traverse(), HitbtcErrorDto.class);
-            throw new IllegalStateException(error.getError().getMessage());
-        } else if (AUTH_ALIAS.equals(node.get(ID_ALIAS).asText())) {
-            isLoggedIn.set(true);
-        }
-    }
-
-    @Override
-    protected void parseArray(JsonNode node) {
-        // NOP
-    }
-
-    @Override
-    protected void login() {
-        ObjectWebSocketSender sender = rxConnected.get().sender();
-        HitbtcAuthRequestDto requestDto = new HitbtcAuthRequestDto(cfg.getPublicKey(), cfg.getSecretKey());
-        RxMoreObservables
-                .sendObjectMessage(sender, requestDto)
-                .subscribe();
-    }
-
-    @Override
     @SneakyThrows
     public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
                                             BigDecimal amount, BigDecimal price) {
-        PairSymbol pair = cfg.pairFromCurrency(from, to).orElseThrow(() -> new IllegalStateException(
-                        "Pair from " + from.toString() + " to " + to.toString() + " is not supported")
-        );
-
-        if (isDisconnected() || !isLoggedIn.get()) {
-            throw new IllegalStateException(
-                    "Failed request. Connect status: " + isDisconnected() + ", Login status: " + !isLoggedIn.get());
-        }
+        PairSymbol pair = cfg.pairFromCurrencyOrThrow(from, to);
 
         BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pair, amount, price);
         BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pair, price);
@@ -114,5 +67,53 @@ public class HitbtcWsService extends BaseWsClient implements CreateOrder {
     @Override
     public String name() {
         return HITBTC;
+    }
+
+    @Override
+    protected String getWs() {
+        return cfg.getWsBase();
+    }
+
+    @Override
+    protected Map<String, String> headers() {
+        return new HashMap<>();
+    }
+
+    @Override
+    protected void onConnected(RxObjectEventConnected conn) {
+        login();
+    }
+
+    @Override
+    protected boolean handledAsLogin(JsonNode node) {
+        if (!AUTH_ALIAS.equals(node.get(ID_ALIAS).asText())) {
+            return false;
+        }
+
+        isLoggedIn.set(true);
+        return true;
+    }
+
+    @Override
+    @SneakyThrows
+    protected void parseEventDto(JsonNode node) {
+        if (null != node.get(ERROR_ALIAS)) {
+            HitbtcErrorDto error = cfg.getMapper().reader().readValue(node.traverse(), HitbtcErrorDto.class);
+            throw new IllegalStateException(error.getError().getMessage());
+        }
+    }
+
+    @Override
+    protected void parseArray(JsonNode node) {
+        // NOP
+    }
+
+    @Override
+    protected void login() {
+        ObjectWebSocketSender sender = rxConnected.get().sender();
+        HitbtcAuthRequestDto requestDto = new HitbtcAuthRequestDto(cfg.getPublicKey(), cfg.getSecretKey());
+        RxMoreObservables
+                .sendObjectMessage(sender, requestDto)
+                .subscribe();
     }
 }
