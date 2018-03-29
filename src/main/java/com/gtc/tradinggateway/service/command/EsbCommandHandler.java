@@ -147,6 +147,8 @@ public class EsbCommandHandler {
             if (!createOps.keySet().contains(name)) {
                 throw new NoClientException(name);
             }
+
+            checkReadiness(name, createOps.get(name));
         });
 
         command.getCommands().parallelStream().forEach(this::create);
@@ -222,6 +224,17 @@ public class EsbCommandHandler {
                     .toDestination(cmd.getToDestination())
                     .build();
         });
+    }
+
+    private void checkReadiness(String name, CreateOrder createOrderExec) {
+        if (!(createOrderExec instanceof BaseWsClient)) {
+            return;
+        }
+
+        BaseWsClient wsClient = (BaseWsClient) createOrderExec;
+        if (!wsClient.isReady()) {
+            throw new NotReadyException(name);
+        }
     }
 
     private <T extends ClientNamed, U extends AbstractMessage> void doExecute(
@@ -301,6 +314,13 @@ public class EsbCommandHandler {
     private static class NotFoundException extends IllegalArgumentException {
 
         NotFoundException(String s) {
+            super(s);
+        }
+    }
+
+    private static class NotReadyException extends IllegalArgumentException {
+
+        NotReadyException(String s) {
             super(s);
         }
     }
