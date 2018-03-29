@@ -51,11 +51,11 @@ app:
         publicKey: ${BINANCE_PUBLIC}
         secretKey: ${BINANCE_SECRET}
         pairs:
+            # USD is actually tether
             LTC-BTC=LTCBTC,
             XMR-BTC=XMRBTC,
             ETH-BTC=ETHBTC,
             DASH-BTC=DASHBTC,
-            # USD is actually tether
             BTC-USDT=BTCUSDT,
             LTC-USDT=LTCUSDT,
             ETH-USDT=ETHUSDT
