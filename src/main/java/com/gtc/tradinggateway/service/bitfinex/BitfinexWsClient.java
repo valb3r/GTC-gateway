@@ -61,19 +61,27 @@ public class BitfinexWsClient extends BaseWsClient implements CreateOrder {
         return;
     }
 
+    @Override
     @SneakyThrows
-    protected void parseEventDto(JsonNode node) {
-        log.info(node.toString());
-        if (AUTH_EVENT.equals(node.get(EVENT_ALIAS).asText())) {
-            BitfinexAuthWsResponseDto authEvent = objectMapper.readerFor(BitfinexAuthWsResponseDto.class)
-                    .readValue(node);
-            isLoggedIn.set(SUCCESS_STATUS.equals(authEvent.getStatus()));
+    protected boolean handledAsLogin(JsonNode node) {
+        if (!AUTH_EVENT.equals(node.get(EVENT_ALIAS).asText())) {
+            return false;
         }
+
+        BitfinexAuthWsResponseDto authEvent = objectMapper.readerFor(BitfinexAuthWsResponseDto.class)
+                .readValue(node);
+        isLoggedIn.set(SUCCESS_STATUS.equals(authEvent.getStatus()));
+        return true;
+    }
+
+
+    protected void parseEventDto(JsonNode node) {
+        log.info("{}", node);
     }
 
     @SneakyThrows
     protected void parseArray(JsonNode node) {
-        log.info(node.toString());
+        log.info("{}", node);
         if (NEW_ORDER_RESPONSE_EVENT.equals(node.get(ORDER_EVENT_TYPE_POS).asText())) {
             BitfinexCreateOrderWsDto dto = objectMapper.readerFor(BitfinexCreateOrderWsDto.class)
                     .readValue(node.get(ORDER_EVENT_DATA_POS));

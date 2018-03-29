@@ -66,6 +66,13 @@ public class BaseConfig {
         return invertedPair != null ? Optional.of(invertedPair.invert()) : Optional.empty();
     }
 
+    public PairSymbol pairFromCurrencyOrThrow(TradingCurrency from, TradingCurrency to) {
+
+        return pairFromCurrency(from, to).orElseThrow(() -> new IllegalStateException(
+                "Pair from " + from.toString() + " to " + to.toString() + " is not supported")
+        );
+    }
+
     private Map<String, PairSymbol> parse(List<String> input) {
         return input.stream()
                 .collect(

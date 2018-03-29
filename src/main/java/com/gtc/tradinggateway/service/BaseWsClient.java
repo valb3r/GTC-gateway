@@ -9,6 +9,8 @@ import com.appunite.websocket.rx.object.messages.RxObjectEventMessage;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
+import com.gtc.tradinggateway.aspect.ws.IgnoreWsReady;
+import com.gtc.tradinggateway.aspect.ws.WsReady;
 import com.gtc.tradinggateway.service.rxsupport.JacksonSerializer;
 import com.gtc.tradinggateway.service.rxsupport.MoreObservables;
 import com.newrelic.api.agent.NewRelic;
@@ -27,6 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Created by Valentyn Berezin on 16.01.18.
  */
+@WsReady
 public abstract class BaseWsClient {
 
     private static final String CONNECTS = "Custom/Connect/";
@@ -40,6 +43,16 @@ public abstract class BaseWsClient {
 
     public BaseWsClient(ObjectMapper mapper) {
         this.objectMapper = mapper;
+    }
+
+    @IgnoreWsReady
+    public boolean isDisconnected() {
+        return null == rxConnected.get();
+    }
+
+    @IgnoreWsReady
+    public boolean isReady() {
+        return !isDisconnected() && isLoggedIn.get();
     }
 
     @SneakyThrows
@@ -82,13 +95,13 @@ public abstract class BaseWsClient {
                 .share();
     }
 
-    public boolean isDisconnected() {
-        return null == rxConnected.get();
-    }
-
     protected void handleInboundMessage(JsonNode node) {
         NewRelic.incrementCounter(MESSAGE + name());
         try {
+            if (handledAsLogin(node)) {
+                return;
+            }
+
             if (!node.isArray()) {
                 parseEventDto(node);
             } else if (node.isArray()) {
@@ -100,13 +113,14 @@ public abstract class BaseWsClient {
         }
     }
 
+    public abstract String name();
     protected abstract String getWs();
-    protected abstract String name();
     protected abstract Map<String, String> headers();
     protected abstract void onConnected(RxObjectEventConnected conn);
     protected abstract void parseEventDto(JsonNode node);
     protected abstract void parseArray(JsonNode node);
     protected abstract void login();
+    protected abstract boolean handledAsLogin(JsonNode node);
 
     private void handleDisconnectEvt(String reason, Throwable err) {
         rxConnected.set(null);
