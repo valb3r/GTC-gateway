@@ -32,9 +32,9 @@ public class BinanceGetOrderDto {
     private String pair;
 
     @JsonProperty("origQty")
-    private BigDecimal originalAmount;
+    private BigDecimal originalAmount = BigDecimal.ZERO;
 
-    private BigDecimal executedQty;
+    private BigDecimal executedQty = BigDecimal.ZERO;
 
     @JsonProperty("quantity")
     private BigDecimal currentAmount;
