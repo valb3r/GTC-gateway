@@ -94,6 +94,8 @@ app:
             ETH-USDT=ETHUSD,
             XRP-USDT=XRPUSD,
             DASH-USDT=DASHUSD
+        customResponseCurrencyMapping:
+            USD=USDT
         ratePerM: 60
     wex:
         restBase: "https://wex.nz/tapi"
