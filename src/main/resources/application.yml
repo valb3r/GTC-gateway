@@ -51,10 +51,14 @@ app:
         publicKey: ${BINANCE_PUBLIC}
         secretKey: ${BINANCE_SECRET}
         pairs:
-            BTC-USD=BTCUSD,
             LTC-BTC=LTCBTC,
             XMR-BTC=XMRBTC,
-            DASH-BTC=DASHBTC
+            ETH-BTC=ETHBTC,
+            DASH-BTC=DASHBTC,
+            # USD is actually tether
+            BTC-USDT=BTCUSDT,
+            LTC-USDT=LTCUSDT,
+            ETH-USDT=ETHUSDT
         ratePerM: 60
     bitfinex:
         restBase: "https://api.bitfinex.com"
@@ -78,10 +82,18 @@ app:
         publicKey: ${HITBTC_PUBLIC}
         secretKey: ${HITBTC_SECRET}
         pairs:
+            # USD is actually usdt
             BTC-USD=BTCUSD,
             LTC-BTC=LTCBTC,
             XMR-BTC=XMRBTC,
-            DASH-BTC=DASHBTC
+            ETH-BTC=ETHBTC,
+            DASH-BTC=DASHBTC,
+            BTC-USDT=BTCUSD,
+            LTC-USDT=LTCUSD,
+            XMR-USDT=XMRUSD,
+            ETH-USDT=ETHUSD,
+            XRP-USDT=XRPUSD,
+            DASH-USDT=DASHUSD
         ratePerM: 60
     wex:
         restBase: "https://wex.nz/tapi"
