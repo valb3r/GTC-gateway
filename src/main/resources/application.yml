@@ -29,6 +29,7 @@ spring:
             time-to-live: 5000
             qos-enabled: true
             delivery-mode: persistent
+        pub-sub-domain: true
 server:
     servlet-path: /api
     port: 8084
@@ -110,6 +111,7 @@ app:
     schedule:
         puppeteerS: 10
     jms:
+        receiveTimeout: 50
         queue:
             in:
                 account: account
