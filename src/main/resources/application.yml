@@ -7,29 +7,16 @@ spring:
         serialization:
             fail-on-empty-beans: false
             write_dates_as_timestamps: false
-    activemq:
-        broker-url: ${ESB_AMQ_ADDRESS}
-        non-blocking-redelivery: true
-        pool:
-            block-if-full: true
-            block-if-full-timeout: -1
-            create-connection-on-startup: true
-            enabled: true
-            expiry-timeout: 10000
-            idle-timeout: 30000
-            max-connections: 1
-            maximum-active-session-per-connection: 500
-            reconnect-on-exception: true
-            time-between-expiration-check: -1
-            use-anonymous-producers: true
-        packages:
-            trusted: com.gtc.model,java.time,java.math,java.util
+    artemis:
+        host: ${ESB_AMQ_ADDRESS}
+        port: 61616
+        mode: native
+        user: artemis
+        password: artemis
     jms:
         template:
-            time-to-live: 5000
             qos-enabled: true
             delivery-mode: persistent
-        pub-sub-domain: true
 server:
     servlet-path: /api
     port: 8084
@@ -128,16 +115,15 @@ app:
         receiveTimeout: 50
         queue:
             in:
-                account: account
-                create: create
-                manage: manage
-                withdraw: withdraw
-        vtopic:
+                account: do-account
+                create: do-create
+                manage: do-manage
+                withdraw: do-withdraw
             out:
-                account: VirtualTopic.account
-                create: VirtualTopic.create
-                manage: VirtualTopic.manage
-                withdraw: VirtualTopic.withdraw
+                account: done-account
+                create: done-create
+                manage: done-manage
+                withdraw: done-withdraw
     async:
         pool:
             core: 10
