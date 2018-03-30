@@ -27,11 +27,12 @@ public class FormHttpMessageToPojoConverter extends AbstractHttpMessageConverter
     private static final FormHttpMessageConverter formHttpMessageConverter = new FormHttpMessageConverter();
 
     private final ObjectMapper mapper;
-    private Function<String, Map<String, String>> signer;
+    private final Function<String, Map<String, String>> signer;
 
     public FormHttpMessageToPojoConverter(ObjectMapper mapper) {
         super(formHttpMessageConverter.getSupportedMediaTypes().toArray(new MediaType[0]));
         this.mapper = mapper;
+        this.signer = null;
     }
 
     public FormHttpMessageToPojoConverter(
