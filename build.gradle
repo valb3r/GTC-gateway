@@ -22,7 +22,8 @@ buildscript {
                 aspectjOAP                : "1.8.12",
                 validator                 : "5.4.1.Final",
                 swagger                   : "2.7.0",
-                tokenBucket               : "1.6"
+                tokenBucket               : "1.6",
+                commonsMath               : "3.6.1"
         ]
     }
     dependencies {
@@ -60,6 +61,7 @@ dependencies {
     compile "com.github.jacek-marchwicki:JavaWebsocketClient:${versions.wsClient}"
     compile "com.newrelic.agent.java:newrelic-api:${versions.newRelicAPI}"
     compile "commons-codec:commons-codec:${versions.commonsCodec}"
+    compile "org.apache.commons:commons-math3:${versions.commonsMath}"
     compile "org.hibernate:hibernate-validator:${versions.validator}"
     compile "org.isomorphism:token-bucket:${versions.tokenBucket}"
 
