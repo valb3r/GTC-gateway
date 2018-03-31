@@ -1,6 +1,7 @@
 package com.gtc.tradinggateway.aspect.statistics;
 
 import com.gtc.model.tradinggateway.api.dto.AbstractMessage;
+import com.newrelic.api.agent.NewRelic;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -30,11 +31,10 @@ import static com.gtc.tradinggateway.config.Const.STATISTICS;
 public class LatencyStatistics {
 
     static final String PREFIX = CONF_ROOT_CHILD + STATISTICS;
-
-    @Value("${" + PREFIX  + ".window}")
-    private int statWindow;
-
     private final Map<String, DescriptiveStatistics> statistics = new ConcurrentHashMap<>();
+
+    @Value("${" + PREFIX + ".window}")
+    private int statWindow;
 
     @Around("execution(public * com.gtc.tradinggateway.service.command.EsbCommandHandler.*(..))"
             + "&& @annotation(org.springframework.jms.annotation.JmsListener)")
@@ -65,6 +65,10 @@ public class LatencyStatistics {
 
     private Map<String, Long> percentile(double percentile) {
         return statistics.entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, it -> (long) it.getValue().getPercentile(percentile)));
+                .collect(Collectors.toMap(Map.Entry::getKey, it -> {
+                    long latency = (long) it.getValue().getPercentile(percentile);
+                    NewRelic.recordMetric("Latency " + it.getKey(), latency);
+                    return latency;
+                }));
     }
 }
