@@ -1,15 +1,14 @@
 package com.gtc.tradinggateway.service.huobi;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.tradinggateway.aspect.rate.IgnoreRateLimited;
 import com.gtc.tradinggateway.config.HuobiConfig;
+import com.gtc.tradinggateway.config.converters.FormHttpMessageToPojoConverter;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.Account;
 import com.gtc.tradinggateway.service.CreateOrder;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
-import com.gtc.tradinggateway.service.binance.dto.BinanceGetOrderDto;
 import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import com.gtc.tradinggateway.service.huobi.dto.*;
 import lombok.RequiredArgsConstructor;
@@ -20,10 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -66,7 +62,7 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
 
     @Override
     public Optional<OrderDto> get(String id) {
-        HuobiRequestDto requestDto = new HuobiRequestDto();
+        HuobiRequestDto requestDto = new HuobiRequestDto(cfg.getPublicKey());
         RestTemplate template = cfg.getRestTemplate();
         ResponseEntity<HuobiGetResponseDto> resp = template
                 .exchange(
@@ -75,7 +71,7 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
                         new HttpEntity<>(signer.restHeaders()),
                         HuobiGetResponseDto.class
                 );
-        return Optional.empty(reps.getBody()
+        return Optional.of(resp.getBody()
                 .getOrder()
                 .mapTo());
     }
@@ -84,6 +80,7 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     public List<OrderDto> getOpen() {
         HuobiGetOpenRequestDto requestDto = new HuobiGetOpenRequestDto(cfg.getPublicKey());
         RestTemplate template = cfg.getRestTemplate();
+        log.info(getQueryString(HttpMethod.GET, ORDERS, requestDto));
         ResponseEntity<HuobiGetOpenResponseDto> resp = template
                 .exchange(
                         getQueryString(HttpMethod.GET, ORDERS, requestDto),
@@ -99,7 +96,7 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
 
     @Override
     public void cancel(String id) {
-        HuobiRequestDto requestDto = new HuobiRequestDto();
+        HuobiRequestDto requestDto = new HuobiRequestDto(cfg.getPublicKey());
         RestTemplate template = cfg.getRestTemplate();
         template.exchange(
                 getQueryString(HttpMethod.POST, ORDERS + id + CANCEL_ORDER, requestDto),
@@ -135,13 +132,8 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     }
 
     private String getQueryString(HttpMethod method, String url, Object queryObj) {
-        LinkedMultiValueMap<String, String> params = cfg.getMapper()
-                .convertValue(queryObj, new TypeReference<LinkedMultiValueMap<String, String>>() {});
-        String query = UriComponentsBuilder.fromHttpUrl(cfg.getRestBase())
-                .queryParams(params)
-                .build()
-                .toUriString();
-        return query + "&Signature=" + signer.generate(method, url, query);
+        String query = FormHttpMessageToPojoConverter.pojoSerialize(cfg.getMapper(), queryObj, null);
+        return cfg.getRestBase() + url + "?" + query + "&Signature=" + signer.generate(method, url, query);
     }
 
     private String getAccountId() {

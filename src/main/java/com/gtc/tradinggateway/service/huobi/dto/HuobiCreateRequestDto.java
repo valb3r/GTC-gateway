@@ -19,7 +19,7 @@ public class HuobiCreateRequestDto extends HuobiRequestDto {
     private String price;
     private String symbol;
 
-    HuobiCreateRequestDto(String AccessKeyId) {
+    public HuobiCreateRequestDto(String AccessKeyId) {
         super(AccessKeyId);
     }
 }

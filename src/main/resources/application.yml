@@ -110,7 +110,7 @@ app:
             dsh=DASH
         ratePerM: 60
     huobi:
-        restBase: "https://wex.nz/tapi"
+        restBase: "https://api.huobi.pro"
         publicKey: ${HUOBI_PUBLIC}
         secretKey: ${HUOBI_SECRET}
         pairs:
