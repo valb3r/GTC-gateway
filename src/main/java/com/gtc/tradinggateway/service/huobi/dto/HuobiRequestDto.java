@@ -8,9 +8,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class HuobiRequestDto {
 
+    private final String AccessKeyId;
     private String SignatureMethod = HuobiEncryptionService.METHOD;
     private String SignatureVersion = "2";
     private Long Timestamp = System.currentTimeMillis();
-
-    private final String AccessKeyId;
 }

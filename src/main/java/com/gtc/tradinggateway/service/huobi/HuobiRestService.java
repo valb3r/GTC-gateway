@@ -132,7 +132,8 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     }
 
     private String getQueryString(HttpMethod method, String url, Object queryObj) {
-        String query = FormHttpMessageToPojoConverter.pojoSerialize(cfg.getMapper(), queryObj, null);
+        String states = "&states=partial-filled;partial-canceled;pre-submitted;submitted";
+        String query = FormHttpMessageToPojoConverter.pojoSerialize(cfg.getMapper(), queryObj, null) + states;
         return cfg.getRestBase() + url + "?" + query + "&Signature=" + signer.generate(method, url, query);
     }
 

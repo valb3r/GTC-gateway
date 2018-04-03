@@ -23,7 +23,7 @@ public class HuobiEncryptionService {
 
     @SneakyThrows
     public String generate(HttpMethod method, String url, String params) {
-        String message = method.name() + "\n" + url + "\n" + params;
+        String message = method.name() + "\napi.huobi.pro\n" + url + "\n" + params;
         String secret = cfg.getSecretKey();
         Mac sha256hmac = Mac.getInstance(METHOD);
         SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(), METHOD);
@@ -34,5 +34,4 @@ public class HuobiEncryptionService {
     public HttpHeaders restHeaders() {
         return new HttpHeaders();
     }
-
 }
