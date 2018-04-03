@@ -32,6 +32,8 @@ public class HuobiEncryptionService {
     }
 
     public HttpHeaders restHeaders() {
-        return new HttpHeaders();
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/x-www-form-urlencoded");
+        return headers;
     }
 }
