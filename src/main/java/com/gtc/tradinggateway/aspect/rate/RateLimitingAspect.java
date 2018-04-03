@@ -11,9 +11,12 @@ import org.springframework.beans.factory.config.EmbeddedValueResolver;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.gtc.tradinggateway.aspect.rate.RateLimited.Mode.CLASS;
 
@@ -32,7 +35,7 @@ public class RateLimitingAspect {
         this.resolver = new EmbeddedValueResolver(beanFactory);
     }
 
-    @Around("execution(public * *(..)) && @within(ann) " +
+    @Around("execution(public * *(..)) && (@annotation(ann) || @within(ann)) " +
             "&& !@annotation(com.gtc.tradinggateway.aspect.rate.IgnoreRateLimited)")
     public Object rateLimit(ProceedingJoinPoint joinPoint, RateLimited ann) throws Throwable {
         Method method = getMethod(joinPoint);
@@ -58,10 +61,16 @@ public class RateLimitingAspect {
     }
 
     private String getKey(Method method, RateLimited ann) {
-        if (CLASS.equals(ann.mode())) {
+        // method level annotation overrides within
+        if (CLASS.equals(ann.mode()) && null == method.getAnnotation(RateLimited.class)) {
             return method.getDeclaringClass().getCanonicalName();
         }
 
-        return method.getName();
+        return method.getDeclaringClass().getName() + "." + method.getName()
+                + "("
+                + Arrays.stream(method.getGenericParameterTypes())
+                .map(Type::getTypeName)
+                .collect(Collectors.joining(","))
+                + ")";
     }
 }
