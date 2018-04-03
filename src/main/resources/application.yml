@@ -47,8 +47,8 @@ app:
             BTC-USDT=BTCUSDT,
             LTC-USDT=LTCUSDT,
             ETH-USDT=ETHUSDT
-        ratePerM: 30
-        createRatePerM: 30
+        ratePerM: 50
+        createRatePerM: 10
     bitfinex:
         restBase: "https://api.bitfinex.com"
         wsBase: "wss://api.bitfinex.com/ws/2"
@@ -64,8 +64,8 @@ app:
             BTC=bitcoin,
             LTC=litecoin,
             XMR=monero
-        ratePerM: 30
-        createRatePerM: 30
+        ratePerM: 50
+        createRatePerM: 10
     hitbtc:
         restBase: "https://api.hitbtc.com/api/2"
         wsBase: "wss://api.hitbtc.com/api/2/ws"
@@ -98,8 +98,8 @@ app:
             DASH-LTC=dsh_ltc
         customResponseCurrencyMapping:
             dsh=DASH
-        ratePerM: 30
-        createRatePerM: 30
+        ratePerM: 50
+        createRatePerM: 10
     mock:
         restBase: "http://localhost:9090/api"
         publicKey: trade-gateway
@@ -108,8 +108,8 @@ app:
         customResponseCurrencyMapping:
             Bitcoin=BTC,
             Tether=USDT
-        ratePerM: 30
-        createRatePerM: 30
+        ratePerM: 50
+        createRatePerM: 10
     clients:
         # all-clients: bitfinex,binance,wex,hitbtc
         # mocks (need MOCK_ENABLED as true): mock-asia,mock-europe
