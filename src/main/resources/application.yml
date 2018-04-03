@@ -13,6 +13,7 @@ spring:
         mode: native
         user: artemis
         password: artemis
+        pool: 10
     jms:
         template:
             qos-enabled: true
