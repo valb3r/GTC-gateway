@@ -3,7 +3,7 @@ package com.gtc.tradinggateway.config;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.jms.activemq.ActiveMQAutoConfiguration;
+import org.springframework.boot.autoconfigure.jms.artemis.ArtemisAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -18,7 +18,7 @@ import javax.jms.ConnectionFactory;
  */
 @EnableJms
 @Configuration
-@Import(ActiveMQAutoConfiguration.class)
+@Import(ArtemisAutoConfiguration.class)
 @ConditionalOnProperty("ESB_AMQ_ADDRESS")
 public class JmsConfig {
 
