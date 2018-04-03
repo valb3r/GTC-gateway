@@ -4,10 +4,12 @@ import com.gtc.tradinggateway.config.HuobiConfig;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import sun.misc.BASE64Encoder;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -28,12 +30,13 @@ public class HuobiEncryptionService {
         Mac sha256hmac = Mac.getInstance(METHOD);
         SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(), METHOD);
         sha256hmac.init(secretKeySpec);
-        return new String(Hex.encodeHex(sha256hmac.doFinal(message.getBytes())));
+        return Base64.encodeBase64String(sha256hmac.doFinal(message.getBytes()));
     }
 
     public HttpHeaders restHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", "application/x-www-form-urlencoded");
+        headers.add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0)");
         return headers;
     }
 }

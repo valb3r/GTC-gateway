@@ -36,7 +36,7 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     private final HuobiConfig cfg;
     private final HuobiEncryptionService signer;
 
-    private static String ORDERS = "/v1/order/orders/";
+    private static String ORDERS = "/v1/order/orders";
     private static String CREATE_ORDER = ORDERS + "place";
     private static String CANCEL_ORDER = "/submitcancel";
     private static String WITHDRAWAL = "/v1/dw/withdraw/api/create";
@@ -132,8 +132,7 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     }
 
     private String getQueryString(HttpMethod method, String url, Object queryObj) {
-        String states = "&states=partial-filled;partial-canceled;pre-submitted;submitted";
-        String query = FormHttpMessageToPojoConverter.pojoSerialize(cfg.getMapper(), queryObj, null) + states;
+        String query = FormHttpMessageToPojoConverter.pojoSerialize(cfg.getMapper(), queryObj, null);
         return cfg.getRestBase() + url + "?" + query + "&Signature=" + signer.generate(method, url, query);
     }
 
