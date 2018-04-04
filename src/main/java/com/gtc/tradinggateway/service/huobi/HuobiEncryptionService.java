@@ -13,6 +13,7 @@ import sun.misc.BASE64Encoder;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @Service
@@ -28,7 +29,7 @@ public class HuobiEncryptionService {
         String message = method.name() + "\napi.huobi.pro\n" + url + "\n" + params;
         String secret = cfg.getSecretKey();
         Mac sha256hmac = Mac.getInstance(METHOD);
-        SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(), METHOD);
+        SecretKeySpec secretKeySpec = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), METHOD);
         sha256hmac.init(secretKeySpec);
         return Base64.encodeBase64String(sha256hmac.doFinal(message.getBytes()));
     }

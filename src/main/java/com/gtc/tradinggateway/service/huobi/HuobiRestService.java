@@ -12,6 +12,7 @@ import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import com.gtc.tradinggateway.service.huobi.dto.*;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -22,6 +23,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -131,6 +134,7 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
         return HUOBI;
     }
 
+    @SneakyThrows
     private String getQueryString(HttpMethod method, String url, Object queryObj) {
         String query = FormHttpMessageToPojoConverter.pojoSerialize(cfg.getMapper(), queryObj, null);
         return cfg.getRestBase() + url + "?" + query + "&Signature=" + signer.generate(method, url, query);

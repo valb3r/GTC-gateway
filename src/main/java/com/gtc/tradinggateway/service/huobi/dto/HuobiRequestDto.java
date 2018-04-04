@@ -23,14 +23,17 @@ public class HuobiRequestDto {
     private String SignatureVersion = "2";
 
     @JsonProperty("states")
-    private String states = "partial-filled;partial-canceled;pre-submitted;submitted";
+    private String states = "partial-filled,submitted";
+
+    @JsonProperty("symbol")
+    private String symbol = "btcusd";
 
 //    @JsonProperty("Timestamp")
     private String Timestamp;
 
     public HuobiRequestDto(String AccessKeyId) {
         this.AccessKeyId = AccessKeyId;
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd'T'HH:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         Timestamp = dateFormat.format(new Date());
     }
 }
