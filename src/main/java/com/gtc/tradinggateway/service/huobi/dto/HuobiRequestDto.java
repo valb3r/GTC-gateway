@@ -4,15 +4,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.gtc.tradinggateway.service.huobi.HuobiEncryptionService;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @JsonPropertyOrder({"AccessKeyId", "SignatureMethod", "SignatureVersion", "Timestamp", "states"})
 public class HuobiRequestDto {
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+    
 //    @JsonProperty("AccessKeyId")
     private final String AccessKeyId;
 
@@ -33,7 +35,6 @@ public class HuobiRequestDto {
 
     public HuobiRequestDto(String AccessKeyId) {
         this.AccessKeyId = AccessKeyId;
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-        Timestamp = dateFormat.format(new Date());
+        Timestamp = FORMATTER.format(LocalDateTime.now(ZoneOffset.UTC));
     }
 }

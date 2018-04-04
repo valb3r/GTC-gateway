@@ -1,5 +1,6 @@
 package com.gtc.tradinggateway.service.huobi;
 
+import com.google.common.base.Charsets;
 import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.tradinggateway.aspect.rate.IgnoreRateLimited;
 import com.gtc.tradinggateway.config.HuobiConfig;
@@ -21,10 +22,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.math.BigDecimal;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+import java.net.URI;
+import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -51,7 +53,7 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
         RestTemplate template = cfg.getRestTemplate();
         ResponseEntity<HuobiCreateResponseDto> resp = template
                 .exchange(
-                        getQueryString(HttpMethod.POST, CREATE_ORDER, requestDto),
+                        getQueryUri(HttpMethod.POST, CREATE_ORDER, requestDto),
                         HttpMethod.POST,
                         new HttpEntity<>(signer.restHeaders()),
                         HuobiCreateResponseDto.class
@@ -69,7 +71,7 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
         RestTemplate template = cfg.getRestTemplate();
         ResponseEntity<HuobiGetResponseDto> resp = template
                 .exchange(
-                        getQueryString(HttpMethod.GET, ORDERS + id, requestDto),
+                        getQueryUri(HttpMethod.GET, ORDERS + id, requestDto),
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
                         HuobiGetResponseDto.class
@@ -83,10 +85,9 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     public List<OrderDto> getOpen() {
         HuobiGetOpenRequestDto requestDto = new HuobiGetOpenRequestDto(cfg.getPublicKey());
         RestTemplate template = cfg.getRestTemplate();
-        log.info(getQueryString(HttpMethod.GET, ORDERS, requestDto));
         ResponseEntity<HuobiGetOpenResponseDto> resp = template
                 .exchange(
-                        getQueryString(HttpMethod.GET, ORDERS, requestDto),
+                        getQueryUri(HttpMethod.GET, ORDERS, requestDto),
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
                         HuobiGetOpenResponseDto.class);
@@ -102,7 +103,7 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
         HuobiRequestDto requestDto = new HuobiRequestDto(cfg.getPublicKey());
         RestTemplate template = cfg.getRestTemplate();
         template.exchange(
-                getQueryString(HttpMethod.POST, ORDERS + id + CANCEL_ORDER, requestDto),
+                getQueryUri(HttpMethod.POST, ORDERS + id + CANCEL_ORDER, requestDto),
                 HttpMethod.POST,
                 new HttpEntity<>(signer.restHeaders()),
                 Object.class);
@@ -122,7 +123,7 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
                 currency.toString());
         RestTemplate template = cfg.getRestTemplate();
         template.exchange(
-                getQueryString(HttpMethod.POST, WITHDRAWAL, requestDto),
+                getQueryUri(HttpMethod.POST, WITHDRAWAL, requestDto),
                 HttpMethod.POST,
                 new HttpEntity<>(signer.restHeaders()),
                 Object.class);
@@ -135,9 +136,18 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     }
 
     @SneakyThrows
-    private String getQueryString(HttpMethod method, String url, Object queryObj) {
+    private URI getQueryUri(HttpMethod method, String path, Object queryObj) {
+        // HUOBI USES FORM ENCODING IN QUERY !
         String query = FormHttpMessageToPojoConverter.pojoSerialize(cfg.getMapper(), queryObj, null);
-        return cfg.getRestBase() + url + "?" + query + "&Signature=" + signer.generate(method, url, query);
+        UriComponentsBuilder builder = UriComponentsBuilder
+                .fromHttpUrl(cfg.getRestBase())
+                .path(path);
+        Arrays.stream(query.split("&")).map(it -> it.split("=")).forEach(it -> builder.queryParam(it[0], it[1]));
+        builder.queryParam(
+                "Signature",
+                URLEncoder.encode(signer.generate(method, path, query), Charsets.UTF_8.name())
+        );
+        return builder.build(true).toUri();
     }
 
     private String getAccountId() {
