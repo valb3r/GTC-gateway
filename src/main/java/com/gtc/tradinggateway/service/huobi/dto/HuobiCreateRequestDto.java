@@ -2,24 +2,24 @@ package com.gtc.tradinggateway.service.huobi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
+import java.math.BigDecimal;
 
 /**
  * Created by mikro on 01.04.2018.
  */
 @Data
-public class HuobiCreateRequestDto extends HuobiRequestDto {
+@RequiredArgsConstructor
+public class HuobiCreateRequestDto {
 
     private String source = "api";
-    private String type = "buy-limit";
 
     @JsonProperty("account-id")
-    private String accountId;
+    private final String accountId;
 
-    private String amount;
-    private String price;
-    private String symbol;
-
-    public HuobiCreateRequestDto(String AccessKeyId) {
-        super(AccessKeyId);
-    }
+    private final String type;
+    private final BigDecimal amount;
+    private final BigDecimal price;
+    private final String symbol;
 }

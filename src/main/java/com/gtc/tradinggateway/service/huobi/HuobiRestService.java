@@ -5,6 +5,7 @@ import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.tradinggateway.aspect.rate.IgnoreRateLimited;
 import com.gtc.tradinggateway.config.HuobiConfig;
 import com.gtc.tradinggateway.config.converters.FormHttpMessageToPojoConverter;
+import com.gtc.tradinggateway.meta.PairSymbol;
 import com.gtc.tradinggateway.meta.TradingCurrency;
 import com.gtc.tradinggateway.service.Account;
 import com.gtc.tradinggateway.service.CreateOrder;
@@ -12,6 +13,7 @@ import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import com.gtc.tradinggateway.service.huobi.dto.*;
+import com.gtc.tradinggateway.util.DefaultInvertHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +30,6 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.gtc.tradinggateway.config.Const.Clients.HUOBI;
 
@@ -42,23 +43,33 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     private final HuobiEncryptionService signer;
 
     private static String ORDERS = "/v1/order/orders";
-    private static String CREATE_ORDER = ORDERS + "place";
+    private static String CREATE_ORDER = ORDERS + "/place";
     private static String CANCEL_ORDER = "/submitcancel";
     private static String WITHDRAWAL = "/v1/dw/withdraw/api/create";
 
     @Override
     public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
                                             BigDecimal amount, BigDecimal price) {
-        HuobiCreateRequestDto requestDto = new HuobiCreateRequestDto(cfg.getPublicKey());
+        PairSymbol pair = cfg.pairFromCurrency(from, to).orElseThrow(() -> new IllegalArgumentException(
+                "Pair from " + from.toString() + " to " + to.toString() + " is not supported")
+        );
+        BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pair, amount, price);
+        BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pair, price);
+        HuobiCreateRequestDto dto = new HuobiCreateRequestDto(
+                DefaultInvertHandler.amountToBuyOrSell(calcAmount) + "-limit",
+                getAccountId(),
+                calcAmount.abs(),
+                calcPrice,
+                pair.toString());
+        HuobiRequestDto requestDto = new HuobiRequestDto(cfg.getPublicKey());
         RestTemplate template = cfg.getRestTemplate();
         ResponseEntity<HuobiCreateResponseDto> resp = template
                 .exchange(
                         getQueryUri(HttpMethod.POST, CREATE_ORDER, requestDto),
                         HttpMethod.POST,
-                        new HttpEntity<>(signer.restHeaders()),
+                        new HttpEntity<>(dto, signer.restHeaders(HttpMethod.POST)),
                         HuobiCreateResponseDto.class
                 );
-
         return Optional.of(
                 OrderCreatedDto.builder()
                         .assignedId(resp.getBody().getOrderId())
@@ -82,20 +93,9 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     }
 
     @Override
+    @SneakyThrows
     public List<OrderDto> getOpen() {
-        HuobiGetOpenRequestDto requestDto = new HuobiGetOpenRequestDto(cfg.getPublicKey());
-        RestTemplate template = cfg.getRestTemplate();
-        ResponseEntity<HuobiGetOpenResponseDto> resp = template
-                .exchange(
-                        getQueryUri(HttpMethod.GET, ORDERS, requestDto),
-                        HttpMethod.GET,
-                        new HttpEntity<>(signer.restHeaders()),
-                        HuobiGetOpenResponseDto.class);
-        return resp.getBody()
-                .getOrders()
-                .stream()
-                .map(order -> order.mapTo())
-                .collect(Collectors.toList());
+        throw new Exception("Not implemented");
     }
 
     @Override
@@ -157,6 +157,6 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     @IgnoreRateLimited
     @Scheduled(initialDelay = 0, fixedDelay = 10000000)
     public void ttt() {
-        getOpen();
+        create("1", TradingCurrency.Bitcoin, TradingCurrency.Litecoin, new BigDecimal(10), new BigDecimal(10));
     }
 }

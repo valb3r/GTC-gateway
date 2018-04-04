@@ -40,4 +40,14 @@ public class HuobiEncryptionService {
         headers.add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0)");
         return headers;
     }
+
+    public HttpHeaders restHeaders(HttpMethod method) {
+        HttpHeaders headers = restHeaders();
+        if (method == HttpMethod.POST) {
+            headers.add("Accept", "application/json");
+            headers.remove("Content-Type");
+            headers.add("Content-Type", "application/json");
+        }
+        return headers;
+    }
 }
