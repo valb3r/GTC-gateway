@@ -13,6 +13,7 @@ import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import com.gtc.tradinggateway.service.huobi.dto.*;
+import com.gtc.tradinggateway.util.CodeMapper;
 import com.gtc.tradinggateway.util.DefaultInvertHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -21,7 +22,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -46,6 +46,8 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     private static String CREATE_ORDER = ORDERS + "/place";
     private static String CANCEL_ORDER = "/submitcancel";
     private static String WITHDRAWAL = "/v1/dw/withdraw/api/create";
+    private static String ACCOUNTS = "/v1/account/accounts/";
+    private static String BALANCE = "/balance";
 
     @Override
     public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
@@ -112,8 +114,18 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     public Map<TradingCurrency, BigDecimal> balances() {
         HuobiRequestDto requestDto = new HuobiRequestDto(cfg.getPublicKey());
         RestTemplate template = cfg.getRestTemplate();
-
-        return new HashMap<>();
+        ResponseEntity<HuobiBalanceResponseDto> resp = template
+                .exchange(
+                        getQueryUri(HttpMethod.GET, ACCOUNTS + getAccountId() + BALANCE, requestDto),
+                        HttpMethod.GET,
+                        new HttpEntity<>(signer.restHeaders()),
+                        HuobiBalanceResponseDto.class);
+        Map<TradingCurrency, BigDecimal> results = new EnumMap<>(TradingCurrency.class);
+        List<HuobiBalanceResponseDto.BalanceItem> assets = resp.getBody().getData().getList();
+        for (HuobiBalanceResponseDto.BalanceItem item : assets) {
+            CodeMapper.mapAndPut(item.getCurrency(), item.getAmount(), cfg, results);
+        }
+        return results;
     }
 
     @Override
@@ -154,11 +166,5 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
 
     private String getAccountId() {
         return "test";
-    }
-
-    @IgnoreRateLimited
-    @Scheduled(initialDelay = 0, fixedDelay = 10000000)
-    public void ttt() {
-        withdraw(TradingCurrency.Bitcoin, new BigDecimal(1), "0x0000");
     }
 }

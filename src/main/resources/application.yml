@@ -115,8 +115,7 @@ app:
         secretKey: ${HUOBI_SECRET}
         pairs:
             BTC-LTC=btcltc,
-            BTC-DASH=btcdsh,
-            BTC-DASH=btcdash
+            BTC-DASH=btcdsh
         ratePerM: 60
     mock:
         restBase: "http://localhost:9090/api"
@@ -130,8 +129,7 @@ app:
     clients:
         # all-clients: bitfinex,binance,wex,hitbtc
         # mocks (need MOCK_ENABLED as true): mock-asia,mock-europe
-        #active: bitfinex,binance,wex,hitbtc,huobi
-        active: huobi #bitfinex,binance,wex,hitbtc
+        active: bitfinex,binance,wex,hitbtc,huobi
     schedule:
         puppeteerS: 10
     jms:
