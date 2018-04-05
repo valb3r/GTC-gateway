@@ -1,18 +1,22 @@
 package com.gtc.tradinggateway.service.huobi.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
+
 /**
  * Created by mikro on 01.04.2018.
  */
-public class HuobiWithdrawalRequestDto extends HuobiRequestDto {
+@Data
+@RequiredArgsConstructor
+public class HuobiWithdrawalRequestDto {
 
-    private String address;
-    private String amount;
-    private String currency;
+    @JsonProperty("address")
+    private final String address;
 
-    public HuobiWithdrawalRequestDto(String accessKey, String address, String amount, String currency) {
-        super(accessKey);
-        this.address = address;
-        this.amount = amount;
-        this.currency = currency;
-    }
+    @JsonProperty("amount")
+    private final String amount;
+
+    @JsonProperty("currency")
+    private final String currency;
 }

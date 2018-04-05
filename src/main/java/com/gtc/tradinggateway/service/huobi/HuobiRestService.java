@@ -78,15 +78,14 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
 
     @Override
     public Optional<OrderDto> get(String id) {
-        HuobiRequestDto requestDto = new HuobiRequestDto(cfg.getPublicKey());
+        HuobiGetOrderRequestDto requestDto = new HuobiGetOrderRequestDto(cfg.getPublicKey(), id);
         RestTemplate template = cfg.getRestTemplate();
         ResponseEntity<HuobiGetResponseDto> resp = template
                 .exchange(
-                        getQueryUri(HttpMethod.GET, ORDERS + id, requestDto),
+                        getQueryUri(HttpMethod.GET, ORDERS + "/" + id, requestDto),
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
-                        HuobiGetResponseDto.class
-                );
+                        HuobiGetResponseDto.class);
         return Optional.of(resp.getBody()
                 .getOrder()
                 .mapTo());
@@ -103,29 +102,32 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
         HuobiRequestDto requestDto = new HuobiRequestDto(cfg.getPublicKey());
         RestTemplate template = cfg.getRestTemplate();
         template.exchange(
-                getQueryUri(HttpMethod.POST, ORDERS + id + CANCEL_ORDER, requestDto),
+                getQueryUri(HttpMethod.POST, ORDERS + "/" + id + CANCEL_ORDER, requestDto),
                 HttpMethod.POST,
-                new HttpEntity<>(signer.restHeaders()),
+                new HttpEntity<>(signer.restHeaders(HttpMethod.POST)),
                 Object.class);
     }
 
     @Override
     public Map<TradingCurrency, BigDecimal> balances() {
+        HuobiRequestDto requestDto = new HuobiRequestDto(cfg.getPublicKey());
+        RestTemplate template = cfg.getRestTemplate();
+
         return new HashMap<>();
     }
 
     @Override
     public void withdraw(TradingCurrency currency, BigDecimal amount, String destination) {
+        HuobiRequestDto dto = new HuobiRequestDto(cfg.getPublicKey());
         HuobiWithdrawalRequestDto requestDto = new HuobiWithdrawalRequestDto(
-                cfg.getPublicKey(),
                 destination,
                 amount.toString(),
-                currency.toString());
+                currency.toString().toLowerCase());
         RestTemplate template = cfg.getRestTemplate();
         template.exchange(
-                getQueryUri(HttpMethod.POST, WITHDRAWAL, requestDto),
+                getQueryUri(HttpMethod.POST, WITHDRAWAL, dto),
                 HttpMethod.POST,
-                new HttpEntity<>(signer.restHeaders()),
+                new HttpEntity<>(requestDto, signer.restHeaders(HttpMethod.POST)),
                 Object.class);
     }
 
@@ -157,6 +159,6 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     @IgnoreRateLimited
     @Scheduled(initialDelay = 0, fixedDelay = 10000000)
     public void ttt() {
-        create("1", TradingCurrency.Bitcoin, TradingCurrency.Litecoin, new BigDecimal(10), new BigDecimal(10));
+        withdraw(TradingCurrency.Bitcoin, new BigDecimal(1), "0x0000");
     }
 }
