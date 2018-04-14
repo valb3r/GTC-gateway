@@ -1,7 +1,7 @@
 package com.gtc.tradinggateway.service.huobi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
@@ -9,11 +9,11 @@ import java.math.BigDecimal;
 /**
  * Created by mikro on 01.04.2018.
  */
-@Data
+@Getter
 @RequiredArgsConstructor
 public class HuobiCreateRequestDto {
 
-    private String source = "api";
+    private final String source = "api";
 
     @JsonProperty("account-id")
     private final String accountId;

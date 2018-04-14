@@ -52,7 +52,7 @@ public class GdaxRestService implements ManageOrders, Withdraw, Account {
     }
 
     @Override
-    public List<OrderDto> getOpen() {
+    public List<OrderDto> getOpen(TradingCurrency from, TradingCurrency to) {
         return null;
     }
 

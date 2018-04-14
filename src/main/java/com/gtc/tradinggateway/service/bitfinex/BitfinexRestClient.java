@@ -63,7 +63,8 @@ public class BitfinexRestClient implements Withdraw, ManageOrders, Account, Crea
         return Optional.of(parseOrderDto(resp.getBody()));
     }
 
-    public List<OrderDto> getOpen() {
+    @Override
+    public List<OrderDto> getOpen(TradingCurrency from, TradingCurrency to) {
         BitfinexRequestDto requestDto = new BitfinexRequestDto(ORDERS);
         ResponseEntity<BitfinexOrderDto[]> resp = cfg.getRestTemplate()
                 .exchange(
@@ -75,6 +76,7 @@ public class BitfinexRestClient implements Withdraw, ManageOrders, Account, Crea
         return Arrays.stream(orders).map(this::parseOrderDto).collect(Collectors.toList());
     }
 
+    @Override
     public void cancel(String id) {
         BitfinexGetOrderRequestDto requestDto = new BitfinexGetOrderRequestDto(ORDER_CANCEL, Long.valueOf(id));
         cfg.getRestTemplate()
@@ -85,6 +87,7 @@ public class BitfinexRestClient implements Withdraw, ManageOrders, Account, Crea
                         Object.class);
     }
 
+    @Override
     public void withdraw(TradingCurrency currency, BigDecimal amount, String destination) {
         BitfinexWithdrawRequestDto requestDto =
                 new BitfinexWithdrawRequestDto(WITHDRAW, cfg.getCustomCurrencyName().get(currency), amount, destination);
@@ -96,6 +99,7 @@ public class BitfinexRestClient implements Withdraw, ManageOrders, Account, Crea
                         Object.class);
     }
 
+    @Override
     public Map<TradingCurrency, BigDecimal> balances() {
         BitfinexRequestDto requestDto = new BitfinexRequestDto(BALANCE);
         ResponseEntity<BitfinexBalanceItemDto[]> resp = cfg.getRestTemplate()
@@ -113,36 +117,11 @@ public class BitfinexRestClient implements Withdraw, ManageOrders, Account, Crea
         return results;
     }
 
-    private OrderDto parseOrderDto(BitfinexOrderDto response) {
-        return OrderDto.builder()
-                .orderId(response.getId())
-                .size(SELL.equals(response.getSide())
-                        ? response.getAmount().negate()
-                        : response.getAmount())
-                .price(response.getPrice())
-                .status(getOrderStatus(response))
-                .build();
-    }
-
-    private OrderStatus getOrderStatus(BitfinexOrderDto response) {
-        OrderStatus result = OrderStatus.NEW;
-        if (response.isCancelled()) {
-            result = OrderStatus.CANCELED;
-        } else if (!response.isActive()) {
-            result = OrderStatus.FILLED;
-        } else if (response.getExecutedAmount().compareTo(BigDecimal.ZERO) > 0) {
-            return OrderStatus.PARTIALLY_FILLED;
-        }
-        return result;
-    }
-
+    @Override
     @SneakyThrows
     public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
                                             BigDecimal amount, BigDecimal price) {
-        PairSymbol pair = cfg.pairFromCurrency(from, to).orElseThrow(() -> new IllegalArgumentException(
-                "Pair from " + from.toString() + " to " + to.toString() + " is not supported")
-        );
-
+        PairSymbol pair = cfg.pairFromCurrencyOrThrow(from, to);
         BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pair, amount, price);
         BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pair, price);
 
@@ -176,5 +155,28 @@ public class BitfinexRestClient implements Withdraw, ManageOrders, Account, Crea
     @IgnoreRateLimited
     public String name() {
         return BITFINEX;
+    }
+
+    private OrderDto parseOrderDto(BitfinexOrderDto response) {
+        return OrderDto.builder()
+                .orderId(response.getId())
+                .size(SELL.equals(response.getSide())
+                        ? response.getAmount().negate()
+                        : response.getAmount())
+                .price(response.getPrice())
+                .status(getOrderStatus(response))
+                .build();
+    }
+
+    private OrderStatus getOrderStatus(BitfinexOrderDto response) {
+        OrderStatus result = OrderStatus.NEW;
+        if (response.isCancelled()) {
+            result = OrderStatus.CANCELED;
+        } else if (!response.isActive()) {
+            result = OrderStatus.FILLED;
+        } else if (response.getExecutedAmount().compareTo(BigDecimal.ZERO) > 0) {
+            return OrderStatus.PARTIALLY_FILLED;
+        }
+        return result;
     }
 }

@@ -11,4 +11,12 @@ public class HuobiCreateResponseDto {
 
     @JsonProperty("data")
     private String orderId;
+
+    private String status;
+
+    public void selfAssert() {
+        if (!status.equalsIgnoreCase("ok")) {
+            throw new IllegalStateException(status);
+        }
+    }
 }

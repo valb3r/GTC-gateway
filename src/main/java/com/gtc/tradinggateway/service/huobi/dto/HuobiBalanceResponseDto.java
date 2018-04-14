@@ -10,15 +10,15 @@ import java.util.List;
 @Data
 public class HuobiBalanceResponseDto {
 
-    private Data data;
+    private Balance data;
 
-    @lombok.Data
-    public static class Data {
+    @Data
+    public static class Balance {
 
         private List<BalanceItem> list;
     }
 
-    @lombok.Data
+    @Data
     public static class BalanceItem {
 
         private String currency;

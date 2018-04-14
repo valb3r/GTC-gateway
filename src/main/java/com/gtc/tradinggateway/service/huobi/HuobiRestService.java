@@ -15,6 +15,7 @@ import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
 import com.gtc.tradinggateway.service.huobi.dto.*;
 import com.gtc.tradinggateway.util.CodeMapper;
 import com.gtc.tradinggateway.util.DefaultInvertHandler;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.gtc.tradinggateway.config.Const.Clients.HUOBI;
 
@@ -39,22 +41,20 @@ import static com.gtc.tradinggateway.config.Const.Clients.HUOBI;
 @RequiredArgsConstructor
 public class HuobiRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
+    private static final String ORDERS = "/v1/order/orders";
+    private static final String CREATE_ORDER = ORDERS + "/place";
+    private static final String CANCEL_ORDER = "/submitcancel";
+    private static final String WITHDRAWAL = "/v1/dw/withdraw/api/create";
+    private static final String ACCOUNTS = "/v1/account/accounts/";
+    private static final String BALANCE = "/balance";
+
     private final HuobiConfig cfg;
     private final HuobiEncryptionService signer;
-
-    private static String ORDERS = "/v1/order/orders";
-    private static String CREATE_ORDER = ORDERS + "/place";
-    private static String CANCEL_ORDER = "/submitcancel";
-    private static String WITHDRAWAL = "/v1/dw/withdraw/api/create";
-    private static String ACCOUNTS = "/v1/account/accounts/";
-    private static String BALANCE = "/balance";
 
     @Override
     public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
                                             BigDecimal amount, BigDecimal price) {
-        PairSymbol pair = cfg.pairFromCurrency(from, to).orElseThrow(() -> new IllegalArgumentException(
-                "Pair from " + from.toString() + " to " + to.toString() + " is not supported")
-        );
+        PairSymbol pair = cfg.pairFromCurrencyOrThrow(from, to);
         BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pair, amount, price);
         BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pair, price);
         HuobiCreateRequestDto dto = new HuobiCreateRequestDto(
@@ -72,9 +72,12 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
                         new HttpEntity<>(dto, signer.restHeaders(HttpMethod.POST)),
                         HuobiCreateResponseDto.class
                 );
+
+        resp.getBody().selfAssert();
+
         return Optional.of(
                 OrderCreatedDto.builder()
-                        .assignedId(resp.getBody().getOrderId())
+                        .assignedId(SymbolAndId.valueOf(dto, resp.getBody()).toString())
                         .build());
     }
 
@@ -84,7 +87,7 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
         RestTemplate template = cfg.getRestTemplate();
         ResponseEntity<HuobiGetResponseDto> resp = template
                 .exchange(
-                        getQueryUri(HttpMethod.GET, ORDERS + "/" + id, requestDto),
+                        getQueryUri(HttpMethod.GET, ORDERS + "/" + SymbolAndId.valueOf(id).getId(), requestDto),
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
                         HuobiGetResponseDto.class);
@@ -95,8 +98,17 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
 
     @Override
     @SneakyThrows
-    public List<OrderDto> getOpen() {
-        throw new Exception("Not implemented");
+    public List<OrderDto> getOpen(TradingCurrency from, TradingCurrency to) {
+        PairSymbol pair = cfg.pairFromCurrencyOrThrow(from, to);
+        HuobiGetOrderList requestDto = new HuobiGetOrderList(cfg.getPublicKey(), pair.getSymbol());
+        RestTemplate template = cfg.getRestTemplate();
+        ResponseEntity<HuobiGetListResponseDto> resp = template
+                .exchange(
+                        getQueryUri(HttpMethod.GET, ORDERS, requestDto),
+                        HttpMethod.GET,
+                        new HttpEntity<>(signer.restHeaders()),
+                        HuobiGetListResponseDto.class);
+        return resp.getBody().getOrders().stream().map(HuobiOrderDto::mapTo).collect(Collectors.toList());
     }
 
     @Override
@@ -104,7 +116,8 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
         HuobiRequestDto requestDto = new HuobiRequestDto(cfg.getPublicKey());
         RestTemplate template = cfg.getRestTemplate();
         template.exchange(
-                getQueryUri(HttpMethod.POST, ORDERS + "/" + id + CANCEL_ORDER, requestDto),
+                getQueryUri(HttpMethod.POST, ORDERS + "/" + SymbolAndId.valueOf(id).getId() + CANCEL_ORDER,
+                        requestDto),
                 HttpMethod.POST,
                 new HttpEntity<>(signer.restHeaders(HttpMethod.POST)),
                 Object.class);
@@ -166,5 +179,26 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
 
     private String getAccountId() {
         return "test";
+    }
+
+    @Data
+    private static class SymbolAndId {
+
+        private final String symbol;
+        private final String id;
+
+        static SymbolAndId valueOf(HuobiCreateRequestDto request, HuobiCreateResponseDto resp) {
+            return new SymbolAndId(request.getSymbol(), resp.getOrderId());
+        }
+
+        static SymbolAndId valueOf(String combined) {
+            String[] symbolId = combined.split(".");
+            return new SymbolAndId(symbolId[0], symbolId[1]);
+        }
+
+        @Override
+        public String toString() {
+            return symbol + "." + id;
+        }
     }
 }

@@ -94,9 +94,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     @LockAndProceed
     public Optional<OrderCreatedDto> create(
             String tryToAssignId, TradingCurrency from, TradingCurrency to, BigDecimal amount, BigDecimal price) {
-        PairSymbol pair = cfg.pairFromCurrency(from, to)
-                .orElseThrow(() -> new IllegalStateException("Unsupported pair"));
-
+        PairSymbol pair = cfg.pairFromCurrencyOrThrow(from, to);
         BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pair, amount, price);
         BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pair, price);
         WexCreateOrder request = new WexCreateOrder(nonce(PRIO_STEP), CREATE, pair.getSymbol(),
@@ -138,7 +136,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
     }
 
     @Override
-    public List<OrderDto> getOpen() {
+    public List<OrderDto> getOpen(TradingCurrency from, TradingCurrency to) {
         WexGetOpenRequest request = new WexGetOpenRequest(nonce(), GET_OPEN);
         ResponseEntity<WexGetOpenResponse> resp = cfg.getRestTemplate()
                 .exchange(

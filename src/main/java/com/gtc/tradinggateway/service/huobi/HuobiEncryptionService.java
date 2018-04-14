@@ -5,15 +5,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
-import sun.misc.BASE64Encoder;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
 @Service
@@ -36,17 +37,20 @@ public class HuobiEncryptionService {
 
     public HttpHeaders restHeaders() {
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Type", "application/x-www-form-urlencoded");
-        headers.add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0)");
+        headers.add(HttpHeaders.CONTENT_TYPE, APPLICATION_FORM_URLENCODED_VALUE);
+        headers.add(
+                HttpHeaders.USER_AGENT,
+                "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:53.0) Gecko/20100101 Firefox/53.0)"
+        );
         return headers;
     }
 
     public HttpHeaders restHeaders(HttpMethod method) {
         HttpHeaders headers = restHeaders();
         if (method == HttpMethod.POST) {
-            headers.add("Accept", "application/json");
-            headers.remove("Content-Type");
-            headers.add("Content-Type", "application/json");
+            headers.add(HttpHeaders.ACCEPT, APPLICATION_JSON_VALUE);
+            headers.remove(HttpHeaders.CONTENT_TYPE);
+            headers.add(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE);
         }
         return headers;
     }

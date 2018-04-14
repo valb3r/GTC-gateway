@@ -95,7 +95,7 @@ public abstract class BaseMockExchangeApi implements ManageOrders, Withdraw, Acc
     }
 
     @Override
-    public List<OrderDto> getOpen() {
+    public List<OrderDto> getOpen(TradingCurrency from, TradingCurrency to) {
         URI target = UriComponentsBuilder
                 .fromHttpUrl(cfg.getRestBase())
                 .pathSegment(TRADE, name(), cfg.getPublicKey(), ORDERS)

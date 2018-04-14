@@ -1,5 +1,6 @@
 package com.gtc.tradinggateway.service.huobi.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.gtc.tradinggateway.service.huobi.HuobiEncryptionService;
 import lombok.Data;
@@ -13,17 +14,16 @@ import java.time.format.DateTimeFormatter;
 public class HuobiRequestDto {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-    
-    private final String AccessKeyId;
 
-    private String SignatureMethod = HuobiEncryptionService.METHOD;
+    @JsonProperty("AccessKeyId")
+    private final String accessKeyId;
 
-    private String SignatureVersion = "2";
+    @JsonProperty("SignatureMethod")
+    private final String signatureMethod = HuobiEncryptionService.METHOD;
 
-    private String Timestamp;
+    @JsonProperty("SignatureVersion")
+    private final String signatureVersion = "2";
 
-    public HuobiRequestDto(String AccessKeyId) {
-        this.AccessKeyId = AccessKeyId;
-        Timestamp = FORMATTER.format(LocalDateTime.now(ZoneOffset.UTC));
-    }
+    @JsonProperty("Timestamp")
+    private final String timestamp = FORMATTER.format(LocalDateTime.now(ZoneOffset.UTC));
 }

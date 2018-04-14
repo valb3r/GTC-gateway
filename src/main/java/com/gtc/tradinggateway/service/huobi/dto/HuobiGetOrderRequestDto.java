@@ -2,9 +2,9 @@ package com.gtc.tradinggateway.service.huobi.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
-import lombok.Data;
+import lombok.Getter;
 
-@Data
+@Getter
 @JsonPropertyOrder({"AccessKeyId", "SignatureMethod", "SignatureVersion", "Timestamp", "orderId"})
 public class HuobiGetOrderRequestDto extends HuobiRequestDto {
 
