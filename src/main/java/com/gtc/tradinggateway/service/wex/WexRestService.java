@@ -92,6 +92,7 @@ public class WexRestService implements ManageOrders, Withdraw, Account, CreateOr
      */
     @Override
     @LockAndProceed
+    @RateLimited(ratePerMinute = "${app.wex.createRatePerM}")
     public Optional<OrderCreatedDto> create(
             String tryToAssignId, TradingCurrency from, TradingCurrency to, BigDecimal amount, BigDecimal price) {
         PairSymbol pair = cfg.pairFromCurrencyOrThrow(from, to);

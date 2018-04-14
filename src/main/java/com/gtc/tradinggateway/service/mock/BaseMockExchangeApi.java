@@ -60,6 +60,7 @@ public abstract class BaseMockExchangeApi implements ManageOrders, Withdraw, Acc
     }
 
     @Override
+    @RateLimited(ratePerMinute = "${app.mock.createRatePerM}")
     public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to, BigDecimal amount, BigDecimal price) {
         URI target = UriComponentsBuilder
                 .fromHttpUrl(cfg.getRestBase())

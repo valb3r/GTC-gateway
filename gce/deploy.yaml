@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: trader-gateway
-          image: gcr.io/bidcache/bidgateway:7
+          image: gcr.io/bidcache/bidgateway:25
           resources:
             requests:
               memory: "128Mi"
@@ -24,7 +24,7 @@ spec:
             - containerPort: 8080
           env:
             - name: ENABLE_NEWRELIC
-              value: "true"
+              value: "false"
             - name: NEW_RELIC_LICENSE_KEY
               valueFrom:
                 secretKeyRef:
@@ -61,4 +61,4 @@ spec:
                   name: trade-credentials
                   key: binance_secret
             - name: ESB_AMQ_ADDRESS
-              value: tcp://esb-svc.default.svc.cluster.local:61616
+              value: esb-svc.default.svc.cluster.local

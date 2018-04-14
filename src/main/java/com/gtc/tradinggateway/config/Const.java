@@ -30,4 +30,6 @@ public class Const {
         public static final String HUOBI = "huobi";
         public static final String BITFINEX = "bitfinex";
     }
+
+    public static final String STATISTICS = "statistics";
 }

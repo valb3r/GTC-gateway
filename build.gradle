@@ -23,7 +23,7 @@ buildscript {
                 validator                 : "5.4.1.Final",
                 swagger                   : "2.7.0",
                 tokenBucket               : "1.6",
-                activeMq                  : "5.15.3"
+                commonsMath               : "3.6.1"
         ]
     }
     dependencies {
@@ -54,16 +54,16 @@ dependencies {
 
     compile "org.springframework.boot:spring-boot-configuration-processor"
     compile "org.springframework.boot:spring-boot-starter-web"
-    compile "org.springframework.boot:spring-boot-starter-activemq"
+    compile "org.springframework.boot:spring-boot-starter-artemis"
     compile 'org.springframework.boot:spring-boot-starter-aop'
     compile "com.google.guava:guava:${versions.guava}"
     compile "io.reactivex.rxjava2:rxjava:${versions.reactivex}"
     compile "com.github.jacek-marchwicki:JavaWebsocketClient:${versions.wsClient}"
     compile "com.newrelic.agent.java:newrelic-api:${versions.newRelicAPI}"
     compile "commons-codec:commons-codec:${versions.commonsCodec}"
+    compile "org.apache.commons:commons-math3:${versions.commonsMath}"
     compile "org.hibernate:hibernate-validator:${versions.validator}"
     compile "org.isomorphism:token-bucket:${versions.tokenBucket}"
-    compile "org.apache.activemq:activemq-pool:${versions.activeMq}"
 
     compile "io.springfox:springfox-swagger2:${versions.swagger}"
     compile "io.springfox:springfox-swagger-ui:${versions.swagger}"

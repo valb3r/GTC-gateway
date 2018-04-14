@@ -119,6 +119,7 @@ public class BitfinexRestClient implements Withdraw, ManageOrders, Account, Crea
 
     @Override
     @SneakyThrows
+    @RateLimited(ratePerMinute = "${app.bitfinex.createRatePerM}")
     public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
                                             BigDecimal amount, BigDecimal price) {
         PairSymbol pair = cfg.pairFromCurrencyOrThrow(from, to);
