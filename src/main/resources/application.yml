@@ -100,6 +100,22 @@ app:
             dsh=DASH
         ratePerM: 50
         createRatePerM: 10
+    huobi:
+        restBase: "https://api.huobi.pro"
+        publicKey: ${HUOBI_PUBLIC}
+        secretKey: ${HUOBI_SECRET}
+        pairs:
+            BTC-USDT=btcusdt,
+            DASH-BTC=dashbtc,
+            LTC-BTC=ltcbtc,
+            XRP-BTC=xrpbtc,
+            NEO-BTC=neobtc,
+            OMG-BTC=omgbtc,
+            LSK-BTC=lskbtc,
+            GAS-BTC=gasbtc,
+            QTUM-BTC=qtumbtc
+        ratePerM: 50
+        createRatePerM: 10
     mock:
         restBase: "http://localhost:9090/api"
         publicKey: trade-gateway
@@ -113,7 +129,7 @@ app:
     clients:
         # all-clients: bitfinex,binance,wex,hitbtc
         # mocks (need MOCK_ENABLED as true): mock-asia,mock-europe
-        active: bitfinex,binance,wex,hitbtc
+        active: bitfinex,binance,wex,hitbtc,huobi
     schedule:
         puppeteerS: 10
     jms:

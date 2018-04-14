@@ -61,7 +61,9 @@ public enum TradingCurrency {
     MonaCoin("MONA"),
     Decred("DCR"),
     Status("SNT"),
-    ByteballBytes("GBYTE");
+    ByteballBytes("GBYTE"),
+    Nano("NANO"),
+    Gas("GAS");
 
     @Getter
     private final String code;

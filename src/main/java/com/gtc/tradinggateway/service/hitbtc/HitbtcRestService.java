@@ -63,7 +63,7 @@ public class HitbtcRestService implements ManageOrders, Withdraw, Account {
     }
 
     @Override
-    public List<OrderDto> getOpen() {
+    public List<OrderDto> getOpen(TradingCurrency from, TradingCurrency to) {
         ResponseEntity<HitbtcOrderGetDto[]> resp = cfg.getRestTemplate()
                 .exchange(
                         cfg.getRestBase() + ORDERS,
