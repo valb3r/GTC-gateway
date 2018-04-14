@@ -81,7 +81,7 @@ app:
         secretKey: ${HITBTC_SECRET}
         pairs:
             # USD is actually usdt
-            LTCBTC=LTC-BTC,
+            LTC-BTC=LTCBTC,
             XMR-BTC=XMRBTC,
             ETH-BTC=ETHBTC,
             XRP-BTC=XRPBTC,
