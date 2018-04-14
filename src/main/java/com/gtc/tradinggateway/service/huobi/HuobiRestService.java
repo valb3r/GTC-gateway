@@ -3,6 +3,7 @@ package com.gtc.tradinggateway.service.huobi;
 import com.google.common.base.Charsets;
 import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.tradinggateway.aspect.rate.IgnoreRateLimited;
+import com.gtc.tradinggateway.aspect.rate.RateLimited;
 import com.gtc.tradinggateway.config.HuobiConfig;
 import com.gtc.tradinggateway.config.converters.FormHttpMessageToPojoConverter;
 import com.gtc.tradinggateway.meta.PairSymbol;
@@ -31,6 +32,7 @@ import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.gtc.tradinggateway.config.Const.Clients.HUOBI;
@@ -39,6 +41,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.HUOBI;
 @Service
 @EnableScheduling
 @RequiredArgsConstructor
+@RateLimited(ratePerMinute = "${app.huobi.ratePerM}", mode = RateLimited.Mode.CLASS)
 public class HuobiRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
     private static final String ORDERS = "/v1/order/orders";
@@ -51,15 +54,34 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     private final HuobiConfig cfg;
     private final HuobiEncryptionService signer;
 
+    private final AtomicReference<Long> accountId = new AtomicReference<>();
+
+    private long accountId() {
+        if (null != accountId.get()) {
+            return accountId.get();
+        }
+
+        HuobiRequestDto requestDto = new HuobiRequestDto(cfg.getPublicKey());
+        RestTemplate template = cfg.getRestTemplate();
+        ResponseEntity<HuobiAccountsResponseDto> resp = template
+                .exchange(
+                        getQueryUri(HttpMethod.GET, ACCOUNTS, requestDto),
+                        HttpMethod.GET,
+                        new HttpEntity<>(signer.restHeaders()),
+                        HuobiAccountsResponseDto.class);
+        accountId.set(resp.getBody().getPrimaryAccountOrThrow().getId());
+        return accountId.get();
+    }
+
     @Override
+    @RateLimited(ratePerMinute = "${app.huobi.createRatePerM}")
     public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
                                             BigDecimal amount, BigDecimal price) {
         PairSymbol pair = cfg.pairFromCurrencyOrThrow(from, to);
         BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pair, amount, price);
         BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pair, price);
-        HuobiCreateRequestDto dto = new HuobiCreateRequestDto(
+        HuobiCreateRequestDto dto = new HuobiCreateRequestDto(accountId(),
                 DefaultInvertHandler.amountToBuyOrSell(calcAmount) + "-limit",
-                getAccountId(),
                 calcAmount.abs(),
                 calcPrice,
                 pair.toString());
@@ -82,12 +104,13 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     }
 
     @Override
-    public Optional<OrderDto> get(String id) {
+    public Optional<OrderDto> get(String symbolId) {
+        long id = SymbolAndId.valueOf(symbolId).getId();
         HuobiGetOrderRequestDto requestDto = new HuobiGetOrderRequestDto(cfg.getPublicKey(), id);
         RestTemplate template = cfg.getRestTemplate();
         ResponseEntity<HuobiGetResponseDto> resp = template
                 .exchange(
-                        getQueryUri(HttpMethod.GET, ORDERS + "/" + SymbolAndId.valueOf(id).getId(), requestDto),
+                        getQueryUri(HttpMethod.GET, ORDERS + "/" + id, requestDto),
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
                         HuobiGetResponseDto.class);
@@ -100,7 +123,7 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     @SneakyThrows
     public List<OrderDto> getOpen(TradingCurrency from, TradingCurrency to) {
         PairSymbol pair = cfg.pairFromCurrencyOrThrow(from, to);
-        HuobiGetOrderList requestDto = new HuobiGetOrderList(cfg.getPublicKey(), pair.getSymbol());
+        HuobiGetOrderListRequestDto requestDto = new HuobiGetOrderListRequestDto(cfg.getPublicKey(), pair.getSymbol());
         RestTemplate template = cfg.getRestTemplate();
         ResponseEntity<HuobiGetListResponseDto> resp = template
                 .exchange(
@@ -129,14 +152,14 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
         RestTemplate template = cfg.getRestTemplate();
         ResponseEntity<HuobiBalanceResponseDto> resp = template
                 .exchange(
-                        getQueryUri(HttpMethod.GET, ACCOUNTS + getAccountId() + BALANCE, requestDto),
+                        getQueryUri(HttpMethod.GET, ACCOUNTS + accountId() + BALANCE, requestDto),
                         HttpMethod.GET,
                         new HttpEntity<>(signer.restHeaders()),
                         HuobiBalanceResponseDto.class);
         Map<TradingCurrency, BigDecimal> results = new EnumMap<>(TradingCurrency.class);
         List<HuobiBalanceResponseDto.BalanceItem> assets = resp.getBody().getData().getList();
         for (HuobiBalanceResponseDto.BalanceItem item : assets) {
-            CodeMapper.mapAndPut(item.getCurrency(), item.getAmount(), cfg, results);
+            CodeMapper.mapAndPut(item.getCurrency().toUpperCase(), item.getAmount(), cfg, results);
         }
         return results;
     }
@@ -177,23 +200,19 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
         return builder.build(true).toUri();
     }
 
-    private String getAccountId() {
-        return "test";
-    }
-
     @Data
     private static class SymbolAndId {
 
         private final String symbol;
-        private final String id;
+        private final long id;
 
         static SymbolAndId valueOf(HuobiCreateRequestDto request, HuobiCreateResponseDto resp) {
-            return new SymbolAndId(request.getSymbol(), resp.getOrderId());
+            return new SymbolAndId(request.getSymbol(), Long.valueOf(resp.getOrderId()));
         }
 
         static SymbolAndId valueOf(String combined) {
-            String[] symbolId = combined.split(".");
-            return new SymbolAndId(symbolId[0], symbolId[1]);
+            String[] symbolId = combined.split("\\.");
+            return new SymbolAndId(symbolId[0], Long.valueOf(symbolId[1]));
         }
 
         @Override

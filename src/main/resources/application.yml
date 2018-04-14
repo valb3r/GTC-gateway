@@ -105,8 +105,15 @@ app:
         publicKey: ${HUOBI_PUBLIC}
         secretKey: ${HUOBI_SECRET}
         pairs:
-            BTC-LTC=btcltc,
-            BTC-DASH=btcdsh
+            BTC-USDT=btcusdt,
+            DASH-BTC=dashbtc,
+            LTC-BTC=ltcbtc,
+            XRP-BTC=xrpbtc,
+            NEO-BTC=neobtc,
+            OMG-BTC=omgbtc,
+            LSK-BTC=lskbtc,
+            GAS-BTC=gasbtc,
+            QTUM-BTC=qtumbtc
         ratePerM: 50
         createRatePerM: 10
     mock:

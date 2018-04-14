@@ -1,10 +1,12 @@
 package com.gtc.tradinggateway.service.huobi.dto;
 
+import com.google.common.collect.ImmutableMap;
 import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.model.tradinggateway.api.dto.data.OrderStatus;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 /**
  * Created by mikro on 01.04.2018.
@@ -12,18 +14,27 @@ import java.math.BigDecimal;
 @Data
 public class HuobiOrderDto {
 
-    private Number orderId;
+    private static final Map<String, OrderStatus> MAPPER = ImmutableMap.<String, OrderStatus>builder()
+            .put("pre-submitted", OrderStatus.NEW)
+            .put("submitting", OrderStatus.NEW)
+            .put("submitted", OrderStatus.NEW)
+            .put("partial-filled ", OrderStatus.PARTIALLY_FILLED)
+            .put("filled", OrderStatus.FILLED)
+            .put("canceled", OrderStatus.CANCELED)
+            .build();
+
+    private Number id;
     private String symbol;
     private BigDecimal price;
     private BigDecimal amount;
-    private OrderStatus state;
+    private String state;
 
     public OrderDto mapTo() {
         return OrderDto.builder()
-                .orderId(orderId.toString())
+                .orderId(symbol + "." + id.toString())
                 .size(amount)
                 .price(price)
-                .status(state)
+                .status(MAPPER.getOrDefault(state, OrderStatus.UNMAPPED))
                 .build();
     }
 }

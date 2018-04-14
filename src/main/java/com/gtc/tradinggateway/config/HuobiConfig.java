@@ -1,8 +1,6 @@
 package com.gtc.tradinggateway.config;
 
-import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.google.common.collect.ImmutableList;
-import com.gtc.tradinggateway.config.converters.FormHttpMessageToPojoConverter;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -20,7 +18,6 @@ public class HuobiConfig extends BaseConfig {
 
     public HuobiConfig(ConfigFactory factory) {
         mapper = factory.defaultMapper();
-        mapper.setPropertyNamingStrategy(PropertyNamingStrategy.UPPER_CAMEL_CASE);
         restTemplate = factory.defaultRestTemplate(mapper);
         restTemplate.setMessageConverters(ImmutableList.of(
                 new MappingJackson2HttpMessageConverter(mapper)

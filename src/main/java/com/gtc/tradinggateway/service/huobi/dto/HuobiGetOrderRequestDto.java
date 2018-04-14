@@ -9,9 +9,9 @@ import lombok.Getter;
 public class HuobiGetOrderRequestDto extends HuobiRequestDto {
 
     @JsonProperty("order-id")
-    private final String orderId;
+    private final long orderId;
 
-    public HuobiGetOrderRequestDto(String accessKey, String orderId) {
+    public HuobiGetOrderRequestDto(String accessKey, long orderId) {
         super(accessKey);
         this.orderId = orderId;
     }

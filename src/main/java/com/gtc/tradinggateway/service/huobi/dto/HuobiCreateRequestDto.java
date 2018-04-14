@@ -16,7 +16,7 @@ public class HuobiCreateRequestDto {
     private final String source = "api";
 
     @JsonProperty("account-id")
-    private final String accountId;
+    private final long accountId;
 
     private final String type;
     private final BigDecimal amount;

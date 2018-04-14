@@ -3,14 +3,16 @@ package com.gtc.tradinggateway.service.huobi.dto;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.gtc.tradinggateway.service.huobi.HuobiEncryptionService;
-import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 
-@Data
+@Getter
 @JsonPropertyOrder({"AccessKeyId", "SignatureMethod", "SignatureVersion", "Timestamp"})
+@RequiredArgsConstructor
 public class HuobiRequestDto {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");

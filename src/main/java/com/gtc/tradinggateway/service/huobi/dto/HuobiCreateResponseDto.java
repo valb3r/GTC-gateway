@@ -14,9 +14,12 @@ public class HuobiCreateResponseDto {
 
     private String status;
 
+    @JsonProperty("err-msg")
+    private String errorMsg;
+
     public void selfAssert() {
         if (!status.equalsIgnoreCase("ok")) {
-            throw new IllegalStateException(status);
+            throw new IllegalStateException(status + "/" + errorMsg);
         }
     }
 }
