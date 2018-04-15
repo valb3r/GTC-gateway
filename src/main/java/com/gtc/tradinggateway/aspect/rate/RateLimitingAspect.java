@@ -90,7 +90,7 @@ public class RateLimitingAspect {
         AtomicBoolean acquired = new AtomicBoolean();
         minIntervalLimiters.compute(key, (id, oldTime) -> {
             LocalDateTime now = LocalDateTime.now();
-            if (null == oldTime || ChronoUnit.MILLIS.between(now, oldTime) >= minMs) {
+            if (null == oldTime || ChronoUnit.MILLIS.between(oldTime, now) >= minMs) {
                 acquired.set(true);
                 return LocalDateTime.now();
             }
