@@ -38,7 +38,6 @@ public class TheRockTradingEncryptionService {
         String timestamp = String.valueOf(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli());
 
         return ImmutableMap.<String, String>builder()
-                .put("Content-Type", APPLICATION_JSON.toString())
                 .put("X-TRT-KEY", cfg.getPublicKey())
                 .put("X-TRT-SIGN", generate(absUrl, timestamp))
                 .put("X-TRT-NONCE", timestamp)
@@ -47,6 +46,7 @@ public class TheRockTradingEncryptionService {
 
     public HttpHeaders restHeaders(String absUrl) {
         HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", APPLICATION_JSON.toString());
         headers.setAll(signingHeaders(absUrl));
         return headers;
     }

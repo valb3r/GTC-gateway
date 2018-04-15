@@ -150,7 +150,7 @@ app:
             DASH-LTC=DSHLTC
         customResponseCurrencyMapping:
             dsh=DASH
-        ratePerM: 50
+        ratePerM: 60
         createRatePerM: 10
     mock:
         restBase: "http://localhost:9090/api"
@@ -165,8 +165,7 @@ app:
     clients:
         # all-clients: bitfinex,binance,wex,hitbtc
         # mocks (need MOCK_ENABLED as true): mock-asia,mock-europe
-        active: bitfinex,binance,wex,hitbtc,huobi
-        active: therocktrading
+        active: bitfinex,binance,wex,hitbtc,huobi,therocktrading
     schedule:
         puppeteerS: 10
     jms:

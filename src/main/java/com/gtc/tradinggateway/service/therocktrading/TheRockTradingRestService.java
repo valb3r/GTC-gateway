@@ -11,10 +11,7 @@ import com.gtc.tradinggateway.service.CreateOrder;
 import com.gtc.tradinggateway.service.ManageOrders;
 import com.gtc.tradinggateway.service.Withdraw;
 import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
-import com.gtc.tradinggateway.service.therocktrading.dto.TheRockTradingBalanceResponseDto;
-import com.gtc.tradinggateway.service.therocktrading.dto.TheRockTradingCreateRequestDto;
-import com.gtc.tradinggateway.service.therocktrading.dto.TheRockTradingCreateResponseDto;
-import com.gtc.tradinggateway.service.therocktrading.dto.TheRockTradingOrderDto;
+import com.gtc.tradinggateway.service.therocktrading.dto.*;
 import com.gtc.tradinggateway.util.CodeMapper;
 import com.gtc.tradinggateway.util.DefaultInvertHandler;
 import lombok.RequiredArgsConstructor;
@@ -22,18 +19,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.gtc.tradinggateway.config.Const.Clients.THEROCKTRADING;
 
 @Slf4j
 @Service
-@EnableScheduling
 @RequiredArgsConstructor
 @RateLimited(ratePerMinute = "${app.therocktrading.ratePerM}", mode = RateLimited.Mode.CLASS)
 public class TheRockTradingRestService implements Account, CreateOrder, ManageOrders, Withdraw {
@@ -41,6 +36,7 @@ public class TheRockTradingRestService implements Account, CreateOrder, ManageOr
     private static String BALANCE = "/v1/balances";
     private static String FUNDS = "/v1/funds";
     private static String ORDERS = "/orders";
+    private static String WITHDRAW = "/v1/atms/withdraw";
 
     private final TheRockTradingConfig cfg;
     private final TheRockTradingEncryptionService signer;
@@ -62,12 +58,8 @@ public class TheRockTradingRestService implements Account, CreateOrder, ManageOr
         return results;
     }
 
-    public Optional<OrderCreatedDto> create(String tryToAssignId,
-                                            TradingCurrency from,
-                                            TradingCurrency to,
-                                            BigDecimal amount,
-                                            BigDecimal price
-    ) {
+    public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
+                                            BigDecimal amount, BigDecimal price) {
         PairSymbol pair = cfg.pairFromCurrency(from, to).orElseThrow(() -> new IllegalArgumentException(
                 "Pair from " + from.toString() + " to " + to.toString() + " is not supported")
         );
@@ -95,7 +87,7 @@ public class TheRockTradingRestService implements Account, CreateOrder, ManageOr
     }
 
     public Optional<OrderDto> get(String id) {
-        String[] idSplitted = id.split(".");
+        String[] idSplitted = id.split("\\.");
         String pair = idSplitted[0];
         String realId = idSplitted[1];
 
@@ -111,30 +103,62 @@ public class TheRockTradingRestService implements Account, CreateOrder, ManageOr
         return Optional.of(resp.getBody().mapTo());
     }
 
-    public List<OrderDto> getOpen() {
-        return new ArrayList<>();
+    public List<OrderDto> getOpen(TradingCurrency from, TradingCurrency to) {
+        PairSymbol pair = cfg.pairFromCurrency(from, to).orElseThrow(() -> new IllegalArgumentException(
+                "Pair from " + from.toString() + " to " + to.toString() + " is not supported")
+        );
+
+        String url = cfg.getRestBase() + FUNDS + "/" + pair + ORDERS;
+
+        ResponseEntity<TheRockTradingGetOpenResponseDto> resp = cfg.getRestTemplate()
+                .exchange(
+                        url,
+                        HttpMethod.GET,
+                        new HttpEntity<>(signer.restHeaders(url)),
+                        TheRockTradingGetOpenResponseDto.class);
+
+        return resp
+                .getBody()
+                .getOrders()
+                .stream()
+                .map(order -> order.mapTo())
+                .collect(Collectors.toList());
     }
 
     public void cancel(String id) {
+        String[] idSplitted = id.split("\\.");
+        String pair = idSplitted[0];
+        String realId = idSplitted[1];
 
+        String url = cfg.getRestBase() + FUNDS + "/" + pair + ORDERS + "/" + realId;
+
+        cfg.getRestTemplate()
+                .exchange(
+                        url,
+                        HttpMethod.DELETE,
+                        new HttpEntity<>(signer.restHeaders(url)),
+                        Object.class);
     }
 
     public void withdraw(TradingCurrency currency, BigDecimal amount, String destination) {
+        String url = cfg.getRestBase() + WITHDRAW;
 
+        TheRockTradingWithdrawRequestDto requestDto = new TheRockTradingWithdrawRequestDto(
+                destination,
+                currency.toString(),
+                amount
+        );
+
+        cfg.getRestTemplate()
+                .exchange(
+                        url,
+                        HttpMethod.POST,
+                        new HttpEntity<>(requestDto, signer.restHeaders(url)),
+                        Object.class);
     }
 
     @IgnoreRateLimited
     public String name() {
         return THEROCKTRADING;
     }
-
-    @Scheduled(initialDelay = 0, fixedDelay = 150000)
-    public void ttt() {
-        create("123",
-                TradingCurrency.Bitcoin,
-                TradingCurrency.Litecoin,
-                new BigDecimal(1),
-                new BigDecimal(1));
-    }
-
 }
