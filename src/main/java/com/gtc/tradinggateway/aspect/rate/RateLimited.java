@@ -12,6 +12,8 @@ public @interface RateLimited {
 
     String ratePerMinute() default "";
 
+    String minSeparationMs() default "";
+
     Mode mode() default Mode.METHOD;
 
     enum Mode {

@@ -69,7 +69,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
     }
 
     @Override
-    public List<OrderDto> getOpen() {
+    public List<OrderDto> getOpen(TradingCurrency from, TradingCurrency to) {
         BinanceRequestDto dto = new BinanceRequestDto();
         RestTemplate template = cfg.getRestTemplate();
         ResponseEntity<BinanceGetOrderDto[]> resp = template
@@ -129,10 +129,7 @@ public class BinanceRestService implements ManageOrders, Withdraw, Account, Crea
     @RateLimited(ratePerMinute = "${app.binance.createRatePerM}")
     public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
                                             BigDecimal amount, BigDecimal price) {
-        PairSymbol pair = cfg.pairFromCurrency(from, to).orElseThrow(() -> new IllegalArgumentException(
-                "Pair from " + from.toString() + " to " + to.toString() + " is not supported")
-        );
-
+        PairSymbol pair = cfg.pairFromCurrencyOrThrow(from, to);
         BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pair, amount, price);
         BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pair, price);
         BinancePlaceOrderRequestDto requestDto = new BinancePlaceOrderRequestDto(

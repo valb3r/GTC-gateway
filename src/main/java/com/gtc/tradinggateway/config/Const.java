@@ -27,6 +27,7 @@ public class Const {
         public static final String BINANCE = "binance";
         public static final String MOCK = "mock";
         public static final String HITBTC = "hitbtc";
+        public static final String HUOBI = "huobi";
         public static final String BITFINEX = "bitfinex";
         public static final String THEROCKTRADING = "therocktrading";
     }

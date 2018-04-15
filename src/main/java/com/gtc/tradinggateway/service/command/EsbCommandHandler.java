@@ -175,7 +175,10 @@ public class EsbCommandHandler {
     public void listOpen(@Valid ListOpenCommand command) {
         log.info("Request to list orders {}", command);
         doExecute(manageTopic, command, manageOps, (handler, cmd) -> {
-            List<OrderDto> res = handler.getOpen();
+            List<OrderDto> res = handler.getOpen(
+                    TradingCurrency.fromCode(cmd.getCurrencyFrom()),
+                    TradingCurrency.fromCode(cmd.getCurrencyTo())
+            );
 
             log.info("Found open orders {} for {}", res, cmd.getClientName());
             return ListOpenOrdersResponse.builder()

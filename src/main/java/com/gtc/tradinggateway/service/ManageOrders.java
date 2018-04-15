@@ -1,6 +1,7 @@
 package com.gtc.tradinggateway.service;
 
 import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
+import com.gtc.tradinggateway.meta.TradingCurrency;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +13,7 @@ public interface ManageOrders extends ClientNamed {
 
     Optional<OrderDto> get(String id);
 
-    List<OrderDto> getOpen();
+    List<OrderDto> getOpen(TradingCurrency from, TradingCurrency to);
 
     void cancel(String id);
 }
