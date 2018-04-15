@@ -136,7 +136,8 @@ app:
             ETH-USDT=ethusdt,
             XRP-USDT=xrpusdt,
             DASH-USD=dashusdt
-        ratePerM: 30
+        ratePerM: 50
+        minRequestSeparationMs: 15
         createRatePerM: 10
     mock:
         restBase: "http://localhost:9090/api"

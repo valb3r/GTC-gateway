@@ -41,7 +41,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.HUOBI;
 @Service
 @EnableScheduling
 @RequiredArgsConstructor
-@RateLimited(ratePerMinute = "${app.huobi.ratePerM}", mode = RateLimited.Mode.CLASS)
+@RateLimited(ratePerMinute = "${app.huobi.ratePerM}", minSeparationMs = "${app.huobi.minRequestSeparationMs}", mode = RateLimited.Mode.CLASS)
 public class HuobiRestService implements ManageOrders, Withdraw, Account, CreateOrder {
 
     private static final String ORDERS = "/v1/order/orders";
@@ -74,7 +74,7 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
     }
 
     @Override
-    @RateLimited(ratePerMinute = "${app.huobi.createRatePerM}")
+    @RateLimited(ratePerMinute = "${app.huobi.createRatePerM}", minSeparationMs = "${app.huobi.minRequestSeparationMs}")
     public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
                                             BigDecimal amount, BigDecimal price) {
         PairSymbol pair = cfg.pairFromCurrencyOrThrow(from, to);
