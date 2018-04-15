@@ -10,7 +10,8 @@ import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -34,7 +35,7 @@ public class TheRockTradingEncryptionService {
     }
 
     private Map<String, String> signingHeaders(String absUrl) {
-        String timestamp = String.valueOf(Instant.now().toEpochMilli());
+        String timestamp = String.valueOf(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli());
 
         return ImmutableMap.<String, String>builder()
                 .put("Content-Type", APPLICATION_JSON.toString())
