@@ -33,14 +33,15 @@ import static com.gtc.tradinggateway.config.Const.Clients.THEROCKTRADING;
 @RateLimited(ratePerMinute = "${app.therocktrading.ratePerM}", mode = RateLimited.Mode.CLASS)
 public class TheRockTradingRestService implements Account, CreateOrder, ManageOrders, Withdraw {
 
-    private static String BALANCE = "/v1/balances";
-    private static String FUNDS = "/v1/funds";
-    private static String ORDERS = "/orders";
-    private static String WITHDRAW = "/v1/atms/withdraw";
+    private static final String BALANCE = "/v1/balances";
+    private static final String FUNDS = "/v1/funds";
+    private static final String ORDERS = "/orders";
+    private static final String WITHDRAW = "/v1/atms/withdraw";
 
     private final TheRockTradingConfig cfg;
     private final TheRockTradingEncryptionService signer;
 
+    @Override
     public Map<TradingCurrency, BigDecimal> balances() {
         String url = cfg.getRestBase() + BALANCE;
         ResponseEntity<TheRockTradingBalanceResponseDto> resp = cfg.getRestTemplate()
@@ -58,11 +59,10 @@ public class TheRockTradingRestService implements Account, CreateOrder, ManageOr
         return results;
     }
 
+    @Override
     public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
                                             BigDecimal amount, BigDecimal price) {
-        PairSymbol pair = cfg.pairFromCurrency(from, to).orElseThrow(() -> new IllegalArgumentException(
-                "Pair from " + from.toString() + " to " + to.toString() + " is not supported")
-        );
+        PairSymbol pair = cfg.pairFromCurrencyOrThrow(from, to);
 
         BigDecimal calcAmount = DefaultInvertHandler.amountFromOrig(pair, amount, price);
         BigDecimal calcPrice = DefaultInvertHandler.priceFromOrig(pair, price);
@@ -86,12 +86,11 @@ public class TheRockTradingRestService implements Account, CreateOrder, ManageOr
         return Optional.of(resp.getBody().getOrder().mapToCreate());
     }
 
+    @Override
     public Optional<OrderDto> get(String id) {
-        String[] idSplitted = id.split("\\.");
-        String pair = idSplitted[0];
-        String realId = idSplitted[1];
+        SymbolAndId symbolAndId = new SymbolAndId(id);
 
-        String url = cfg.getRestBase() + FUNDS + "/" + pair + ORDERS + "/" + realId;
+        String url = cfg.getRestBase() + FUNDS + "/" + symbolAndId.pair + ORDERS + "/" + symbolAndId.id;
 
         ResponseEntity<TheRockTradingOrderDto> resp = cfg.getRestTemplate()
                 .exchange(
@@ -103,10 +102,9 @@ public class TheRockTradingRestService implements Account, CreateOrder, ManageOr
         return Optional.of(resp.getBody().mapTo());
     }
 
+    @Override
     public List<OrderDto> getOpen(TradingCurrency from, TradingCurrency to) {
-        PairSymbol pair = cfg.pairFromCurrency(from, to).orElseThrow(() -> new IllegalArgumentException(
-                "Pair from " + from.toString() + " to " + to.toString() + " is not supported")
-        );
+        PairSymbol pair = cfg.pairFromCurrencyOrThrow(from, to);
 
         String url = cfg.getRestBase() + FUNDS + "/" + pair + ORDERS;
 
@@ -121,16 +119,15 @@ public class TheRockTradingRestService implements Account, CreateOrder, ManageOr
                 .getBody()
                 .getOrders()
                 .stream()
-                .map(order -> order.mapTo())
+                .map(TheRockTradingOrderDto::mapTo)
                 .collect(Collectors.toList());
     }
 
+    @Override
     public void cancel(String id) {
-        String[] idSplitted = id.split("\\.");
-        String pair = idSplitted[0];
-        String realId = idSplitted[1];
+        SymbolAndId symbolAndId = new SymbolAndId(id);
 
-        String url = cfg.getRestBase() + FUNDS + "/" + pair + ORDERS + "/" + realId;
+        String url = cfg.getRestBase() + FUNDS + "/" + symbolAndId.pair + ORDERS + "/" + symbolAndId.id;
 
         cfg.getRestTemplate()
                 .exchange(
@@ -140,6 +137,7 @@ public class TheRockTradingRestService implements Account, CreateOrder, ManageOr
                         Object.class);
     }
 
+    @Override
     public void withdraw(TradingCurrency currency, BigDecimal amount, String destination) {
         String url = cfg.getRestBase() + WITHDRAW;
 
@@ -157,8 +155,29 @@ public class TheRockTradingRestService implements Account, CreateOrder, ManageOr
                         Object.class);
     }
 
+    @Override
     @IgnoreRateLimited
     public String name() {
         return THEROCKTRADING;
+    }
+
+    public static class SymbolAndId {
+        private final String id;
+        private final String pair;
+
+        public SymbolAndId(String id) {
+            String[] idPair = id.split("\\.");
+            pair = idPair[0];
+            this.id = idPair[1];
+        }
+
+        public SymbolAndId(String id, String pair) {
+            this.pair = pair;
+            this.id = id;
+        }
+
+        public String toString() {
+            return pair + "." + id;
+        }
     }
 }

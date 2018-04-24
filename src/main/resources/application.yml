@@ -150,8 +150,8 @@ app:
             DASH-LTC=DSHLTC
         customResponseCurrencyMapping:
             dsh=DASH
-        ratePerM: 60
-        createRatePerM: 10
+        ratePerM: 5
+        createRatePerM: 5
     mock:
         restBase: "http://localhost:9090/api"
         publicKey: trade-gateway

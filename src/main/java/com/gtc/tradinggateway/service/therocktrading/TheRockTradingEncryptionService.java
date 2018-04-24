@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Map;
 
-import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Service
 @RequiredArgsConstructor
@@ -46,7 +46,7 @@ public class TheRockTradingEncryptionService {
 
     public HttpHeaders restHeaders(String absUrl) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Content-Type", APPLICATION_JSON.toString());
+        headers.set(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE);
         headers.setAll(signingHeaders(absUrl));
         return headers;
     }

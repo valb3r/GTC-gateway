@@ -1,17 +1,21 @@
 package com.gtc.tradinggateway.service.therocktrading.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableMap;
 import com.gtc.model.tradinggateway.api.dto.data.OrderDto;
 import com.gtc.model.tradinggateway.api.dto.data.OrderStatus;
 import com.gtc.tradinggateway.service.dto.OrderCreatedDto;
+import com.gtc.tradinggateway.service.therocktrading.TheRockTradingRestService;
 import lombok.Data;
 
+import javax.annotation.Nullable;
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Data
 public class TheRockTradingOrderDto {
 
-    private static String BUY = "buy";
+    private static final String BUY = "buy";
 
     private String id;
 
@@ -25,34 +29,26 @@ public class TheRockTradingOrderDto {
 
     public OrderDto mapTo() {
         return OrderDto.builder()
-                .orderId(pair + "." + id)
+                .orderId(new TheRockTradingRestService.SymbolAndId(pair, id).toString())
                 .size(BUY.equals(side.toLowerCase()) ? amount : amount.negate())
                 .price(price)
                 .statusString(status)
-                .status(parseStatus(status))
+                .status(MAPPER.getOrDefault(status, OrderStatus.UNMAPPED))
                 .build();
     }
 
     public OrderCreatedDto mapToCreate() {
         return OrderCreatedDto.builder()
-                .assignedId(pair + "." + id)
+                .assignedId(new TheRockTradingRestService.SymbolAndId(pair, id).toString())
                 .build();
     }
 
-    private static OrderStatus parseStatus(String status) {
-        switch (status) {
-            case "active":
-                return OrderStatus.NEW;
-            case "conditional":
-                return OrderStatus.UNMAPPED;
-            case "executed":
-                return OrderStatus.FILLED;
-            case "deleted":
-                return OrderStatus.CANCELED;
-            default:
-                return OrderStatus.UNMAPPED;
-        }
-    }
+    private static final Map<String, OrderStatus> MAPPER = ImmutableMap.<String, OrderStatus>builder()
+            .put("active", OrderStatus.NEW)
+            .put("conditional", OrderStatus.UNMAPPED)
+            .put("executed", OrderStatus.FILLED)
+            .put("deleted", OrderStatus.UNMAPPED)
+            .build();
 }
 
 
