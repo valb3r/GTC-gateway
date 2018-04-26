@@ -141,8 +141,8 @@ app:
         createRatePerM: 10
     therocktrading:
         restBase: "https://api.therocktrading.com"
-        publicKey: ${ROCK_PUBLIC}
-        secretKey: ${ROCK_SECRET}
+        publicKey: ${THEROCKTRADING_PUBLIC}
+        secretKey: ${THEROCKTRADING_SECRET}
         pairs:
             BTC-USD=BTCUSD,
             LTC-BTC=LTCBTC,
