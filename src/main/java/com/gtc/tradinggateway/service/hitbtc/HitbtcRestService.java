@@ -37,7 +37,7 @@ import static com.gtc.tradinggateway.config.Const.Clients.HITBTC;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@RateLimited(ratePerMinute = "${app.hitbtc.ratePerM}", mode = RateLimited.Mode.CLASS)
+@RateLimited(ratePerMinute = "${app.hitbtc.ratePerM}", minSeparationMs = "${app.hitbtc.minRequestSeparationMs}", mode = RateLimited.Mode.CLASS)
 public class HitbtcRestService implements ManageOrders, Withdraw, Account {
 
     private static final String ORDERS = "/order/";
