@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: trader-gateway
-          image: gcr.io/bidcache/bidgateway:25
+          image: gcr.io/bidcache/bidgateway:28
           resources:
             requests:
               memory: "128Mi"
@@ -24,7 +24,7 @@ spec:
             - containerPort: 8080
           env:
             - name: ENABLE_NEWRELIC
-              value: "false"
+              value: "true"
             - name: NEW_RELIC_LICENSE_KEY
               valueFrom:
                 secretKeyRef:
@@ -60,5 +60,15 @@ spec:
                 secretKeyRef:
                   name: trade-credentials
                   key: binance_secret
+            - name: HUOBI_PUBLIC
+              valueFrom:
+                secretKeyRef:
+                  name: trade-credentials
+                  key: huobi_public
+            - name: HUOBI_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: trade-credentials
+                  key: huobi_secret
             - name: ESB_AMQ_ADDRESS
               value: esb-svc.default.svc.cluster.local

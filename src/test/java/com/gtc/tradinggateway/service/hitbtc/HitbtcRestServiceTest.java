@@ -104,7 +104,7 @@ public class HitbtcRestServiceTest extends BaseMockitoTest {
 
         )).thenReturn(new ResponseEntity<>(response, HttpStatus.OK));
 
-        List<OrderDto> results = hitbtcRestService.getOpen();
+        List<OrderDto> results = hitbtcRestService.getOpen(TradingCurrency.Bitcoin, TradingCurrency.Usd);
 
         assertThat(results.get(0)).isEqualTo(expectedOrder);
         assertThat(requestCaptor.getValue()).isEqualTo(BASE + "/order/");
