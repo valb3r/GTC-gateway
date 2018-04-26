@@ -139,6 +139,19 @@ app:
         ratePerM: 50
         minRequestSeparationMs: 15
         createRatePerM: 10
+    therocktrading:
+        restBase: "https://api.therocktrading.com"
+        publicKey: ${THEROCKTRADING_PUBLIC}
+        secretKey: ${THEROCKTRADING_SECRET}
+        pairs:
+            BTC-USD=BTCUSD,
+            LTC-BTC=LTCBTC,
+            DASH-BTC=DSHBTC,
+            DASH-LTC=DSHLTC
+        customResponseCurrencyMapping:
+            dsh=DASH
+        ratePerM: 5
+        createRatePerM: 5
     mock:
         restBase: "http://localhost:9090/api"
         publicKey: trade-gateway
@@ -152,7 +165,7 @@ app:
     clients:
         # all-clients: bitfinex,binance,wex,hitbtc
         # mocks (need MOCK_ENABLED as true): mock-asia,mock-europe
-        active: bitfinex,binance,wex,hitbtc,huobi
+        active: bitfinex,binance,wex,hitbtc,huobi,therocktrading
     schedule:
         puppeteerS: 10
     jms:

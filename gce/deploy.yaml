@@ -70,5 +70,15 @@ spec:
                 secretKeyRef:
                   name: trade-credentials
                   key: huobi_secret
+            - name: THEROCKTRADING_PUBLIC
+              valueFrom:
+                secretKeyRef:
+                  name: trade-credentials
+                  key: therocktrading_public
+            - name: THEROCKTRADING_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: trade-credentials
+                  key: therocktrading_secret
             - name: ESB_AMQ_ADDRESS
               value: esb-svc.default.svc.cluster.local
