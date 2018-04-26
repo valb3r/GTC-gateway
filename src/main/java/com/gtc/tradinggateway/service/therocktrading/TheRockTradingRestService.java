@@ -60,6 +60,7 @@ public class TheRockTradingRestService implements Account, CreateOrder, ManageOr
     }
 
     @Override
+    @RateLimited(ratePerMinute = "${app.therocktrading.createRatePerM}")
     public Optional<OrderCreatedDto> create(String tryToAssignId, TradingCurrency from, TradingCurrency to,
                                             BigDecimal amount, BigDecimal price) {
         PairSymbol pair = cfg.pairFromCurrencyOrThrow(from, to);
