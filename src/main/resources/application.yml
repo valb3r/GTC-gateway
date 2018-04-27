@@ -100,8 +100,8 @@ app:
             DASH-USDT=DASHUSD
         customResponseCurrencyMapping:
             USD=USDT
-        ratePerM: 30
-        minRequestSeparationMs: 15
+        ratePerM: 10
+        minRequestSeparationMs: 30
     wex:
         restBase: "https://wex.nz/tapi"
         publicKey: ${WEX_PUBLIC}
