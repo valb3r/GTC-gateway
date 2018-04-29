@@ -23,13 +23,7 @@ public class CodeMapper {
                 cfg.getCustomResponseCurrencyMapping()
         );
 
-        currency.ifPresent(it -> results.compute(it, (id, value) -> {
-            if (null != value && BigDecimal.ZERO.compareTo(value) < 0) {
-                return value;
-            }
-
-            return amount;
-        }));
+        currency.ifPresent(it -> results.put(it, amount));
 
         if (!currency.isPresent()) {
             log.debug("Failed mapping currency-code {} having amountFromOrig {}", currencyName, amount);

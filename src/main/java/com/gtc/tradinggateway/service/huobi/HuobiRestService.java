@@ -159,8 +159,13 @@ public class HuobiRestService implements ManageOrders, Withdraw, Account, Create
         Map<TradingCurrency, BigDecimal> results = new EnumMap<>(TradingCurrency.class);
         List<HuobiBalanceResponseDto.BalanceItem> assets = resp.getBody().getData().getList();
         for (HuobiBalanceResponseDto.BalanceItem item : assets) {
+            if (!item.isTrade()) {
+                continue;
+            }
+
             CodeMapper.mapAndPut(item.getCurrency().toUpperCase(), item.getAmount(), cfg, results);
         }
+
         return results;
     }
 

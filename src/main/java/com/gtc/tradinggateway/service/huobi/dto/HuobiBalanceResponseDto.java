@@ -22,8 +22,13 @@ public class HuobiBalanceResponseDto {
     public static class BalanceItem {
 
         private String currency;
+        private String type;
 
         @JsonProperty("balance")
         private BigDecimal amount;
+
+        public boolean isTrade() {
+            return "trade".equalsIgnoreCase(type);
+        }
     }
 }
