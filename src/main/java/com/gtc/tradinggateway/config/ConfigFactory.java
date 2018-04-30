@@ -22,10 +22,13 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class ConfigFactory {
 
+    @Value("${RESPONSE_BODY_TRACE_ENABLED:false}")
+    private boolean traceResponseBodyEnabled;
+
     @Value("${REQUEST_TRACE_ENABLED:false}")
     private boolean traceEnabled;
 
-    public ObjectMapper defaultMapper() {
+    ObjectMapper defaultMapper() {
         return new ObjectMapper(new JsonFactory())
                 .setPropertyNamingStrategy(PropertyNamingStrategy.LOWER_CAMEL_CASE)
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -34,19 +37,24 @@ public class ConfigFactory {
                 .configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, false);
     }
 
-    public RestTemplate defaultRestTemplate(ObjectMapper mapper) {
+    RestTemplate defaultRestTemplate(ObjectMapper mapper) {
         RestTemplate template = new RestTemplate(ImmutableList.of(new MappingJackson2HttpMessageConverter(mapper)));
 
         if (traceEnabled) {
             template.setRequestFactory(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
-            template.getInterceptors().add(new RequestLoggingInterceptor());
+            template.getInterceptors().add(new FullLoggingInterceptor());
+        }
+
+        if (!traceEnabled && traceResponseBodyEnabled) {
+            template.setRequestFactory(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
+            template.getInterceptors().add(new ResponseBodyLoggingInterceptor());
         }
 
         return template;
     }
 
     @Slf4j
-    public static class RequestLoggingInterceptor implements ClientHttpRequestInterceptor {
+    public static class FullLoggingInterceptor implements ClientHttpRequestInterceptor {
 
         @Override
         @SneakyThrows
@@ -62,6 +70,23 @@ public class ConfigFactory {
                     response.getStatusCode(),
                     response.getHeaders(),
                     new String(ByteStreams.toByteArray(response.getBody()), Charsets.UTF_8));
+
+            return response;
+        }
+    }
+
+    @Slf4j
+    public static class ResponseBodyLoggingInterceptor implements ClientHttpRequestInterceptor {
+
+        @Override
+        @SneakyThrows
+        public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution)  {
+            ClientHttpResponse response = execution.execute(request, body);
+
+            log.info("response status code: {}, response body: {}",
+                    response.getStatusCode(),
+                    new String(ByteStreams.toByteArray(response.getBody()), Charsets.UTF_8)
+            );
 
             return response;
         }

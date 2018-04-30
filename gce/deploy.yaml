@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: trader-gateway
-          image: gcr.io/bidcache/bidgateway:29
+          image: gcr.io/bidcache/bidgateway:33
           resources:
             requests:
               memory: "128Mi"
@@ -23,6 +23,8 @@ spec:
           ports:
             - containerPort: 8080
           env:
+            - name: RESPONSE_BODY_TRACE_ENABLED
+              value: "true"
             - name: ENABLE_NEWRELIC
               value: "true"
             - name: NEW_RELIC_LICENSE_KEY
