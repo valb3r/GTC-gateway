@@ -18,7 +18,7 @@ public class HuobiOrderDto {
             .put("pre-submitted", OrderStatus.NEW)
             .put("submitting", OrderStatus.NEW)
             .put("submitted", OrderStatus.NEW)
-            .put("partial-filled ", OrderStatus.PARTIALLY_FILLED)
+            .put("partial-filled", OrderStatus.PARTIALLY_FILLED)
             .put("filled", OrderStatus.FILLED)
             .put("canceled", OrderStatus.CANCELED)
             .build();
